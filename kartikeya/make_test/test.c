@@ -7,19 +7,37 @@
 
 extern struct
 {
-int j, napx, npart, nblz,i;
-double **yv;
-double *stracks;
-double *strackc;
-double *oidpsv;
-} ijk_;
+int npart,i,j,nblz;
+}exact_;
 
-void track_vert_dipole_()
+extern struct
+{
+double *stracks,*strackc;
+}main4_;
+
+extern struct
+{
+double *oidpsv;
+}main2_;
+
+extern struct
+{
+double **yv;
+}main1_;
+
+extern struct
+{
+int napx;
+}tra1_;
+
+
+
+extern void track_vert_dipole_()
 {
 int k=1;
-for(k = 1; k <= ijk_.napx; ++k)
+for(k = 1; k <= tra1_.napx; ++k)
 {
-ijk_.yv(1,ijk_.j)=ijk_.yv(1,ijk_.j)-ijk_.stracks(ijk_.i)* ijk_.oidpsv(ijk_.j);
-ijk_.yv(2,ijk_.j)=ijk_.yv(2,ijk_.j)+ijk_.strackc(ijk_.i)* ijk_.oidpsv(ijk_.j);
+main1_.yv(1,exact_.j)=main1_.yv(1,exact_.j)-main4_.stracks(exact_.i)* main2_.oidpsv(exact_.j);
+main1_.yv(2,exact_.j)=main1_.yv(2,exact_.j)+main4_.strackc(exact_.i)* main2_.oidpsv(exact_.j);
 }
 }
