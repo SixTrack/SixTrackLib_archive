@@ -37,6 +37,7 @@ class Sequence(object):
 		self.datai.extend([newid,3,newfid,None])
 		self.datai.append([limit,count])
 		self.dataf.append([])
+		return newid
 	def join(self):
 		length = len(self.datai)
 		e1=0
