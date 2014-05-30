@@ -1,14 +1,16 @@
 #include <math.h>
 
 #define make_vecmap(NAME,ND) \
-  int  map_vec_##NAME(double argf[], int argi[], double coord[],int np) { \
-    int iii,exit_code; exit_code=0;         \
-    for(iii=0;iii<np;iii=iii+1){   \
+  int  map_vec_##NAME(double argf[], int argi[], double coord[],int coordi[]) { \
+    int iii,exit_code; exit_code=0;  \
+    int np,nd;  \
+    np=coordi[0]; nd=coordi[1];  \
+    for(iii=0;iii<np;iii=iii+1){  \
       exit_code=map_##NAME(argf,argi,&coord[iii*ND]);  \
-      if (exit_code<0){ break;};	\
-    }; \
-         return exit_code;       \
-  }; \
+      if (exit_code<0){ break;};  \
+    };  \
+    return exit_code;  \
+  };  \
 
 #define rot2d_TYPE 1
 
@@ -62,8 +64,7 @@ make_vecmap(counter,2);
 /* datai={elem_id,elem_type,elem_floatid,next_elem,other...}
  */
 
-int vec_map_loop(double dataf[], int datai[], double coord[],
-      int np,int nturn,int seq) {
+int vec_map_loop(double dataf[], int datai[], double coord[], int coordi[]) {
   int retval,elem_id,elem_type,elem_floatid,elem_next;
   elem_id=0;
   retval=1;
@@ -74,14 +75,14 @@ int vec_map_loop(double dataf[], int datai[], double coord[],
     elem_next=datai[elem_id+3];	
     switch (elem_type) {
       case rot2d_TYPE:
-		    retval=map_vec_rot2d( &dataf[elem_floatid], &datai[elem_id+4], coord, np);
-		    break;
+        retval=map_vec_rot2d( &dataf[elem_floatid], &datai[elem_id+4], coord, coordi);
+        break;
       case kick2d_TYPE:
-		    retval=map_vec_kick2d( &dataf[elem_floatid], &datai[elem_id+4], coord, np);
-		    break;
+        retval=map_vec_kick2d( &dataf[elem_floatid], &datai[elem_id+4], coord, coordi);
+        break;
       case counter_TYPE:
-		    retval=map_vec_counter( &dataf[elem_floatid], &datai[elem_id+4], coord, np);
-		    break;
+        retval=map_vec_counter( &dataf[elem_floatid], &datai[elem_id+4], coord, coordi);
+        break;
     };
     elem_id=elem_next;
   };
