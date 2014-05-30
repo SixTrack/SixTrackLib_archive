@@ -1140,7 +1140,7 @@
       double precision dpsv1,strack,strackc,stracks,strackx,strackz
       common/track/ ktrack(nblz),strack(nblz),strackc(nblz),            &
      &stracks(nblz),strackx(nblz),strackz(nblz),dpsv1(npart),nwri
-      double precision cc,xlim,ylim
+      double precision cc,xlim,ylim,coord(100),argf(100),argi(100)
       parameter(cc = 1.12837916709551d0)
       parameter(xlim = 5.33d0)
       parameter(ylim = 4.29d0)
@@ -1149,6 +1149,7 @@
      &xrb(npart),zrb(npart),xbb(npart),zbb(npart),crxb(npart),          &
      &crzb(npart),cbxb(npart),cbzb(npart)
       dimension dpsv3(npart)
+    
       save
 !-----------------------------------------------------------------------
       nthinerr=0
@@ -1188,7 +1189,25 @@
           endif
           goto 630
 !--HORIZONTAL DIPOLE
-   30     call track_hor_dipole()
+   30     coord(1)=xv(1,j)*1000
+          coord(2)=yv(1,j)*1000*ejfv(j)/e0f
+          coord(3)=xv(1,j)*1000
+          coord(4)=yv(1,j)*1000*ejfv(j)/e0f
+          coord(5)=sigmv(j)
+          coord(6)=e0f/ejfv(j)  !== oidpsv(j)
+          coord(7)=ejv(j)*1e9
+          coord(8)=pma*1e9
+          coord(9)=1.0
+          argf(1)=strackc(i)/1000
+          argf(2)=stracks(i)/1000
+          call track_hor_dipole(argf,argi,coord)
+          xv(1,j)= coord(1)/1000
+          yv(1,j) = coord(2)/(1000*ejfv(j)/e0f)
+          xv(1,j)=coord(3)/1000
+          yv(1,j)=coord(4)/(1000*ejfv(j)/e0f)
+          sigmv(j)=coord(5)
+          
+
           goto 620
 !--NORMAL QUADRUPOLE
    50     do 60 j=1,napx

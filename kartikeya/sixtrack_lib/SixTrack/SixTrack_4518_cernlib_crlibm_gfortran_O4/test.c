@@ -32,15 +32,16 @@ int napx;
 
 
 
-extern void track_hor_dipole_()
+extern void track_hor_dipole_(double* argf,double *argi,double*coord)
 {
 int k=1;
 FILE *fp=fopen("k.txt","w");
 for(k = 1; k <= tra1_.napx; ++k)
 {
-main1_.yv(1,exact_.j)=main1_.yv(1,exact_.j)-main4_.stracks(exact_.i)* main2_.oidpsv(exact_.j);
-main1_.yv(2,exact_.j)=main1_.yv(2,exact_.j)+main4_.strackc(exact_.i)* main2_.oidpsv(exact_.j);
+coord[1]=main1_.yv(1,exact_.j)-argf[0]* main2_.oidpsv(exact_.j);
+main1_.yv(2,exact_.j)=main1_.yv(2,exact_.j)+argf[1]* main2_.oidpsv(exact_.j);
 }
+fprintf(fp,"my name");
 fclose(fp);
 
 }

@@ -115,7 +115,6 @@ if __name__=='__main__':
     basedir=sys.argv[1]
   else:
     basedir='.'
-  basedir1='/home/SixTrack/SixTrack1/SixTrack'
   print basedir
   print basedir1
   head1,part1=read_allfortbin(basedir)
