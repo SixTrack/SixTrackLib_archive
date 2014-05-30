@@ -212,9 +212,13 @@
       dimension nbeaux(nbb)
       save
 !-----------------------------------------------------------------------
+      open(100,file='ktrauthin',form='formatted',status='unknown')
+      close(100)
+      
       do 5 i=1,npart
         nlostp(i)=i
    5  continue
+   
       do 10 i=1,nblz
         ktrack(i)=0
         strack(i)=zero
@@ -1152,6 +1156,8 @@
     
       save
 !-----------------------------------------------------------------------
+      open(100,file='kthin4d',form='formatted',status='unknown')
+      close(100)
       nthinerr=0
       do 640 n=1,numl
         numx=n-1
@@ -1189,25 +1195,10 @@
           endif
           goto 630
 !--HORIZONTAL DIPOLE
-   30     coord(1)=xv(1,j)*1000
-          coord(2)=yv(1,j)*1000*ejfv(j)/e0f
-          coord(3)=xv(1,j)*1000
-          coord(4)=yv(1,j)*1000*ejfv(j)/e0f
-          coord(5)=sigmv(j)
-          coord(6)=e0f/ejfv(j)  !== oidpsv(j)
-          coord(7)=ejv(j)*1e9
-          coord(8)=pma*1e9
-          coord(9)=1.0
-          argf(1)=strackc(i)/1000
-          argf(2)=stracks(i)/1000
-          call track_hor_dipole(argf,argi,coord)
-          xv(1,j)= coord(1)/1000
-          yv(1,j) = coord(2)/(1000*ejfv(j)/e0f)
-          xv(1,j)=coord(3)/1000
-          yv(1,j)=coord(4)/(1000*ejfv(j)/e0f)
-          sigmv(j)=coord(5)
-          
-
+   30     do 40 j=1,napx
+            yv(1,j)=yv(1,j)+strackc(i)*oidpsv(j)
+            yv(2,j)=yv(2,j)+stracks(i)*oidpsv(j)
+   40     continue
           goto 620
 !--NORMAL QUADRUPOLE
    50     do 60 j=1,napx
@@ -3096,7 +3087,7 @@
       double precision dpsv1,strack,strackc,stracks,strackx,strackz
       common/track/ ktrack(nblz),strack(nblz),strackc(nblz),            &
      &stracks(nblz),strackx(nblz),strackz(nblz),dpsv1(npart),nwri
-      double precision cc,xlim,ylim
+      double precision cc,xlim,ylim,coord(100),argf(100),argi(100)
       parameter(cc = 1.12837916709551d0)
       parameter(xlim = 5.33d0)
       parameter(ylim = 4.29d0)
@@ -3107,8 +3098,11 @@
       dimension dpsv3(npart)
       save
 !-----------------------------------------------------------------------
+      open(100,file='kthin6d',form='formatted',status='unknown')
+      close(100)
       c5m4=5.0d-4
       nthinerr=0
+      
       do 660 n=1,numl
        numx=n-1
         if(irip.eq.1) call ripple(n)
@@ -3183,10 +3177,16 @@
      &(xv(1,j),yv(1,j),xv(2,j),yv(2,j),sigmv(j),dpsv(j),j=1,napx)
           goto 640
 !--HORIZONTAL DIPOLE
-   50     do 60 j=1,napx
-            yv(1,j)=yv(1,j)+strackc(i)*oidpsv(j)
-            yv(2,j)=yv(2,j)+stracks(i)*oidpsv(j)
+   50     coord(1)=yv(1,j)
+          coord(2)=yv(2,j)
+          argf(1) =strackc(i)
+          argf(2) =stracks(i)
+          argi(1) =oidpsv(j)
+          do 60 j=1,napx
+            call thin6d_track_hor_dipole(argf,argi,coord)
    60     continue
+          yv(1,j)=coord(1)
+          yv(2,j)=coord(2)
           goto 640
 !--NORMAL QUADRUPOLE
    70     do 80 j=1,napx
@@ -5453,6 +5453,8 @@
 !-----------------------------------------------------------------------
       c5m4=5.0d-4
       nthinerr=0
+      open(100,file='kthin6dua',form='formatted',status='unknown')
+      close(100)
       do 660 n=1,numl
         numx=n-1
         if(irip.eq.1) call ripple(n)
@@ -7504,6 +7506,8 @@
       save
 !-----------------------------------------------------------------------
       nripple=nrturn+n
+      open(100,file='kripple',form='formatted',status='unknown')
+      close(100)
       do 20 i=1,iu
         if(abs(rsmi(i)).gt.pieni) then
 !hr01     smiv(1,i)=rsmi(i)*cos_rn(two*pi*(nripple-1)/rfres(i)+rzphs(i))
@@ -7715,7 +7719,9 @@
       integer ia,ia2,ie,nthinerr
       save
 !-----------------------------------------------------------------------
-        do 10 ia=1,napx-1
+      open(100,file='kwritebin',form='formatted',status='unknown')
+      close(100) 
+      do 10 ia=1,napx-1
 !GRD
           if(.not.pstop(nlostp(ia)).and..not.pstop(nlostp(ia)+1).and.   &
      &(mod(nlostp(ia),2).ne.0)) then
@@ -8156,6 +8162,8 @@
       save
 !-----------------------------------------------------------------------
       ilostch=0
+      open(100,file='klostpart',form='formatted',status='unknown')
+      close(100)
       do 10 j=1,napx
         if(abs(xv(1,j)).gt.aper(1).or.abs(xv(2,j)).gt.aper(2).or.       &
 !     &isnan(xv(1,j),xv(1,j)).or.isnan(xv(2,j),xv(2,j))) then
@@ -8456,6 +8464,8 @@
       save
 !-----------------------------------------------------------------------
       ilostch=0
+      open(100,file='klostpar2',form='formatted',status='unknown')
+      close(100)
       do 10 j=1,napx
         if(abs(xv(1,j)).gt.aper(1).or.abs(xv(2,j)).gt.aper(2).or.       &
 !     &isnan(xv(1,j),xv(1,j)).or.isnan(xv(2,j),xv(2,j))) then
@@ -8761,6 +8771,8 @@
       save
 !-----------------------------------------------------------------------
       ilostch=0
+      open(100,file='klostpar3',form='formatted',status='unknown')
+      close(100)
       do 10 j=1,napx
         if(abs(xv(1,j)).gt.apx(ix).or.abs(xv(2,j)).gt.apz(ix).or.       &
 !     &isnan(xv(1,j),xv(1,j)).or.isnan(xv(2,j),xv(2,j))) then
@@ -9066,6 +9078,8 @@
       save
 !-----------------------------------------------------------------------
       ilostch=0
+      open(100,file='klostpar4',form='formatted',status='unknown')
+      close(100)
       do 10 j=1,napx
 !hr03   if(xv(1,j)*xv(1,j)*ape(1,ix)+xv(2,j)*xv(2,j)*ape(2,ix).gt.      &
         if(xv(1,j)**2*ape(1,ix)+xv(2,j)**2*ape(2,ix).gt.                &!hr03
@@ -9369,6 +9383,8 @@
      &stracks(nblz),strackx(nblz),strackz(nblz),dpsv1(npart),nwri
       save
 !-----------------------------------------------------------------------
+      open(100,file='kdist1',form='formatted',status='unknown')
+      close(100)
       do 20 ia=1,napx,2
         if(.not.pstop(nlostp(ia)).and..not.pstop(nlostp(ia)+1).and.     &
      &(mod(nlostp(ia),2).ne.0)) then
@@ -9610,6 +9626,8 @@
       save
 !-----------------------------------------------------------------------
       id=0
+      open(100,file='kwrite6bin',form='formatted',status='unknown')
+      close(100)
       do 10 ia=1,napxo,2
         ig=ia+1
         ia2=ig/2
@@ -9874,6 +9892,8 @@
       dimension nbeaux(nbb)
       save
 !-----------------------------------------------------------------------
+      open(100,file='ktrauthck',form='formatted',status='unknown')
+      close(100)
       do 5 i=1,npart
         nlostp(i)=i
    5  continue
@@ -10806,6 +10826,8 @@
       nthinerr=0
       idz1=idz(1)
       idz2=idz(2)
+      open(100,file='kthck4d',form='formatted',status='unknown')
+      close(100)
       do 490 n=1,numl
           numx=n-1
           if(irip.eq.1) call ripple(n)
@@ -12743,6 +12765,8 @@
       nthinerr=0
       idz1=idz(1)
       idz2=idz(2)
+      open(100,file='kthck6d',form='formatted',status='unknown')
+      close(100)
 ! Now the outer loop over turns
       do 510 n=1,numl
 ! To do a dump and abend
@@ -14822,6 +14846,8 @@
       nthinerr=0
       idz1=idz(1)
       idz2=idz(2)
+      open(100,file='kthck6dua',form='formatted',status='unknown')
+      close(100)
       do 510 n=1,numl
           numx=n-1
           if(irip.eq.1) call ripple(n)

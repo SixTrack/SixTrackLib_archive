@@ -139,7 +139,7 @@ if __name__=='__main__':
     xlabel('sigma1-sigma2 [mm]')
     ylabel('delta1-delta2 [1e-3]')
     print (x1-x2)
- show()
+  show()
 
   #f=np.linspace(0,1,len(x))
   #tunx=np.fft.fft(x+1j*xp)
