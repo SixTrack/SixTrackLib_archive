@@ -1,5 +1,6 @@
 #include<stdio.h>
 
+<<<<<<< HEAD
 
 extern int thin6d_track1_(double *yv,double *var1,double *var2,int *n)
 {
@@ -27,6 +28,9 @@ return 1;
 }
 
 extern int thin6d_track_(double *var1,double *var2,double *var3)
+=======
+extern int thin6d_track_hor_dipole_(double* argf,double *argi,double*coord)
+>>>>>>> 31b687648ee5a8217c5bd2d3f33284b34de5a82b
 {
 *var1 += (*var2)*(*var3);
 return 1;
