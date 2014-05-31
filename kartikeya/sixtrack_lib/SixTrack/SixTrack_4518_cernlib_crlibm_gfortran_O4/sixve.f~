@@ -5526,7 +5526,7 @@ C Should get me a NaN
      &g,gl,hc,hi,hi1,hm,hp,hs,hv,oidpsv,qw,qwc,qwcs,rho,rhoc,rhoi,rvv,  &
      &si,sigmv,sigmv6,sigmvl,siq,sm1,sm12,sm2,sm23,sm3,smiv,tas,        &
      &tasau,tau,wf,wfa,wfhi,wx,x1,x2,xau,xlv,xsiv,xsv,xv,xvl,yv,yvl,zlv,&
-     &zsiv,zsv
+     &zsiv,zsv,coord,argf,argi
       logical pstop
       common/main1/                                                     &
      &ekv(npart,nele),fokqv(npart),aaiv(mmul,nmac,nblz),                &
@@ -5536,7 +5536,7 @@ C Should get me a NaN
      &yv(2,npart),dam(npart),ekkv(npart),sigmv(npart),dpsv(npart),      &
      &dp0v(npart),sigmv6(npart),dpsv6(npart),ejv(npart),ejfv(npart),    &
      &xlv(npart),zlv(npart),pstop(npart),rvv(npart),                    &
-     &ejf0v(npart),numxv(npart),nms(npart),nlostp(npart)
+     &ejf0v(npart),numxv(npart),nms(npart),nlostp(npart),coord(100),argf(100),argi(100)
       common/main2/ dpd(npart),dpsq(npart),fok(npart),rho(npart),       &
      &fok1(npart),si(npart),co(npart),g(npart),gl(npart),sm1(npart),    &
      &sm2(npart),sm3(npart),sm12(npart),as3(npart),as4(npart),          &
@@ -5615,7 +5615,7 @@ C Should get me a NaN
       open(8,file='fort.8',form='formatted',status='unknown')
       open(9,file='fort.9',form='formatted',status='unknown')
       open(10,file='fort.10',form='formatted',status='unknown')
-      open(100,file='k',form='formatted',status='unknown')
+      
 ! and in ALL cases make sure fort.10 is empty as we
 ! ALWAYS re-create it, BUT for BOINC it contains many things!.
 ! It is re-positioned in CRCHECK
@@ -6989,7 +6989,7 @@ C Should get me a NaN
       close(89)
       close(90)
       close(98)
-      close(100)
+      
       stop
 10000 format(/t10,'TRACKING ENDED ABNORMALLY'/t10, 'PARTICLE ',i3,      &
      &' RANDOM SEED ',i8,/ t10,' MOMENTUM DEVIATION ',g12.5,            &
@@ -7929,7 +7929,7 @@ C Should get me a NaN
      &yv(2,npart),dam(npart),ekkv(npart),sigmv(npart),dpsv(npart),      &
      &dp0v(npart),sigmv6(npart),dpsv6(npart),ejv(npart),ejfv(npart),    &
      &xlv(npart),zlv(npart),pstop(npart),rvv(npart),                    &
-     &ejf0v(npart),numxv(npart),nms(npart),nlostp(npart)
+     &ejf0v(npart),numxv(npart),nms(npart),nlostp(npart),coord(100)
       common/main2/ dpd(npart),dpsq(npart),fok(npart),rho(npart),       &
      &fok1(npart),si(npart),co(npart),g(npart),gl(npart),sm1(npart),    &
      &sm2(npart),sm3(npart),sm12(npart),as3(npart),as4(npart),          &

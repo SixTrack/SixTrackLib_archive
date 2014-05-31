@@ -5615,7 +5615,6 @@ C Should get me a NaN
       open(8,file='fort.8',form='formatted',status='unknown')
       open(9,file='fort.9',form='formatted',status='unknown')
       open(10,file='fort.10',form='formatted',status='unknown')
-      
 ! and in ALL cases make sure fort.10 is empty as we
 ! ALWAYS re-create it, BUT for BOINC it contains many things!.
 ! It is re-positioned in CRCHECK
@@ -6989,7 +6988,6 @@ C Should get me a NaN
       close(89)
       close(90)
       close(98)
-      
       stop
 10000 format(/t10,'TRACKING ENDED ABNORMALLY'/t10, 'PARTICLE ',i3,      &
      &' RANDOM SEED ',i8,/ t10,' MOMENTUM DEVIATION ',g12.5,            &

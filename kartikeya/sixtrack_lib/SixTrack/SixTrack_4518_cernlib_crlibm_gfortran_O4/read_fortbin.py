@@ -115,24 +115,30 @@ if __name__=='__main__':
     basedir=sys.argv[1]
   else:
     basedir='.'
+  basedir1='../../../sixtrack_legacy/SixTrack'
   print basedir
-  head,part=read_allfortbin(basedir)
+  print basedir1
+  head1,part1=read_allfortbin(basedir)
+  head2,part2=read_allfortbin(basedir1)
 
   for pnum in range(1,61):
-    pdist,x,xp,y,yp,sigma,delta,energy=part[pnum].T
+    pdist1,x1,xp1,y1,yp1,sigma1,delta1,energy1=part1[pnum].T
+    pdist2,x2,xp2,y2,yp2,sigma2,delta2,energy2=part2[pnum].T
+    
     from matplotlib.pyplot import *
     subplot(221)
-    plot(x,xp,'.')
-    xlabel('x [mm]')
-    ylabel('x [1e-3]')
+    plot(x1-x2,xp1-xp2,'.')
+    xlabel('x1-x2 [mm]')
+    ylabel('x1-x2 [1e-3]')
     subplot(222)
-    plot(y,yp,'.')
-    xlabel('y [mm]')
-    ylabel('y [1e-3]')
+    plot(y1-y2,yp1-yp2,'.')
+    xlabel('y1-y2 [mm]')
+    ylabel('y1-y2 [1e-3]')
     subplot(223)
-    plot(sigma,delta,'.')
-    xlabel('sigma [mm]')
-    ylabel('delta [1e-3]')
+    plot(sigma1-sigma2,delta1-delta2,'.')
+    xlabel('sigma1-sigma2 [mm]')
+    ylabel('delta1-delta2 [1e-3]')
+    print (x1-x2)
   show()
 
   #f=np.linspace(0,1,len(x))
