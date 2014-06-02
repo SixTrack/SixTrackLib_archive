@@ -3074,13 +3074,13 @@
      &di0zs(npart),dip0xs(npart),dip0zs(npart),xau(2,6),cloau(6),       &
      &di0au(4),tau(6,6),tasau(npart,6,6),wx(3),x1(6),x2(6),fake(2,20)
       integer numx
-      double precision e0f,coord(15),argf(15),argi(15)
+      double precision e0f
       common/main4/ e0f,numx
-      integer ktrack,nwri
+      integer ktrack,nwri,argi(1000)
       double precision dpsv1,strack,strackc,stracks,strackx,strackz
       common/track/ ktrack(nblz),strack(nblz),strackc(nblz),            &
      &stracks(nblz),strackx(nblz),strackz(nblz),dpsv1(npart),nwri
-      double precision cc,xlim,ylim
+      double precision cc,xlim,ylim,coord(1000),argf(1000)
       parameter(cc = 1.12837916709551d0)
       parameter(xlim = 5.33d0)
       parameter(ylim = 4.29d0)
@@ -3167,43 +3167,31 @@
      &(xv(1,j),yv(1,j),xv(2,j),yv(2,j),sigmv(j),dpsv(j),j=1,napx)
           goto 640
 !--HORIZONTAL DIPOLE
-! 50     tempvar1=yv(1,j)
-!       tempvar2=yv(2,j)
-!     tempvar3=strackc(i)
-!      tempvar4=stracks(i)
-!    tempvr=oidpsv(i)
-
-        !  call thin6d_track1(tempvar1,tempvar3,tempvr,napx)
-       !   call thin6d_track2(tempvar2,tempvar4,tempvr,napx)
-
-         ! yv(1,j)=tempvar1
-          !yv(2,j)=tempvar2
-          ! goto 640
    50     argf(1)=strackc(i)
           argf(2)=stracks(i)
-
+          argi(1)=npart
+          argi(2)=napx
           do 60 j=1,napx
-            !yv(1,j)=yv(1,j)+strackc(i)*oidpsv(j)
-            !yv(2,j)=yv(2,j)+stracks(i)*oidpsv(j)
-            coord(1)=yv(1,j)
-            coord(2)=yv(2,j)
-            argi(1)=oidpsv(j)
-            !call thin6d_track(coord(1),coord(3),coord(5))
-            !call thin6d_track(coord(2),coord(4),coord(5))
-            call thin6d_singarray(coord,argf,argi)
-            oidpsv(j)=argi(1)
-            yv(1,j)=coord(1)
-            yv(2,j)=coord(2)
-            !call thin6d_singarray(coord)
-   60     continue
-          !oidpsv(j)=coord(5)
-          !call thin6d_track1(coord(1),coord(3),coord(5),napx)
-          !call thin6d_track2(coord(2),coord(4),coord(5),napx)
+            coord(2*npart+j)=yv(1,j)
+            coord(3*npart+j)=yv(2,j)
+            coord(6*npart+j)=oidpsv(j)
+ 60       continue
+          call map_hr_2(coord,argf,argi)
+          do 61 j=1,napx
+            yv(1,j)=coord(2*npart+j)
+            yv(2,j)=coord(3*npart+j)
+ 61       continue
+
           goto 640
 !--NORMAL QUADRUPOLE
-   70     do 80 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
+   70     argf(10)=xsiv(1,i)
+          argf(11)=zsiv(1,i)
+          argf(12)=tiltc(i)
+          argf(13)=tilts(i)
+          do 80 j=1,napx
+            coord(j)=xv(1,j)
+            coord(npart+j)=xv(2,j)
+            call mp1(xlv(j),coord(j),coord(npart+j),argf)
 !hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
 !hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
             zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02

@@ -1,0 +1,4 @@
+1-2*npart -> xv
+2*npart+1 - 4*npart ->yv
+4*npart+1 - 5*npart ->xlv
+5*npart+1 - 6*npart ->zlv

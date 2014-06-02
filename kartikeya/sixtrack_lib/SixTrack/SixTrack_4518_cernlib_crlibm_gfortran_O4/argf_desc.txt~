@@ -1,0 +1,8 @@
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=titlc(i)
+          argf(6)=tilts(i)
+          argf(7)=crkve
+

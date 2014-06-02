@@ -1,0 +1,4 @@
+1 - npart
+2 - napx
+3 - nblz
+4 - nmac
