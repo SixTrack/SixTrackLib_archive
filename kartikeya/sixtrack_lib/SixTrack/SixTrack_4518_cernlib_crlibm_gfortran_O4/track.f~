@@ -1136,11 +1136,11 @@
       integer numx
       double precision e0f
       common/main4/ e0f,numx
-      integer ktrack,nwri
+      integer ktrack,nwri,argi(1000)
       double precision dpsv1,strack,strackc,stracks,strackx,strackz
       common/track/ ktrack(nblz),strack(nblz),strackc(nblz),            &
      &stracks(nblz),strackx(nblz),strackz(nblz),dpsv1(npart),nwri
-      double precision cc,xlim,ylim
+      double precision cc,xlim,ylim,coord(1000),argf(1000)
       parameter(cc = 1.12837916709551d0)
       parameter(xlim = 5.33d0)
       parameter(ylim = 4.29d0)
@@ -1188,28 +1188,50 @@
           endif
           goto 630
 !--HORIZONTAL DIPOLE
-   30     do 40 j=1,napx
-            yv(1,j)=yv(1,j)+strackc(i)*oidpsv(j)
-            yv(2,j)=yv(2,j)+stracks(i)*oidpsv(j)
-   40     continue
+   30     argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argi(1)=npart
+          argi(2)=napx
+          do 40 j=1,napx
+            coord(2*npart+j)=yv(1,j)
+            coord(3*npart+j)=yv(2,j)
+            coord(6*npart+j)=oidpsv(j)
+ 40       continue
+          call thin4d_map_horizontal_dipole(coord,argf,argi)
+          do 41 j=1,napx
+            yv(1,j)=coord(2*npart+j)+0.1000007
+            yv(2,j)=coord(3*npart+j)
+ 41       continue
           goto 620
 !--NORMAL QUADRUPOLE
-   50     do 60 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+   50     argi(1)=npart
+          argi(2)=napx
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crkve
+          argf(8)=cikve
+          do 60 j=1,napx
+            coord(4*npart+j)=xlv(j)
+            coord(j)=xv(1,j)
+            coord(npart+j)=xv(2,j)
+            coord(5*npart+j)=zlv(j)
+            coord(2*npart+j)=yv(1,j)
+            coord(3*npart+j)=yv(2,j)
+            coord(6*npart+j)=oidpsv(j)
    60     continue
+            call thin4d_map_quadrupole(coord,argf,argi)
+          do 61 j=1,napx
+            xlv(j)=coord(4*npart+j)
+            zlv(j)=coord(5*npart+j)
+            crkve=argf(7)
+            cikve=argf(8)
+            yv(1,j)=coord(2*npart+j)
+            yv(2,j)=coord(3*npart+j)
+   61     continue
           goto 620
 !--NORMAL SEXTUPOLE
    70     do 80 j=1,napx
@@ -1659,45 +1681,68 @@
   450     continue
           goto 620
 !--SKEW SEXTUPOLE
-  460     do 470 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  460     argi(1)=npart
+          argi(2)=napx
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crkve
+          argf(8)=cikve
+          argf(9)=crkveuk
+          do 470 j=1,napx
+            coord(4*npart+j)=xlv(j)
+            coord(j)=xv(1,j)
+            coord(npart+j)=xv(2,j)
+            coord(5*npart+j)=zlv(j)
+            coord(2*npart+j)=yv(1,j)
+            coord(3*npart+j)=yv(2,j)
+            coord(6*npart+j)=oidpsv(j)
   470     continue
+            call thin6d_map_sextupole(coord,argf,argi)
+          do 471 j=1,napx
+            xlv(j)=coord(4*npart+j)
+            zlv(j)=coord(5*npart+j)
+            yv(1,j)=coord(2*npart+j)
+            yv(2,j)=coord(3*npart+j)
+  471     continue
+          crkveuk=argf(9)
+          crkve=argf(7)
+          cikve=argf(8)
           goto 620
 !--SKEW OCTUPOLE
-  480     do 490 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  480     argi(1)=npart
+          argi(2)=napx
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crkve
+          argf(8)=cikve
+          argf(9)=crkveuk
+          do 490 j=1,napx
+            coord(4*npart+j)=xlv(j)
+            coord(j)=xv(1,j)
+            coord(npart+j)=xv(2,j)
+            coord(5*npart+j)=zlv(j)
+            coord(2*npart+j)=yv(1,j)
+            coord(3*npart+j)=yv(2,j)
+            coord(6*npart+j)=oidpsv(j)
   490     continue
+            call thin6d_map_norm_octupole(coord,argf,argi)
+          do 491 j=1,napx
+            xlv(j)=coord(4*npart+j)
+            zlv(j)=coord(5*npart+j)
+            yv(1,j)=coord(2*npart+j)
+            yv(2,j)=coord(3*npart+j)
+  491     continue
+          crkveuk=argf(9)
+          crkve=argf(7)
+          cikve=argf(8)
           goto 620
 !--SKEW DECAPOLE
   500     do 510 j=1,napx
@@ -3176,7 +3221,7 @@
             coord(3*npart+j)=yv(2,j)
             coord(6*npart+j)=oidpsv(j)
  60       continue
-          call map_hr_2(coord,argf,argi)
+          call thin6d_map_horizontal_dipole(coord,argf,argi)
           do 61 j=1,napx
             yv(1,j)=coord(2*npart+j)
             yv(2,j)=coord(3*npart+j)
@@ -3184,27 +3229,34 @@
 
           goto 640
 !--NORMAL QUADRUPOLE
-   70     argf(10)=xsiv(1,i)
-          argf(11)=zsiv(1,i)
-          argf(12)=tiltc(i)
-          argf(13)=tilts(i)
+   70     argi(1)=npart
+          argi(2)=napx
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crkve
+          argf(8)=cikve
           do 80 j=1,napx
+            coord(4*npart+j)=xlv(j)
             coord(j)=xv(1,j)
             coord(npart+j)=xv(2,j)
-            call mp1(xlv(j),coord,argf)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+            coord(5*npart+j)=zlv(j)
+            coord(2*npart+j)=yv(1,j)
+            coord(3*npart+j)=yv(2,j)
+            coord(6*npart+j)=oidpsv(j)
    80     continue
+            call thin6d_map_quadrupole(coord,argf,argi)
+          do 81 j=1,napx
+            xlv(j)=coord(4*npart+j)
+            zlv(j)=coord(5*npart+j)
+            crkve=argf(7)
+            cikve=argf(8)
+            yv(1,j)=coord(2*npart+j)
+            yv(2,j)=coord(3*npart+j)
+   81     continue                                                  !hr02
           goto 640
   755     continue
           xory=1
@@ -3287,25 +3339,36 @@
                 enddo
           goto 640
 !--NORMAL SEXTUPOLE
-   90     do 100 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+   90     argi(1)=npart
+          argi(2)=napx
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crkve
+          argf(8)=cikve
+          argf(9)=crkveuk
+          do 100 j=1,napx
+            coord(4*npart+j)=xlv(j)
+            coord(j)=xv(1,j)
+            coord(npart+j)=xv(2,j)
+            coord(5*npart+j)=zlv(j)
+            coord(2*npart+j)=yv(1,j)
+            coord(3*npart+j)=yv(2,j)
+            coord(6*npart+j)=oidpsv(j)
   100     continue
+            call thin6d_map_sextupole(coord,argf,argi)
+          do 101 j=1,napx
+            xlv(j)=coord(4*npart+j)
+            zlv(j)=coord(5*npart+j)
+            yv(1,j)=coord(2*npart+j)
+            yv(2,j)=coord(3*npart+j)
+  101     continue
+          crkveuk=argf(9)
+          crkve=argf(7)
+          cikve=argf(8)
           goto 640
   756     continue
           xory=1
@@ -3391,28 +3454,36 @@
                 enddo
           goto 640
 !--NORMAL OCTUPOLE
-  110     do 120 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  110     argi(1)=npart
+          argi(2)=napx
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crkve
+          argf(8)=cikve
+          argf(9)=crkveuk
+          do 120 j=1,napx
+            coord(4*npart+j)=xlv(j)
+            coord(j)=xv(1,j)
+            coord(npart+j)=xv(2,j)
+            coord(5*npart+j)=zlv(j)
+            coord(2*npart+j)=yv(1,j)
+            coord(3*npart+j)=yv(2,j)
+            coord(6*npart+j)=oidpsv(j)
   120     continue
+            call thin6d_map_norm_octupole(coord,argf,argi)
+          do 121 j=1,napx
+            xlv(j)=coord(4*npart+j)
+            zlv(j)=coord(5*npart+j)
+            yv(1,j)=coord(2*npart+j)
+            yv(2,j)=coord(3*npart+j)
+  121     continue
+          crkveuk=argf(9)
+          crkve=argf(7)
+          cikve=argf(8)
           goto 640
   757     continue
           xory=1
@@ -3506,211 +3577,196 @@
                 enddo
           goto 640
 !--NORMAL DECAPOLE
-  130     do 140 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  130     argi(1)=npart
+          argi(2)=napx
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crkve
+          argf(8)=cikve
+          argf(9)=crkveuk
+          do 140 j=1,napx
+            coord(4*npart+j)=xlv(j)
+            coord(j)=xv(1,j)
+            coord(npart+j)=xv(2,j)
+            coord(5*npart+j)=zlv(j)
+            coord(2*npart+j)=yv(1,j)
+            coord(3*npart+j)=yv(2,j)
+            coord(6*npart+j)=oidpsv(j)
   140     continue
+            call thin6d_map_norm_decapole(coord,argf,argi)
+          do 141 j=1,napx
+            xlv(j)=coord(4*npart+j)
+            zlv(j)=coord(5*npart+j)
+            yv(1,j)=coord(2*npart+j)
+            yv(2,j)=coord(3*npart+j)
+  141     continue
+          crkveuk=argf(9)
+          crkve=argf(7)
+          cikve=argf(8)
           goto 640
 !--NORMAL DODECAPOLE
-  150     do 160 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  150     argi(1)=npart
+          argi(2)=napx
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crkve
+          argf(8)=cikve
+          argf(9)=crkveuk
+          do 160 j=1,napx
+            coord(4*npart+j)=xlv(j)
+            coord(j)=xv(1,j)
+            coord(npart+j)=xv(2,j)
+            coord(5*npart+j)=zlv(j)
+            coord(2*npart+j)=yv(1,j)
+            coord(3*npart+j)=yv(2,j)
+            coord(6*npart+j)=oidpsv(j)
   160     continue
+            call thin6d_map_norm_dodecapole(coord,argf,argi)
+          do 161 j=1,napx
+            xlv(j)=coord(4*npart+j)
+            zlv(j)=coord(5*npart+j)
+            yv(1,j)=coord(2*npart+j)
+            yv(2,j)=coord(3*npart+j)
+  161     continue
+          crkveuk=argf(9)
+          crkve=argf(7)
+          cikve=argf(8)
           goto 640
 !--NORMAL 14-POLE
-  170     do 180 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  170     argi(1)=npart
+          argi(2)=napx
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crkve
+          argf(8)=cikve
+          argf(9)=crkveuk
+          do 180 j=1,napx
+            coord(4*npart+j)=xlv(j)
+            coord(j)=xv(1,j)
+            coord(npart+j)=xv(2,j)
+            coord(5*npart+j)=zlv(j)
+            coord(2*npart+j)=yv(1,j)
+            coord(3*npart+j)=yv(2,j)
+            coord(6*npart+j)=oidpsv(j)
   180     continue
+            call thin6d_map_norm_14pole(coord,argf,argi)
+          do 181 j=1,napx
+            xlv(j)=coord(4*npart+j)
+            zlv(j)=coord(5*npart+j)
+            yv(1,j)=coord(2*npart+j)
+            yv(2,j)=coord(3*npart+j)
+  181     continue
+          crkveuk=argf(9)
+          crkve=argf(7)
+          cikve=argf(8)
           goto 640
 !--NORMAL 16-POLE
-  190     do 200 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  190     argi(1)=npart
+          argi(2)=napx
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crkve
+          argf(8)=cikve
+          argf(9)=crkveuk
+          do 200 j=1,napx
+            coord(4*npart+j)=xlv(j)
+            coord(j)=xv(1,j)
+            coord(npart+j)=xv(2,j)
+            coord(5*npart+j)=zlv(j)
+            coord(2*npart+j)=yv(1,j)
+            coord(3*npart+j)=yv(2,j)
+            coord(6*npart+j)=oidpsv(j)
   200     continue
+            call thin6d_map_norm_16pole(coord,argf,argi)
+          do 201 j=1,napx
+            xlv(j)=coord(4*npart+j)
+            zlv(j)=coord(5*npart+j)
+            yv(1,j)=coord(2*npart+j)
+            yv(2,j)=coord(3*npart+j)
+  201     continue
+          crkveuk=argf(9)
+          crkve=argf(7)
+          cikve=argf(8)
           goto 640
 !--NORMAL 18-POLE
-  210     do 220 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  210     argi(1)=npart
+          argi(2)=napx
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crkve
+          argf(8)=cikve
+          argf(9)=crkveuk
+          do 220 j=1,napx
+            coord(4*npart+j)=xlv(j)
+            coord(j)=xv(1,j)
+            coord(npart+j)=xv(2,j)
+            coord(5*npart+j)=zlv(j)
+            coord(2*npart+j)=yv(1,j)
+            coord(3*npart+j)=yv(2,j)
+            coord(6*npart+j)=oidpsv(j)
   220     continue
+            call thin6d_map_norm_18pole(coord,argf,argi)
+          do 221 j=1,napx
+            xlv(j)=coord(4*npart+j)
+            zlv(j)=coord(5*npart+j)
+            yv(1,j)=coord(2*npart+j)
+            yv(2,j)=coord(3*npart+j)
+  221     continue
+          crkveuk=argf(9)
+          crkve=argf(7)
+          cikve=argf(8)
           goto 640
 !--NORMAL 20-POLE
-  230     do 240 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  230     argi(1)=npart
+          argi(2)=napx
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crkve
+          argf(8)=cikve
+          argf(9)=crkveuk
+          do 240 j=1,napx
+            coord(4*npart+j)=xlv(j)
+            coord(j)=xv(1,j)
+            coord(npart+j)=xv(2,j)
+            coord(5*npart+j)=zlv(j)
+            coord(2*npart+j)=yv(1,j)
+            coord(3*npart+j)=yv(2,j)
+            coord(6*npart+j)=oidpsv(j)
   240     continue
+            call thin6d_map_norm_20pole(coord,argf,argi)
+          do 241 j=1,napx
+            xlv(j)=coord(4*npart+j)
+            zlv(j)=coord(5*npart+j)
+            yv(1,j)=coord(2*npart+j)
+            yv(2,j)=coord(3*npart+j)
+  241     continue
+          crkveuk=argf(9)
+          crkve=argf(7)
+          cikve=argf(8)
           goto 640
   250     continue
           do 260 j=1,napx
@@ -17306,7 +17362,6 @@
   150     continue
           goto 160
         else
-!Eric
 ! Is really an error but old code went to 160
           goto 160
         endif
