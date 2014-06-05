@@ -10,5 +10,5 @@ x [mm]     | xv(1,j)  |coord[0+nd*j]|
 
 hor dipole | SixTrack  | SixTrackLib |
 -----------|-----------|-------------|
-h kicl     | strack(i) | argf[elem_id+0]  |
+h kicl     | strack(i) | argf[idx_float+0]  |
 ........   |           |             |
