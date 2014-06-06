@@ -1,5 +1,5 @@
-coord array description: -
-   It contains the variables asscoiated with particles
+coord array description: -<br>
+   It contains the variables asscoiated with particles<br>
             coord(j)=xv(1,j)
             coord(npart+j)=xv(2,j)
             coord(2*npart+j)=yv(1,j)
