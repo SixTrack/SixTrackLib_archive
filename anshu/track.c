@@ -97,8 +97,6 @@ int vec_map_block(double dataf[], int datai[], int elem_id, double coord[], int 
 
 int vec_map_loop(double dataf[], int datai[], int elem_id, double coord[], int coordi[]) {
   int elem_next,i;  
-  for(i=0;i<10;i++)
-    printf("%d",datai[i]);
   elem_next=0;
   while(elem_next>=0){
     elem_next= vec_map_block(dataf, datai, elem_next, coord, coordi);
