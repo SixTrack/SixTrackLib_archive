@@ -3209,35 +3209,54 @@
 !	  write(*,*) 'FREQ',  crabfreq
 !	  write(*,*) 'PHASE', crabph2(ix)
 !          write(*,*) '-------------------'
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crabfreq
+          argf(8)=crabamp2
+          argf(9)=crabph2(ix)
+          argf(10)=ed(ix)
+          argf(11)=ek(ix)
+          argf(12)=c1e3
+          argf(13)=clight 
+          argf(14)=e0f
+          argf(15)=e0
+          argf(16)=pi
+          argf(17)=c1m3
+          argf(18)=pma
           do j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-!hr13   yv(1,j)=yv(1,j) + (crabamp2*crkve*oidpsv(j))*                   &
-        yv(1,j)=yv(1,j) + ((crabamp2*crkve)*oidpsv(j))*                 &!hr13
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph2(ix))
-!hr13   yv(2,j)=yv(2,j) - (crabamp2*cikve*oidpsv(j))*                   &
-        yv(2,j)=yv(2,j) - ((crabamp2*cikve)*oidpsv(j))*                 &!hr13
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph2(ix))
-!hr13 dpsv(j)=dpsv(j) - (1/2.)*(crabamp2*oidpsv(j))*(crkve*crkve-       &
-!hr13&cikve*cikve)*(((crabfreq*2d0)*pi)/clight)*c1m3*                   &
-      dpsv(j)=dpsv(j) - ((((0.5d0*(crabamp2*oidpsv(j)))*(crkve**2-      &!hr13
-     &cikve**2))*(((crabfreq*2d0)*pi)/clight))*c1m3)*                   &!hr13
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph2(ix))
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(11)=dpd(j)
+            coord(12)=dpsq(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)
+            call thin6d_map_jbgrfcc_multipoles_order2(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            sigmv(j)=coord(6)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            dpd(j)=coord(11)
+            dpsq(j)=coord(12)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
                 enddo
           goto 640
@@ -3248,31 +3267,55 @@
           pi=4d0*atan_rn(1d0)
           crabamp2 = ed(ix)!/(1+dpsv(j))
           crabfreq=ek(ix)*c1e3
+
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crabfreq
+          argf(8)=crabamp2
+          argf(9)=crabph2(ix)
+          argf(10)=ed(ix)
+          argf(11)=ek(ix)
+          argf(12)=c1e3
+          argf(13)=clight 
+          argf(14)=e0f
+          argf(15)=e0
+          argf(16)=pi
+          argf(17)=c1m3
+          argf(18)=pma
           do j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-        yv(2,j)=yv(2,j) + ((crabamp2*crkve)*oidpsv(j))*                 &
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph2(ix))
-        yv(1,j)=yv(1,j) + ((crabamp2*cikve)*oidpsv(j))*                 &
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph2(ix))
-      dpsv(j)=dpsv(j) - ((((crabamp2*oidpsv(j))*(cikve*crkve))          &
-     &*(((crabfreq*2d0)*pi)/clight))*c1m3)*                             &
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph2(ix))
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(11)=dpd(j)
+            coord(12)=dpsq(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)
+            call thin6d_map_jbgrfcc_multipoles_order2_2(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            sigmv(j)=coord(6)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            dpd(j)=coord(11)
+            dpsq(j)=coord(12)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
                 enddo
           goto 640
@@ -3307,37 +3350,57 @@
 !	  write(*,*) 'FREQ',  crabfreq
 !	  write(*,*) 'PHASE', crabph3(ix)
 !          write(*,*) '-------------------'
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crabfreq
+          argf(8)=crabamp2
+          argf(9)=crabph2(ix)
+          argf(10)=ed(ix)
+          argf(11)=ek(ix)
+          argf(12)=c1e3
+          argf(13)=clight 
+          argf(14)=e0f
+          argf(15)=e0
+          argf(16)=pi
+          argf(17)=c1m3
+          argf(18)=pma
+          argf(19)=crabamp3
+          argf(20)=crabph3(ix)
+          argf(21)=c1m6
           do j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-!hr13   yv(1,j)=yv(1,j)+2*(1/2.)*(crabamp3*oidpsv(j))*c1m3*             &
-!hr13&(crkve*crkve-cikve*cikve)*                                        &
-        yv(1,j)=yv(1,j)+(((crabamp3*oidpsv(j))*c1m3)*                   &!hr13
-     &(crkve**2-cikve**2))*                                             &!hr13
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph3(ix))
-!hr13   yv(2,j)=yv(2,j)-2*(crabamp3*crkve*cikve*oidpsv(j))*c1m3*        &
-      yv(2,j)=yv(2,j)-((2d0*(((crabamp3*crkve)*cikve)*oidpsv(j)))*c1m3)*&!hr13
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph3(ix))
-!hr13 dpsv(j)=dpsv(j)-2*(1/6.)*(crabamp3*oidpsv(j))*(crkve*crkve*crkve- &
-!hr13&(3*cikve*cikve)*crkve)*(((crabfreq*2d0)*pi)/clight)*c1m6*         &
-      dpsv(j)=dpsv(j)-(((((1d0/3d0)*(crabamp3*oidpsv(j)))*(crkve**3-    &!hr13
-     &(3d0*cikve**2)*crkve))*(((crabfreq*2d0)*pi)/clight))*c1m6)*       &!hr13
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph3(ix))
-       ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(11)=dpd(j)
+            coord(12)=dpsq(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)
+            call thin6d_map_jbgrfcc_multipoles_order3(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            sigmv(j)=coord(6)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            dpd(j)=coord(11)
+            dpsq(j)=coord(12)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
                 enddo
           goto 640
@@ -3348,32 +3411,58 @@
           pi=4d0*atan_rn(1d0)
           crabamp3 = ed(ix)!/(1+dpsv(j))
           crabfreq=ek(ix)*c1e3
+
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crabfreq
+          argf(8)=crabamp2
+          argf(9)=crabph2(ix)
+          argf(10)=ed(ix)
+          argf(11)=ek(ix)
+          argf(12)=c1e3
+          argf(13)=clight 
+          argf(14)=e0f
+          argf(15)=e0
+          argf(16)=pi
+          argf(17)=c1m3
+          argf(18)=pma
+          argf(19)=crabamp3
+          argf(20)=crabph3(ix)
+          argf(21)=c1m6
           do j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-        yv(2,j)=yv(2,j)-(((crabamp3*oidpsv(j))*c1m3)*                   &
-     &((cikve**2)-(crkve**2)))*                                         &
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph3(ix))
-        yv(1,j)=yv(1,j)+((2d0*(crabamp3*(crkve*(cikve*oidpsv(j)))))*    &
-     &c1m3)*cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph3(ix))
-      dpsv(j)=dpsv(j)+(((((1d0/3d0)*(crabamp3*oidpsv(j)))*(cikve**3-    &
-     &((3d0*crkve**2)*cikve)))*(((crabfreq*2d0)*pi)/clight))*c1m6)*     &
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph3(ix))
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(11)=dpd(j)
+            coord(12)=dpsq(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)
+            call thin6d_map_jbgrfcc_multipoles_order3_2(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            sigmv(j)=coord(6)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            dpd(j)=coord(11)
+            dpsq(j)=coord(12)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
                 enddo
           goto 640
@@ -3409,41 +3498,56 @@
 !	  write(*,*) 'FREQ',  crabfreq
 !	  write(*,*) 'PHASE', crabph4(ix)
 !          write(*,*) '-------------------'
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crabfreq
+          argf(12)=c1e3
+          argf(13)=clight 
+          argf(14)=e0f
+          argf(15)=e0
+          argf(16)=pi
+          argf(17)=c1m3
+          argf(18)=pma
+          argf(19)=crabamp3
+          argf(20)=crabph3(ix)
+          argf(21)=c1m6
+          argf(22)=crabamp4
+          argf(23)=crabph4(ix)
+          argf(24)=c1m9
           do j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-!hr13   yv(1,j)=yv(1,j) + 6*(1/6.)*(crabamp4*oidpsv(j))*                &
-!hr13&(crkve*crkve*crkve-3*crkve*cikve*cikve)*c1m6*                     &
-        yv(1,j)=yv(1,j) + (((crabamp4*oidpsv(j))*                       &!hr13
-     &(crkve**3-(3d0*crkve)*cikve**2))*c1m6)*                           &!hr13
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph4(ix))
-!hr13   yv(2,j)=yv(2,j) - 6*(1/6.)*(crabamp4*oidpsv(j))*                &
-!hr13&(3*cikve*crkve*crkve-cikve*cikve*cikve)*c1m6*                     &
-        yv(2,j)=yv(2,j) - (((crabamp4*oidpsv(j))*                       &!hr13
-     &((3d0*cikve)*crkve**2-cikve**3))*c1m6)*                           &!hr13
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph4(ix))
-!hr13 dpsv(j)=dpsv(j) - 6*(1/24.)*(crabamp4*oidpsv(j))*(crkve*crkve*    &
-!hr13&crkve*crkve-6*crkve*crkve*cikve*cikve+cikve*cikve*                &
-!hr13&cikve*cikve)*(((crabfreq*2d0)*pi)/clight)*c1m9*                   &
-      dpsv(j)=dpsv(j) - ((((0.25d0*(crabamp4*oidpsv(j)))*(crkve**4-     &!hr13
-     &(6d0*crkve**2)*cikve**2+cikve**4))*                               &!hr13
-     &(((crabfreq*2d0)*pi)/clight))*c1m9)*                              &!hr13
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph4(ix))
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(11)=dpd(j)
+            coord(12)=dpsq(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)
+            call thin6d_map_jbgrfcc_multipoles_order4(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            sigmv(j)=coord(6)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            dpd(j)=coord(11)
+            dpsq(j)=coord(12)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
                 enddo
           goto 640
@@ -3455,34 +3559,56 @@
           crabamp4 = ed(ix)!/(1+dpsv(j))
           crabfreq=ek(ix)*c1e3
           ! Sixtrack uses mm and mrad, input m^{-n+1}
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crabfreq
+          argf(12)=c1e3
+          argf(13)=clight 
+          argf(14)=e0f
+          argf(15)=e0
+          argf(16)=pi
+          argf(17)=c1m3
+          argf(18)=pma
+          argf(19)=crabamp3
+          argf(20)=crabph3(ix)
+          argf(21)=c1m6
+          argf(22)=crabamp4
+          argf(23)=crabph4(ix)
+          argf(24)=c1m9
           do j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-        yv(1,j)=yv(1,j) + (((crabamp4*oidpsv(j))*                       &
-     &(cikve**3-(3d0*cikve)*crkve**2))*c1m6)*                           &
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph4(ix))
-        yv(2,j)=yv(2,j) + (((crabamp4*oidpsv(j))*                       &
-     &((3d0*crkve)*cikve**2-crkve**3))*c1m6)*                           &
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph4(ix))
-      dpsv(j)=dpsv(j) - ((((crabamp4*oidpsv(j))*((crkve**3              &
-     &*cikve)-(cikve**3*crkve)))*                                       &
-     &(((crabfreq*2d0)*pi)/clight))*c1m9)*                              &
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph4(ix))
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(11)=dpd(j)
+            coord(12)=dpsq(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)
+            call thin6d_map_jbgrfcc_multipoles_order4_2(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            sigmv(j)=coord(6)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            dpd(j)=coord(11)
+            dpsq(j)=coord(12)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
                 enddo
           goto 640
@@ -3808,66 +3934,69 @@
           goto 640
 !--SKEW ELEMENTS
 !--VERTICAL DIPOLE
-  440     do 450 j=1,napx
-            yv(1,j)=yv(1,j)-stracks(i)*oidpsv(j)
-            yv(2,j)=yv(2,j)+strackc(i)*oidpsv(j)
+  440     argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          do 450 j=1,napx
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call thin6d_map_vertical_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   450     continue
           goto 640
 !--SKEW QUADRUPOLE
-  460     do 470 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  460     argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          do 470 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call thin6d_map_skew_quadrupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)  
   470     continue
           goto 640
 !--SKEW SEXTUPOLE
-  480     do 490 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  480     argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          do 490 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call thin6d_map_skew_sextupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4) 
   490     continue
           goto 640
 !--SKEW OCTUPOLE
-  500     do 510 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  500     argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          do 510 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call thin6d_map_skew_octupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4) 
   510     continue
           goto 640
 !--SKEW DECAPOLE

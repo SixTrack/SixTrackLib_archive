@@ -16,5 +16,11 @@
           argf(16)=pi
           argf(17)=c1m3
           argf(18)=pma
+          argf(19)=crabamp3
+          argf(20)=crabph3(ix)
+          argf(21)=c1m6
+          argf(19)=crabamp4
+          argf(20)=crabph4(ix)
+          argf(21)=c1m9
 
 

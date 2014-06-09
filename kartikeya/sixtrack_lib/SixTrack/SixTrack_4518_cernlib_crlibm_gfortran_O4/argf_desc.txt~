@@ -14,5 +14,10 @@
           argf(14)=e0f
           argf(15)=e0
           argf(16)=pi
+          argf(17)=c1m3
+          argf(18)=pma
+          argf(19)=crabamp3
+          argf(20)=crabph3(ix)
+          argf(21)=c1m6
 
 
