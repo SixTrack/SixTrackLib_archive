@@ -1,5 +1,14 @@
-1-2*npart -> xv
-2*npart+1 - 4*npart ->yv
-4*npart+1 - 5*npart ->xlv
-5*npart+1 - 6*npart ->zlv
-6*npart+1 - 7*npart ->oidpsv
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(11)=dpd(j)
+            coord(12)=dpsq(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)

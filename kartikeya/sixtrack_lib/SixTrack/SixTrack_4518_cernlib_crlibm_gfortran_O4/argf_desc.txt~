@@ -2,8 +2,17 @@
           argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
-          argf(5)=titlc(i)
+          argf(5)=tiltc(i)
           argf(6)=tilts(i)
-          argf(7)=crkve
-          argf(8)=cikve
+          argf(7)=crabfreq
+          argf(8)=crabamp2
+          argf(9)=crabph2(ix)
+          argf(10)=ed(ix)
+          argf(11)=ek(ix)
+          argf(12)=c1e3
+          argf(13)=clight 
+          argf(14)=e0f
+          argf(15)=e0
+          argf(16)=pi
+
 

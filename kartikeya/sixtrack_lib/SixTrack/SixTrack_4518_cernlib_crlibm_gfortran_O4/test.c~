@@ -87,7 +87,7 @@ coord[3*argi[npart]+(j)-1]+=coord[6*argi[npart]+(j)-1]*(argf[1]*argf[6]-argf[0]*
 return 1;
 }
 
-extern thin6d_map_octupole_(double *coord,double *argf,int *argi)
+extern thin6d_map_norm_octupole_(double *coord,double *argf,int *argi)
 {
 int j;
 for(j=1;j<=argi[1];j++)
@@ -297,3 +297,19 @@ coord[3*argi[npart]+(j)-1]+=coord[6*argi[npart]+(j)-1]*(argf[1]*argf[6]-argf[0]*
 }
 return 1;
 }
+
+extern int test_(double *pi)
+{
+*pi=4.0*atan_rn(1.0);
+return 1;
+}
+
+extern int thin6d_jbgrfcc_multipole_(double *coord,double *argf,double *argi)
+{
+argf[17]=4.0*atan_rn(1.0);
+argf[18]=argf[9];
+argf[10]=argf[11]*argf[12];
+
+return 1;
+}
+

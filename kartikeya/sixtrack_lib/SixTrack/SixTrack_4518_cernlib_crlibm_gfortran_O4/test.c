@@ -297,3 +297,26 @@ coord[3*argi[npart]+(j)-1]+=coord[6*argi[npart]+(j)-1]*(argf[1]*argf[6]-argf[0]*
 }
 return 1;
 }
+
+extern int test_(double *pi)
+{
+*pi=4.0*atan_rn(1.0);
+return 1;
+}
+
+extern int thin6d_jbgrfcc_multipole_(double *coord,double *argf,double *argi)
+{
+argf[17]=4.0*atan_rn(1.0);
+argf[18]=argf[9];
+argf[10]=argf[11]*argf[12];
+
+int j;
+for(j=1;j<=argi[1];j++)
+{
+coord[4*argi[npart]+(j)-1]=(coord[j-1]-argf[2])*argf[4]+(coord[argi[0]+(j)-1]-argf[3])*argf[5];
+coord[5*argi[npart]+(j)-1]=(coord[j+argi[0]-1]-argf[3])*argf[4]-(coord[(j)-1]-argf[2])*argf[5];
+argf[6]=coord[4*argi[npart]+(j)-1];
+argf[7]=coord[5*argi[npart]+(j)-1];
+return 1;
+}
+
