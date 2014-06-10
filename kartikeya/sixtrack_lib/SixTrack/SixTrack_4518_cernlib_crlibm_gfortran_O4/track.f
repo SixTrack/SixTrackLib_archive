@@ -3142,7 +3142,39 @@
             enddo
           endif
           goto 650
-   30     do 40 j=1,napx
+   30     argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(7)=crabfreq
+          argf(8)=crabamp2
+          argf(9)=crabph2(ix)
+          argf(10)=ed(ix)
+          argf(11)=ek(ix)
+          argf(12)=c1e3
+          argf(13)=clight 
+          argf(14)=e0f
+          argf(15)=e0
+          argf(16)=pi
+          argf(17)=c1m3
+          argf(18)=pma
+          argf(19)=crabamp3
+          argf(20)=crabph3(ix)
+          argf(21)=c1m6
+          argf(22)=crabamp4
+          argf(23)=crabph4(ix)
+          argf(24)=c1m9
+          argf(25)=dppoff
+          argf(26)=pieni
+          argf(27)=sigmoff(i)
+          argf(28)=kz(ix)
+          argf(29)=hsyc(ix)
+          argf(30)=phasc(ix)
+          argf(31)=hsy(1)
+          argf(32)=hsy(3)
+          do 40 j=1,napx
             ejf0v(j)=ejfv(j)
             if(abs(dppoff).gt.pieni) sigmv(j)=sigmv(j)-sigmoff(i)
             if(kz(ix).eq.12) then
@@ -3151,17 +3183,35 @@
             else
               ejv(j)=ejv(j)+hsy(1)*sin_rn(hsy(3)*sigmv(j))
             endif
-!hr01       ejfv(j)=sqrt(ejv(j)*ejv(j)-pma*pma)
-            ejfv(j)=sqrt(ejv(j)**2-pma**2)                               !hr01
-            rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
-            dpsv(j)=(ejfv(j)-e0f)/e0f
-            oidpsv(j)=one/(one+dpsv(j))
-!hr01       dpsv1(j)=dpsv(j)*c1e3*oidpsv(j)
-            dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)                            !hr01
-!hr01       yv(1,j)=ejf0v(j)/ejfv(j)*yv(1,j)
-            yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)                           !hr01
-!hr01       yv(2,j)=ejf0v(j)/ejfv(j)*yv(2,j)
-            yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)                           !hr01
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(11)=dpd(j)
+            coord(12)=dpsq(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)
+            call thin6d_map_exact_drift(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            sigmv(j)=coord(6)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            dpd(j)=coord(11)
+            dpsq(j)=coord(12)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
  40       continue
           if(n.eq.1) write(98,'(1p,6(2x,e25.18))')                      &
      &(xv(1,j),yv(1,j),xv(2,j),yv(2,j),sigmv(j),dpsv(j),j=1,napx)
@@ -3721,179 +3771,211 @@
   240     continue
           goto 640
   250     continue
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(12)=c1e3
+          argf(33)=dki(ix,1)
+          argf(34)=strack(i)
           do 260 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tiltc(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tiltc(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purehor_nzapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   260     continue
           goto 640
   270     continue
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(12)=c1e3
+          argf(33)=dki(ix,1)
+          argf(34)=strack(i)
           do 280 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tiltc(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tiltc(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_hor_nzapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   280     continue
           goto 410
   290     continue
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(12)=c1e3
+          argf(33)=dki(ix,1)
+          argf(34)=strack(i)
           do 300 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-strackc(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-strackc(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purehor_zapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   300     continue
           goto 640
   310     continue
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(12)=c1e3
+          argf(33)=dki(ix,1)
+          argf(34)=strack(i)
           do 320 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-strackc(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-strackc(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_hor_zapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   320     continue
           goto 410
   330     continue
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(12)=c1e3
+          argf(33)=dki(ix,1)
+          argf(34)=strack(i)
+          argf(35)=dki(ix,2)
           do 340 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)+(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)+(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tiltc(i)                                     &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)-(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tiltc(i))                                   &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purever_nzapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   340     continue
           goto 640
   350     continue
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(12)=c1e3
+          argf(33)=dki(ix,1)
+          argf(34)=strack(i)
+          argf(35)=dki(ix,2)
           do 360 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)+(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)+(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tiltc(i)                                     &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)-(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tiltc(i))                                   &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_ver_nzapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   360     continue
           goto 410
   370     continue
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(12)=c1e3
+          argf(33)=dki(ix,1)
+          argf(34)=strack(i)
+          argf(35)=dki(ix,2)
           do 380 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)+strackc(i)*dpsv1(j)                         &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)+strackc(i)*dpsv1(j))                       &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purever_zapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   380     continue
           goto 640
   390     continue
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(12)=c1e3
+          argf(33)=dki(ix,1)
+          argf(34)=strack(i)
+          argf(35)=dki(ix,2)
           do 400 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)+strackc(i)*dpsv1(j)                         &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)+strackc(i)*dpsv1(j))                       &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_ver_zapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   400     continue
   410     r0=ek(ix)
           nmz=nmu(ix)

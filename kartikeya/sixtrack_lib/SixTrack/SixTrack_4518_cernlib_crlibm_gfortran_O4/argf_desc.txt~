@@ -19,5 +19,17 @@
           argf(19)=crabamp3
           argf(20)=crabph3(ix)
           argf(21)=c1m6
+          argf(22)=crabamp4
+          argf(23)=crabph4(ix)
+          argf(24)=c1m9
+          argf(25)=dppoff
+          argf(26)=pieni
+          argf(27)=sigmoff(i)
+          argf(28)=kz(ix)
+          argf(29)=hsyc(ix)
+          argf(30)=phasc(ix)
+          argf(31)=hsy(1)
+          argf(32)=hsy(3)
+          argf(33)=dki(ix,1)
 
 
