@@ -31,5 +31,25 @@
           argf(31)=hsy(1)
           argf(32)=hsy(3)
           argf(33)=dki(ix,1)
+          argf(34)=strack(i)
+          argf(35)=ibbc
+          argf(36)=clobeam(1,imbb(i))
+          argf(37)=clobeam(2,imbb(i))
+          argf(38)=clobeam(3,imbb(i))
+          argf(39)=clobeam(4,imbb(i))
+          argf(40)=clobeam(5,imbb(i))
+          argf(41)=clobeam(6,imbb(i))
+          argf(42)=sigman2(1,imbb(i))
+          argf(43)=beamoff(1,imbb(i))
+          argf(44)=beamoff(2,imbb(i))
+          argf(45)=beamoff(3,imbb(i))
+          argf(46)=beamoff(4,imbb(i))
+          argf(47)=beamoff(5,imbb(i))
+          argf(48)=beamoff(6,imbb(i))
+          argf(49)=bbcu(imbb(i),11)
+          argf(50)=bbcu(imbb(i),12)
+          argf(51)=sigmanq(1,imbb(i))
+          argf(52)=sigmanq(2,imbb(i))
+
 
 

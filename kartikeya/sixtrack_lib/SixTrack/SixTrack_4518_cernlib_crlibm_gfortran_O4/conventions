@@ -1,0 +1,19 @@
+ibbc - switch to turn on linear coupling - SwitchToLinearCoupling
+clobeam - closed orbit coordinates - 
+clobeam(1,imbb(i)) - ClosedOrbitBeamX
+clobeam(2,imbb(i)) - ClosedOrbitBeamY
+clobeam(3,imbb(i)) - ClosedOrbitBeamSigma
+clobeam(4,imbb(i)) - ClosedOrbitBeamPx
+clobeam(5,imbb(i)) - ClosedOrbitBeamPy
+clobeam(6,imbb(i)) - ClosedOrbitBeamDelta
+ed(ix) - HorBeamBeamSeparation
+ek(ix) - VerBeamBeamSeparation
+sigman2(1,imbb(i)) - SquareOfSigmaN
+beamoff(1,imbb(i)) - BeamOffsetX
+beamoff(2,imbb(i)) - BeamOffsetY
+beamoff(3,imbb(i)) - BeamOffsetSigma
+beamoff(4,imbb(i)) - BeamOffsetPx
+beamoff(5,imbb(i)) - BeamOffsetPy
+beamoff(6,imbb(i)) - BeamOffsetDelta
+ibtyp - switch to turn on fast beam beam algorithm - SwitchToFastBeamBeamAlgo
+pisqrt - sqare root of pi - SquareRootOfPi

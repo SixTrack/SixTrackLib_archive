@@ -3962,7 +3962,7 @@
           argf(33)=dki(ix,1)
           argf(34)=strack(i)
           argf(35)=dki(ix,2)
-          do 380 j=1,napx
+          do 400 j=1,napx
             coord(1)=xv(1,j)
             coord(2)=xv(2,j)
             coord(3)=yv(1,j)
@@ -4190,78 +4190,35 @@
   630     continue
           goto 640
   680     continue
+          argf(10)=ed(ix)
+          argf(11)=ek(ix)
+          argf(26)=pieni
+          argf(34)=strack(i)
+          argf(35)=ibbc
+          argf(36)=clobeam(1,imbb(i))
+          argf(37)=clobeam(2,imbb(i))
+          argf(38)=clobeam(3,imbb(i))
+          argf(39)=clobeam(4,imbb(i))
+          argf(40)=clobeam(5,imbb(i))
+          argf(41)=clobeam(6,imbb(i))
+          argf(42)=sigman2(1,imbb(i))
+          argf(43)=beamoff(1,imbb(i))
+          argf(44)=beamoff(2,imbb(i))
+          argf(45)=beamoff(3,imbb(i))
+          argf(46)=beamoff(4,imbb(i))
+          argf(47)=beamoff(5,imbb(i))
+          argf(48)=beamoff(6,imbb(i))
+          argf(49)=bbcu(imbb(i),11)
+          argf(50)=bbcu(imbb(i),12)
           do 690 j=1,napx
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-!hr08       rho2b(j)=crkveb(j)*crkveb(j)+cikveb(j)*cikveb(j)
-            rho2b(j)=crkveb(j)**2+cikveb(j)**2                           !hr08
-            if(rho2b(j).le.pieni)                                       &
-     &goto 690
-            tkb(j)=rho2b(j)/(two*sigman2(1,imbb(i)))
-            if(ibbc.eq.0) then
-!hr03         yv(1,j)=yv(1,j)+oidpsv(j)*(strack(i)*crkveb(j)/rho2b(j)*  &
-!hr03         yv(1,j)=yv(1,j)+oidpsv(j)*(strack(i)*crkveb(j)/rho2b(j)*  &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))
-          yv(1,j)=yv(1,j)+oidpsv(j)*(((strack(i)*crkveb(j))/rho2b(j))*  &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))                      !hr03
-!hr03         yv(2,j)=yv(2,j)+oidpsv(j)*(strack(i)*cikveb(j)/rho2b(j)*  &
-!hr03         yv(2,j)=yv(2,j)+oidpsv(j)*(strack(i)*cikveb(j)/rho2b(j)*  &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))
-          yv(2,j)=yv(2,j)+oidpsv(j)*(((strack(i)*cikveb(j))/rho2b(j))*  &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))                      !hr03
-            else
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),11)-       &
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-              cccc=(((strack(i)*crkveb(j))/rho2b(j))*                   &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),11)-   &!hr03
-     &(((strack(i)*cikveb(j))/rho2b(j))*                                &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)     !hr03
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!+if crlibm
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-!+ei
-!+if .not.crlibm
-!hr03&(one-exp(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-!+ei
-              yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),12)+       &
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-              cccc=(((strack(i)*crkveb(j))/rho2b(j))*                   &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),12)+   &!hr03
-     &(((strack(i)*cikveb(j))/rho2b(j))*                                &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)     !hr03
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!+if crlibm
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-!+ei
-!+if .not.crlibm
-!hr03&(one-exp(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-!+ei
-              yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-            endif
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call thin6d_map_beam_beam_element1(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)              
   690     continue
           goto 640
   700     continue
