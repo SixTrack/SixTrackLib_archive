@@ -43,6 +43,13 @@ class Element(object):
     self.join()
     print self.datai
     print self.dataf
+  def get_param(self,key):
+    value,keyidx in cls._parameters[key]
+    valtype=type(value)
+    if valtype==float:
+      return self.dataf[self.idx_float+keyidx]
+    elif valtype==int:
+      return self.datai[self.elem_id+2+keyidx]         
   def join(self):
     self.lst.extend([None])		
     i=1
