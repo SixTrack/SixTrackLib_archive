@@ -12,6 +12,18 @@
             coord(12)=dpsq(j)
             coord(13)=rvv(j)
             coord(14)=ejf0v(j)
+            coord(15)=crxb(j)
+            coord(16)=crzb(j)
+            coord(17)=cbxb(j)
+            coord(18)=cbzb(j)
+            coord(19)=xbb(j)
+            coord(20)=zbb(j)
+            coord(21)=cbxb(j)
+            coord(22)=cbzb(j)
+            coord(23)=crkve(j)
+            coord(24)=cikve(j)
+            coord(25)=rkb(j)
+ 
 
 
             xv(1,j)=coord(1)
@@ -28,3 +40,7 @@
             dpsq(j)=coord(12)
             rvv(j)=coord(13)
             ejf0v(j)=coord(14)
+            crxb(j)=coord(15)
+            crzb(j)=coord(16)
+            cbxb(j)=coord(17)
+            cbzb(j)=coord(18)

@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<math.h>
 
+int cntdrift = 0, cntnormquad=0, cntskewquad=0, cnthordip=0, cntverdip=0;
 extern int thin6d_map_exact_drift_(double *coord, double *argf, double *argi)
 {
 double x = coord[0], y = coord[1];
@@ -45,6 +46,8 @@ RatioDeltaPtoPj1 = coord[9];
 coord[2] = ( MomentumOfParticle0 / MomentumOfParticle ) * xp;
 coord[3] = ( MomentumOfParticle0 / MomentumOfParticle ) * yp;
 
+if(cntdrift++ == 0)
+printf("thin6d exact drift\n");
 
 return 1;
 }
@@ -59,6 +62,8 @@ double RatioPtoPj = coord[4];
 coord[2] = xp + LengthElementTiltCos * RatioPtoPj;
 coord[3] = yp + LengthElementTiltSin * RatioPtoPj;
 
+if(cnthordip++ ==0)
+printf("thin6d hor dipole\n");
 return 1;
 }
 
@@ -71,6 +76,8 @@ double RatioPtoPj = coord[4];
 coord[2] = xp - LengthElementTiltSin * RatioPtoPj;
 coord[3] = yp + LengthElementTiltCos * RatioPtoPj;
 
+if(cntverdip++ ==0)
+printf("thin6d ver dipole\n");
 return 1;
 }
 
@@ -93,6 +100,8 @@ cikve = zlvj;
 coord[2] = xp + RatioPtoPj * ( LengthElementTiltCos * crkve + LengthElementTiltSin * cikve );
 coord[3] = yp + RatioPtoPj * ( LengthElementTiltSin * crkve - LengthElementTiltCos * cikve );
 
+if(cntnormquad++ ==0)
+printf("thin6d norm quadrupole\n");
 return 1;
 }
 
@@ -113,7 +122,8 @@ crkve = xlvj;
 cikve = zlvj;
 coord[2] = xp + RatioPtoPj * ( LengthElementTiltCos * cikve - LengthElementTiltSin * crkve );
 coord[3] = yp + RatioPtoPj * ( LengthElementTiltCos * crkve + LengthElementTiltSin * cikve );
-
+if(cntskewquad++ ==0)
+printf("thin6d skew quadrupole\n");
 return 1;
 }
 
@@ -1079,7 +1089,7 @@ return 1;
 #include<stdio.h>
 #include<math.h>
 
-extern int thin6d_map_beambeam_1_(double *coord, double *argf, double argi)
+extern int thin6d_map_beam_beam_element1_(double *coord, double *argf, double argi)
 {
 double x = coord[0], y = coord[1];
 double xp = coord[2], yp = coord[3];
@@ -1123,6 +1133,71 @@ cccc = ((( PhysicalLengthOfBlock * crkvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 *
 coord[2] = xp + RatioPtoPj * cccc;
 cccc = ((( PhysicalLengthOfBlock * crkvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPx ) * bbcu12 - ((( PhysicalLengthOfBlock * cikvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPy ) * bbcu11;
 
+coord[3] = yp + RatioPtoPj * cccc;
+}
+
+return 1;
+}
+
+extern int thin6d_map_beambeam_2_ibtyp_0_(double *coord, double *argf, double *argi)
+{
+double x = coord[0], y = coord[1];
+double xp = coord[2], yp = coord[3];
+double RatioPtoPj = coord[4];
+double crxbj = coord[14], crzbj = coord[15];
+double cbxbj = coord[16], cbzbj = coord[17];
+
+double OnePoweredToMinus38 = argf[25];
+double PhysicalLengthOfBlock = argf[33];
+int SwitchToLinearCoupling = (int)argf[34];
+double ClosedOrbitBeamX = argf[35], ClosedOrbitBeamY = argf[36], ClosedOrbitBeamSigma = argf[37], ClosedOrbitBeamPx = argf[38], ClosedOrbitBeamPy = argf[39], ClosedOrbitBeamDelta = argf[40];
+double HorBeamBeamSeparation = argf[9], VerBeamBeamSeparation = argf[10];
+double SquareOfSigmaNX = argf[52], SquareOfSigmaNY = argf[53];
+double BeamOffsetX = argf[42], BeamOffsetY = argf[43], BeamOffsetSigma = argf[44], BeamOffsetPx = argf[45], BeamOffsetPy = argf[46], BeamOffsetDelta = argf[47];
+double bbcu11 = argf[48], bbcu12 = argf[49];
+double SigmaNqX = argf[50], SigmaNqY = argf[51];
+
+double crkvebj, cikvebj, rho2bj, tkbj, cccc, r2bj, rbj, rkbj, xbbj, zbbj;
+
+r2bj = 2.0 * ( SquareOfSigmaNX - SquareOfSigmaNY );
+rbj = sqrt(r2bj);
+
+rkbj = ( PhysicalLengthOfBlock * SquareRootOfPi ) / rbj;
+
+if( SwitchToLinearCoupling == 0 )
+{
+crkvebj = ( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation;
+cikvebj = ( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation;
+}
+else
+{
+crkvebj = (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu11 + (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu12;
+cikvebj = (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu11 + (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu12;
+}
+
+xrbj = abs(crkvebj) / rbj;
+zrbj = abs(cikvebj) / rbj;
+
+errf( &xrbj, &zrbj, &crxbj, &crzbj );
+
+tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
+
+xbbj = SigmaNqY * xrbj;
+zbbj = SigmaNqX * zrbj;
+
+errf( &xbbj, &zbbj, &cbxbj, &cbzbj );
+
+if( SwitchToLinearCoupling == 0 )
+{
+coord[2] = xp + RatioPtoPj * (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) *sign( 1.0, crkvebj ) - BeamOffsetPx );
+coord[3] = yp + RatioPtoPj * (( rkbj * ( crxbj - exp_rn( -1.0 * tkbj ) * cbxbj )) *sign( 1.0, cikvebj ) - BeamOffsetPy );
+}
+else
+{
+cccc = (( rkbj * crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu11 - (( rkbj * ( crkxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu12;
+coord[2] = xp + RatioPtoPj * cccc;
+
+cccc = (( rkbj * crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu12 - (( rkbj * ( crkxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu11;
 coord[3] = yp + RatioPtoPj * cccc;
 }
 

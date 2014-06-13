@@ -50,6 +50,7 @@
           argf(50)=bbcu(imbb(i),12)
           argf(51)=sigmanq(1,imbb(i))
           argf(52)=sigmanq(2,imbb(i))
-
+          argf(53)=sigman2(1,imbb(i))
+          argf(54)=sigman2(2,imbb(i))
 
 

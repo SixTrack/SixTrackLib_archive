@@ -4216,354 +4216,180 @@
             coord(3)=yv(1,j)
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_beam_beam_element1(coord,argf,argi)
+            call thin6d_map_beambeam_1(coord,argf,argi)
             yv(1,j)=coord(3)
             yv(2,j)=coord(4)              
   690     continue
           goto 640
   700     continue
+          argf(10)=ed(ix)
+          argf(11)=ek(ix)
+          argf(16)=pi
+          argf(26)=pieni
+          argf(34)=strack(i)
+          argf(35)=ibbc
+          argf(36)=clobeam(1,imbb(i))
+          argf(37)=clobeam(2,imbb(i))
+          argf(38)=clobeam(3,imbb(i))
+          argf(39)=clobeam(4,imbb(i))
+          argf(40)=clobeam(5,imbb(i))
+          argf(41)=clobeam(6,imbb(i))
+          argf(43)=beamoff(1,imbb(i))
+          argf(44)=beamoff(2,imbb(i))
+          argf(45)=beamoff(3,imbb(i))
+          argf(46)=beamoff(4,imbb(i))
+          argf(47)=beamoff(5,imbb(i))
+          argf(48)=beamoff(6,imbb(i))
+          argf(49)=bbcu(imbb(i),11)
+          argf(50)=bbcu(imbb(i),12)
+          argf(51)=sigman2(1,imbb(i))
+          argf(52)=sigman2(1,imbb(i))
           if(ibtyp.eq.0) then
             do j=1,napx
-              r2b(j)=two*(sigman2(1,imbb(i))-sigman2(2,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-              call errf(xrb(j),zrb(j),crxb(j),crzb(j))
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-              call errf(xbb(j),zbb(j),cbxb(j),cbzb(j))
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              call thin6d_map_beambeam_2_ibtyp_0(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4)  
             enddo
           else if(ibtyp.eq.1) then
             do j=1,napx
-              r2b(j)=two*(sigman2(1,imbb(i))-sigman2(2,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              coord(19)=xbb(j)
+              coord(20)=zbb(j)
+              coord(23)=crkveb(j)
+              coord(24)=cikveb(j)
+              coord(25)=rkb(j)
+              call thin6d_map_beambeam_2_ibtyp_1_1(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4) 
+              xbb(j)=coord(19)
+              zbb(j)=coord(20)
+              crkveb(j)=coord(23)
+              cikveb(j)=coord(24)
+              rkb(j)=coord(25)
             enddo
             call wzsubv(napx,xrb(1),zrb(1),crxb(1),crzb(1))
             call wzsubv(napx,xbb(1),zbb(1),cbxb(1),cbzb(1))
             do j=1,napx
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              coord(19)=xbb(j)
+              coord(20)=zbb(j)
+              coord(23)=crkveb(j)
+              coord(24)=cikveb(j)
+              coord(25)=rkb(j)
+              call thin6d_map_beambeam_2_ibtyp_1_2(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4)
             enddo
           endif
           goto 640
   720     continue
+          argf(10)=ed(ix)
+          argf(11)=ek(ix)
+          argf(16)=pi
+          argf(26)=pieni
+          argf(34)=strack(i)
+          argf(35)=ibbc
+          argf(36)=clobeam(1,imbb(i))
+          argf(37)=clobeam(2,imbb(i))
+          argf(38)=clobeam(3,imbb(i))
+          argf(39)=clobeam(4,imbb(i))
+          argf(40)=clobeam(5,imbb(i))
+          argf(41)=clobeam(6,imbb(i))
+          argf(43)=beamoff(1,imbb(i))
+          argf(44)=beamoff(2,imbb(i))
+          argf(45)=beamoff(3,imbb(i))
+          argf(46)=beamoff(4,imbb(i))
+          argf(47)=beamoff(5,imbb(i))
+          argf(48)=beamoff(6,imbb(i))
+          argf(49)=bbcu(imbb(i),11)
+          argf(50)=bbcu(imbb(i),12)
+          argf(51)=sigman2(1,imbb(i))
+          argf(52)=sigman2(1,imbb(i))
           if(ibtyp.eq.0) then
             do j=1,napx
-              r2b(j)=two*(sigman2(2,imbb(i))-sigman2(1,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-              call errf(zrb(j),xrb(j),crzb(j),crxb(j))
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-              call errf(zbb(j),xbb(j),cbzb(j),cbxb(j))
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              call thin6d_map_beambeam_2_ibtyp_0(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4)  
             enddo
           else if(ibtyp.eq.1) then
             do j=1,napx
-              r2b(j)=two*(sigman2(2,imbb(i))-sigman2(1,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              coord(19)=xbb(j)
+              coord(20)=zbb(j)
+              coord(23)=crkveb(j)
+              coord(24)=cikveb(j)
+              coord(25)=rkb(j)
+              call thin6d_map_beambeam_3_ibtyp_1_1(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4) 
+              xbb(j)=coord(19)
+              zbb(j)=coord(20)
+              crkveb(j)=coord(23)
+              cikveb(j)=coord(24)
+              rkb(j)=coord(25)
             enddo
             call wzsubv(napx,zrb(1),xrb(1),crzb(1),crxb(1))
             call wzsubv(napx,zbb(1),xbb(1),cbzb(1),cbxb(1))
             do j=1,napx
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              coord(19)=xbb(j)
+              coord(20)=zbb(j)
+              coord(23)=crkveb(j)
+              coord(24)=cikveb(j)
+              coord(25)=rkb(j)
+              call thin6d_map_beambeam_3_ibtyp_1_2(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4)
             enddo
           endif
           goto 640
