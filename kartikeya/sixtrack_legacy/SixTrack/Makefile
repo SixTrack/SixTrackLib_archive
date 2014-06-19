@@ -1,7 +1,7 @@
 SHELL = /bin/sh
 
-FC = gfortran
-FCF =  -frecord-marker=4 -O4 -m32 -g -fno-second-underscore -funroll-loops
+FC = ifort
+FCF =  -O -mia32 -fp-model source -fp-model strict -fp-model no-except
 FCL = -static -m32
 FCLD = -m32
 FCLMAP = -Wl,--print-map -static -m32

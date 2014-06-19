@@ -1140,7 +1140,7 @@
       double precision dpsv1,strack,strackc,stracks,strackx,strackz
       common/track/ ktrack(nblz),strack(nblz),strackc(nblz),            &
      &stracks(nblz),strackx(nblz),strackz(nblz),dpsv1(npart),nwri
-      double precision cc,xlim,ylim
+      double precision cc,xlim,ylim,coord(1000),argf(1000),argi(1000)
       parameter(cc = 1.12837916709551d0)
       parameter(xlim = 5.33d0)
       parameter(ylim = 4.29d0)
@@ -1188,9 +1188,15 @@
           endif
           goto 630
 !--HORIZONTAL DIPOLE
-   30     do 40 j=1,napx
-            yv(1,j)=yv(1,j)+strackc(i)*oidpsv(j)
-            yv(2,j)=yv(2,j)+stracks(i)*oidpsv(j)
+   30     argf(1)=strackc(i)
+          argf(2)=stracks(i)
+          do 40 j=1,napx
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call thin4d_map_horizontal_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
    40     continue
           goto 620
 !--NORMAL QUADRUPOLE
@@ -4395,73 +4401,118 @@
           goto 640
   730     continue
 !--Hirata's 6D beam-beam kick
+            argf(10)=ed(ix)
+            argf(11)=ek(ix)    
+            argf(14)=e0f
+            argf(15)=e0
+            argf(18)=pma
+            argf(36)=clobeam(1,imbb(i))
+            argf(37)=clobeam(2,imbb(i))
+            argf(38)=clobeam(3,imbb(i))
+            argf(39)=clobeam(4,imbb(i))
+            argf(40)=clobeam(5,imbb(i))
+            argf(41)=clobeam(6,imbb(i))
+            argf(43)=beamoff(1,imbb(i))
+            argf(44)=beamoff(2,imbb(i))
+            argf(45)=beamoff(3,imbb(i))
+            argf(46)=beamoff(4,imbb(i))
+            argf(47)=beamoff(5,imbb(i))
+            argf(48)=beamoff(6,imbb(i))        
             do j=1,napx
-!hr03         track6d(1,j)=(xv(1,j)+ed(ix)-clobeam(1,imbb(i)))*c1m3
-              track6d(1,j)=((xv(1,j)+ed(ix))-clobeam(1,imbb(i)))*c1m3    !hr03
-              track6d(2,j)=(yv(1,j)/oidpsv(j)-clobeam(4,imbb(i)))*c1m3
-!hr03         track6d(3,j)=(xv(2,j)+ek(ix)-clobeam(2,imbb(i)))*c1m3
-              track6d(3,j)=((xv(2,j)+ek(ix))-clobeam(2,imbb(i)))*c1m3    !hr03
-              track6d(4,j)=(yv(2,j)/oidpsv(j)-clobeam(5,imbb(i)))*c1m3
-              track6d(5,j)=(sigmv(j)-clobeam(3,imbb(i)))*c1m3
-              track6d(6,j)=dpsv(j)-clobeam(6,imbb(i))
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(6)=sigmv(j)
+              coord(9)=dpsv(j)
+              coord(26)=track6d(1,j)
+              coord(27)=track6d(2,j)
+              coord(28)=track6d(3,j)
+              coord(29)=track6d(4,j)
+              coord(30)=track6d(5,j)
+              coord(31)=track6d(6,j)
+              call thin6d_modify_coords_for_hirata(coord,argf,argi)
+              track6d(1,j)=coord(26)
+              track6d(2,j)=coord(27)
+              track6d(3,j)=coord(28)
+              track6d(4,j)=coord(29)
+              track6d(5,j)=coord(30)
+              track6d(6,j)=coord(31)
             enddo
             call beamint(napx,track6d,parbe,sigz,bbcu,imbb(i),ix,ibtyp, &
      &ibbc)
             do j=1,napx
-!hr03         xv(1,j)=track6d(1,j)*c1e3+clobeam(1,imbb(i))-             &
-              xv(1,j)=(track6d(1,j)*c1e3+clobeam(1,imbb(i)))-           &!hr03
-     &beamoff(1,imbb(i))
-!hr03         xv(2,j)=track6d(3,j)*c1e3+clobeam(2,imbb(i))-             &
-              xv(2,j)=(track6d(3,j)*c1e3+clobeam(2,imbb(i)))-           &!hr03
-     &beamoff(2,imbb(i))
-!hr03         dpsv(j)=track6d(6,j)+clobeam(6,imbb(i))-beamoff(6,imbb(i))
-              dpsv(j)=(track6d(6,j)+clobeam(6,imbb(i)))-                &!hr03
-     &beamoff(6,imbb(i))                                                 !hr03
-              oidpsv(j)=one/(one+dpsv(j))
-!hr03         yv(1,j)=(track6d(2,j)*c1e3+clobeam(4,imbb(i))-            &
-              yv(1,j)=((track6d(2,j)*c1e3+clobeam(4,imbb(i)))-          &!hr03
-     &beamoff(4,imbb(i)))*oidpsv(j)
-!hr03         yv(2,j)=(track6d(4,j)*c1e3+clobeam(5,imbb(i))-            &
-              yv(2,j)=((track6d(4,j)*c1e3+clobeam(5,imbb(i)))-          &!hr03
-     &beamoff(5,imbb(i)))*oidpsv(j)
-              ejfv(j)=dpsv(j)*e0f+e0f
-!hr03         ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-              ejv(j)=sqrt(ejfv(j)**2+pma**2)
-              rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(6)=sigmv(j)
+              coord(7)=ejv(j)
+              coord(8)=ejfv(j)
+              coord(9)=dpsv(j)
+              coord(13)=rvv(j)
+              coord(26)=track6d(1,j)
+              coord(27)=track6d(2,j)
+              coord(28)=track6d(3,j)
+              coord(29)=track6d(4,j)
+              coord(30)=track6d(5,j)
+              coord(31)=track6d(6,j)
+              call thin6d_map_hirata_beambeam(coord,argf,argi)
+              xv(1,j)=coord(1)
+              xv(2,j)=coord(2)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4)
+              oidpsv(j)=coord(5)
+              sigmv(j)=coord(6)
+              ejv(j)=coord(7)
+              ejfv(j)=coord(8)
+              dpsv(j)=coord(9)
+              rvv(j)=coord(13)
               if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
             enddo
           goto 640
   740     continue
           irrtr=imtr(ix)
+          argf(55)=idz(1)
+          argf(56)=idz(2)
+          argf(57)=cotr(irrtr,1)
+          argf(58)=cotr(irrtr,2)
+          argf(59)=cotr(irrtr,3)
+          argf(60)=cotr(irrtr,4)
+          argf(61)=cotr(irrtr,5)
+          argf(62)=cotr(irrtr,6)
+          argf(63)=rrtr(irrtr,5,1)
+          argf(64)=rrtr(irrtr,5,2)
+          argf(65)=rrtr(irrtr,5,3)
+          argf(66)=rrtr(irrtr,5,4)
+          argf(67)=rrtr(irrtr,5,6)
+          argf(68)=rrtr(irrtr,1,1)
+          argf(69)=rrtr(irrtr,1,2)
+          argf(70)=rrtr(irrtr,1,6)
+          argf(71)=rrtr(irrtr,2,1)
+          argf(72)=rrtr(irrtr,2,2)
+          argf(73)=rrtr(irrtr,2,6)
+          argf(74)=rrtr(irrtr,3,3)
+          argf(75)=rrtr(irrtr,3,4)
+          argf(76)=rrtr(irrtr,3,6)
+          argf(77)=rrtr(irrtr,4,3)
+          argf(78)=rrtr(irrtr,4,4)
+          argf(79)=rrtr(irrtr,4,6)          
           do j=1,napx
-!hr03       sigmv(j)=sigmv(j)+cotr(irrtr,5)+rrtr(irrtr,5,1)*xv(1,j)+    &
-!hr03&rrtr(irrtr,5,2)*yv(1,j)+rrtr(irrtr,5,3)*xv(2,j)+                  &
-!hr03&rrtr(irrtr,5,4)*yv(2,j)+rrtr(irrtr,5,6)*dpsv(j)*c1e3
-      sigmv(j)=(((((sigmv(j)+cotr(irrtr,5))+rrtr(irrtr,5,1)*xv(1,j))+   &!hr03
-     &rrtr(irrtr,5,2)*yv(1,j))+rrtr(irrtr,5,3)*xv(2,j))+                &!hr03
-!BNL-NOV08
-!     &rrtr(irrtr,5,4)*yv(2,j)
-     &rrtr(irrtr,5,4)*yv(2,j))+(rrtr(irrtr,5,6)*dpsv(j))*c1e3            !hr03
-!BNL-NOV08
-            pux=xv(1,j)
-            dpsv3(j)=dpsv(j)*c1e3
-!hr03       xv(1,j)=cotr(irrtr,1)+rrtr(irrtr,1,1)*pux+                  &
-!hr03&rrtr(irrtr,1,2)*yv(1,j)+idz(1)*dpsv3(j)*rrtr(irrtr,1,6)
-            xv(1,j)=((cotr(irrtr,1)+rrtr(irrtr,1,1)*pux)+               &!hr03
-     &rrtr(irrtr,1,2)*yv(1,j))+(dble(idz(1))*dpsv3(j))*rrtr(irrtr,1,6)   !hr03
-!hr03       yv(1,j)=cotr(irrtr,2)+rrtr(irrtr,2,1)*pux+                  &
-!hr03&rrtr(irrtr,2,2)*yv(1,j)+idz(1)*dpsv3(j)*rrtr(irrtr,2,6)
-            yv(1,j)=((cotr(irrtr,2)+rrtr(irrtr,2,1)*pux)+               &!hr03
-     &rrtr(irrtr,2,2)*yv(1,j))+(dble(idz(1))*dpsv3(j))*rrtr(irrtr,2,6)   !hr03
-            pux=xv(2,j)
-!hr03       xv(2,j)=cotr(irrtr,3)+rrtr(irrtr,3,3)*pux+                  &
-!hr03&rrtr(irrtr,3,4)*yv(2,j)+idz(2)*dpsv3(j)*rrtr(irrtr,3,6)
-            xv(2,j)=((cotr(irrtr,3)+rrtr(irrtr,3,3)*pux)+               &!hr03
-     &rrtr(irrtr,3,4)*yv(2,j))+(dble(idz(2))*dpsv3(j))*rrtr(irrtr,3,6)   !hr03
-!hr03       yv(2,j)=cotr(irrtr,4)+rrtr(irrtr,4,3)*pux+                  &
-!hr03&rrtr(irrtr,4,4)*yv(2,j)+idz(2)*dpsv3(j)*rrtr(irrtr,4,6)
-            yv(2,j)=((cotr(irrtr,4)+rrtr(irrtr,4,3)*pux)+               &!hr03
-     &rrtr(irrtr,4,4)*yv(2,j))+(dble(idz(2))*dpsv3(j))*rrtr(irrtr,4,6)   !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            call thin6d_map_accelerating_cavity(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
           enddo
  
 !----------------------------------------------------------------------
@@ -4486,55 +4537,27 @@
           nramp1=nturn2(ix)
           nplato=nturn3(ix)
           nramp2=nturn4(ix)
+
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(82)=xory
+          argf(83)=acdipamp
+          argf(84)=acdipamp1
+          argf(85)=acdipamp2
+          argf(86)=nramp1
+          argf(87)=nramp2
+          argf(88)=nac
+          argf(89)=qd
+          argf(90)=acphase
+          argf(91)=nplato
+          argf(91)=sin_rn(((2d0*pi)*qd)*dble(nac)+acphase)
           do j=1,napx
-      if (xory.eq.1) then
-        acdipamp2=acdipamp*tilts(i)
-        acdipamp1=acdipamp*tiltc(i)
-      else
-        acdipamp2=acdipamp*tiltc(i)
-        acdipamp1=-acdipamp*tilts(i)
-      endif
-              if(nramp1.gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(1,j)=yv(1,j)+(((acdipamp1*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(2,j)=yv(2,j)+(((acdipamp2*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-              endif
-              if(nac.ge.nramp1.and.(nramp1+nplato).gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(1,j)=yv(1,j)+(acdipamp1*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(2,j)=yv(2,j)+(acdipamp2*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-              endif
-              if(nac.ge.(nramp1+nplato).and.(nramp2+nramp1+nplato).gt.  &
-     &nac)then
-!hr03         yv(1,j)=yv(1,j)+acdipamp1*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(1,j)=yv(1,j)+((acdipamp1*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-!hr03         yv(2,j)=yv(2,j)+acdipamp2*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(2,j)=yv(2,j)+((acdipamp2*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              endif
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(8)=ejfv(j)
+            call thin6d_map_ac_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
       enddo
       endif
           goto 640
@@ -4555,55 +4578,28 @@
           nramp1=nturn2(ix)
           nplato=nturn3(ix)
           nramp2=nturn4(ix)
+
+
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(82)=xory
+          argf(83)=acdipamp
+          argf(84)=acdipamp1
+          argf(85)=acdipamp2
+          argf(86)=nramp1
+          argf(87)=nramp2
+          argf(88)=nac
+          argf(89)=qd
+          argf(90)=acphase
+          argf(91)=nplato
+          argf(91)=sin_rn(((2d0*pi)*qd)*dble(nac)+acphase)
           do j=1,napx
-      if (xory.eq.1) then
-        acdipamp2=acdipamp*tilts(i)
-        acdipamp1=acdipamp*tiltc(i)
-      else
-        acdipamp2=acdipamp*tiltc(i)
-        acdipamp1=-acdipamp*tilts(i)
-      endif
-              if(nramp1.gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(1,j)=yv(1,j)+(((acdipamp1*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(2,j)=yv(2,j)+(((acdipamp2*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-              endif
-              if(nac.ge.nramp1.and.(nramp1+nplato).gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(1,j)=yv(1,j)+(acdipamp1*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(2,j)=yv(2,j)+(acdipamp2*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-              endif
-              if(nac.ge.(nramp1+nplato).and.(nramp2+nramp1+nplato).gt.  &
-     &nac)then
-!hr03         yv(1,j)=yv(1,j)+acdipamp1*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(1,j)=yv(1,j)+((acdipamp1*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-!hr03         yv(2,j)=yv(2,j)+acdipamp2*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(2,j)=yv(2,j)+((acdipamp2*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              endif
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(8)=ejfv(j)
+            call thin6d_map_ac_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
       enddo
       endif
           goto 640
@@ -4616,30 +4612,34 @@
 !---------sigmv should be in mm --> sigmv*1e-3/clight*ek*1e6 in rad
           pi=4d0*atan_rn(1d0)
         crabfreq=ek(ix)*c1e3
- 
+
+          argf(7)=crabfreq
+          argf(10)=ed(ix)
+          argf(14)=e0f
+          argf(15)=e0
+          argf(18)=pma
+          argf(92)=crabamp
         do j=1,napx
-!hr03    crabamp=ed(ix)/(ejfv(j))*c1e3
-         crabamp=(ed(ix)/ejfv(j))*c1e3                                   !hr03
-!        write(*,*) crabamp, ejfv(j), clight, "HELLO"
- 
-!hr03   yv(xory,j)=yv(xory,j) - crabamp*                                &
-!hr03&sin_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))
-        yv(xory,j)=yv(xory,j) - crabamp*                                &!hr03
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))         !hr03
-!hr03 dpsv(j)=dpsv(j) - crabamp*crabfreq*2d0*pi/clight*xv(xory,j)*      &
-!hr03&cos_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))*c1m3
-      dpsv(j)=dpsv(j) -                                                 &!hr03
-     &((((((crabamp*crabfreq)*2d0)*pi)/clight)*xv(xory,j))*             &!hr03
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix)))*c1m3   !hr03
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(xory,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(xory,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call thin6d_map_crab_cavity_1(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
           goto 640
@@ -4653,91 +4653,76 @@
           pi=4d0*atan_rn(1d0)
         crabfreq=ek(ix)*c1e3
  
+          argf(7)=crabfreq
+          argf(10)=ed(ix)
+          argf(14)=e0f
+          argf(15)=e0
+          argf(18)=pma
+          argf(92)=crabamp
         do j=1,napx
-!hr03    crabamp=ed(ix)/(ejfv(j))*c1e3
-         crabamp=(ed(ix)/ejfv(j))*c1e3                                   !hr03
-!        write(*,*) crabamp, ejfv(j), clight, "HELLO"
- 
-!hr03   yv(xory,j)=yv(xory,j) - crabamp*                                &
-!hr03&sin_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))
-        yv(xory,j)=yv(xory,j) - crabamp*                                &!hr03
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))         !hr03
-!hr03 dpsv(j)=dpsv(j) - crabamp*crabfreq*2d0*pi/clight*xv(xory,j)*      &
-!hr03&cos_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))*c1m3
-      dpsv(j)=dpsv(j) -                                                 &!hr03
-     &((((((crabamp*crabfreq)*2d0)*pi)/clight)*xv(xory,j))*             &!hr03
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix)))*c1m3   !hr03
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(xory,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(xory,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call thin6d_map_crab_cavity_2(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
           goto 640
 !--DIPEDGE ELEMENT
   753     continue
+          argf(3)=xsiv(1,i)
+          argf(4)=zsiv(1,i)
+          argf(5)=tiltc(i)
+          argf(6)=tilts(i)
+          argf(34)=strack(i)
+          argf(80)=strackx(i)
+          argf(81)=strackz(i)
           do j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackx(i)*crkve-                &
-     &stracks(i)*cikve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackz(i)*cikve+                &
-     &strackc(i)*crkve)
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call thin6d_map_dipedge(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
           enddo
           goto 640
 !--solenoid
   754     continue
+          argf(80)=strackx(i)
+          argf(81)=strackz(i)
           do j=1,napx
-            yv(1,j)=yv(1,j)-xv(2,j)*strackx(i)
-            yv(2,j)=yv(2,j)+xv(1,j)*strackx(i)
-!hr02       crkve=yv(1,j)-xv(1,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      crkve=yv(1,j)-(((xv(1,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       cikve=yv(2,j)-xv(2,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      cikve=yv(2,j)-(((xv(2,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       yv(1,j)=crkve*cos(strackz(i)*ejf0v(j)/ejfv(j))+             &
-!hr02&cikve*sin(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       yv(2,j)=-crkve*sin(strackz(i)*ejf0v(j)/ejfv(j))+            &
-!hr02&cikve*cos(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       crkve=xv(1,j)*cos(strackz(i)*ejf0v(j)/ejfv(j))+             &
-!hr02&xv(2,j)*sin(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       cikve=-xv(1,j)*sin(strackz(i)*ejf0v(j)/ejfv(j))+            &
-!hr02&xv(2,j)*cos(strackz(i)*ejf0v(j)/ejfv(j))
-            yv(1,j)=crkve*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))+        &!hr02
-     &cikve*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                        !hr02
-            yv(2,j)=cikve*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))-        &!hr02
-     &crkve*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                        !hr02
-            crkve=xv(1,j)*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))+        &!hr02
-     &xv(2,j)*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                      !hr02
-            cikve=xv(2,j)*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))-        &!hr02
-     &xv(1,j)*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                      !hr02
-            xv(1,j)=crkve
-            xv(2,j)=cikve
-            yv(1,j)=yv(1,j)+xv(2,j)*strackx(i)
-            yv(2,j)=yv(2,j)-xv(1,j)*strackx(i)
-!hr02       crkve=sigmv(j)-0.5*(xv(1,j)*xv(1,j)+xv(2,j)*xv(2,j))*       &
-!hr02&strackx(i)*strackz(i)*rvv(j)*ejf0v(j)/ejfv(j)*ejf0v(j)/ejfv(j)
-        crkve=sigmv(j)-0.5d0*(((((((xv(1,j)**2+xv(2,j)**2)*strackx(i))* &!hr02
-     &strackz(i))*rvv(j))*ejf0v(j))/ejfv(j))*ejf0v(j))/ejfv(j)           !hr02
-            sigmv(j)=crkve
-!hr02       crkve=yv(1,j)-xv(1,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      crkve=yv(1,j)-(((xv(1,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       cikve=yv(2,j)-xv(2,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      cikve=yv(2,j)-(((xv(2,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       sigmv(j)=sigmv(j)+(xv(1,j)*cikve-xv(2,j)*crkve)*strackz(i)* &
-!hr02&rvv(j)*ejf0v(j)/ejfv(j)*ejf0v(j)/ejfv(j)
-      sigmv(j)=sigmv(j)+((((((xv(1,j)*cikve-xv(2,j)*crkve)*strackz(i))* &!hr02
-     &rvv(j))*ejf0v(j))/ejfv(j))*ejf0v(j))/ejfv(j)                       !hr02
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)
+            call thin6d_map_solenoid(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
           enddo
           goto 640
 !----------------------------
@@ -4766,202 +4751,27 @@
       lin= dx *sin_rn(tx)+(embl*cos_rn(tx))*0.5d0                        !hr03
       ry = dy *cos_rn(ty)-lin *sin_rn(ty)
       lin= lin*cos_rn(ty)+dy  *sin_rn(ty)
- 
+      argf(94)=embl
+      argf(95)=tx
+      argf(96)=ty
+      argf(97)=lin
+      argf(98)=rx
+      argf(99)=ry
+      argf(100)=cur
+      argf(101)=chi
+      argf(102)=l
+      argf(103)=leff
       do 750 j=1, napx
- 
-      xv(1,j) = xv(1,j) * c1m3
-      xv(2,j) = xv(2,j) * c1m3
-      yv(1,j) = yv(1,j) * c1m3
-      yv(2,j) = yv(2,j) * c1m3
- 
-!      write(*,*) 'Start: ',j,xv(1,j),xv(2,j),yv(1,j),
-!     &yv(2,j)
- 
-!     call drift(-embl/2)
- 
-!hr03 xv(1,j) = xv(1,j) - embl/2*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) -                                               &!hr03
-     &((embl*0.5d0)*yv(1,j))/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2)                                                        !hr03
-!hr03 xv(2,j) = xv(2,j) - embl/2*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) -                                               &!hr03
-     &((embl*0.5d0)*yv(2,j))/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2)                                                        !hr03
- 
-!     call tilt(tx,ty)
- 
-!hr03 xv(2,j) = xv(2,j)-xv(1,j)*sin_rn(tx)*yv(2,j)/sqrt((1+dpsv(j))**2- &
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))-tx)
-      xv(2,j) = xv(2,j)-(((xv(1,j)*sin_rn(tx))*yv(2,j))/                &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(2,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(1,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))-tx)                                                   !hr03
-!+if crlibm
-!hhr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(2,j)**2)/cos(atan(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))-tx)
-!hr03 xv(1,j) = xv(1,j)*(cos_rn(tx)-sin_rn(tx)*tan_rn(atan_rn(yv(1,j)/  &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx))
-      xv(1,j) = xv(1,j)*(cos_rn(tx)-sin_rn(tx)*tan_rn(atan_rn(yv(1,j)/  &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-tx))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx))
-!hr03 yv(1,j) = sqrt((1+dpsv(j))**2-yv(2,j)**2)*sin_rn(atan_rn(yv(1,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx)
-      yv(1,j) = sqrt((1d0+dpsv(j))**2-yv(2,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(1,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-tx)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx)
-!hr03 xv(1,j) = xv(1,j)-xv(2,j)*sin_rn(ty)*yv(1,j)/sqrt((1+dpsv(j))**2- &
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))-ty)
-      xv(1,j) = xv(1,j)-(((xv(2,j)*sin_rn(ty))*yv(1,j))/                &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(1,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(2,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))-ty)                                                   !hr03
-!+if crlibm
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(1,j)**2)/cos(atan(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))-ty)
-!hr03 xv(2,j) = xv(2,j)*(cos_rn(ty)-sin_rn(ty)*tan_rn(atan_rn(yv(2,j)/  &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty))
-      xv(2,j) = xv(2,j)*(cos_rn(ty)-sin_rn(ty)*tan_rn(atan_rn(yv(2,j)/  &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-ty))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty))
-!hr03 yv(2,j) = sqrt((1+dpsv(j))**2-yv(1,j)**2)*sin_rn(atan_rn(yv(2,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty)
-      yv(2,j) = sqrt((1d0+dpsv(j))**2-yv(1,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(2,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-ty)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty)
- 
-!     call drift(lin)
- 
-!hr03 xv(1,j) = xv(1,j) + lin*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-   &
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) + (lin*yv(1,j))/                                &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
-!hr03 xv(2,j) = xv(2,j) + lin*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-   &
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) + (lin*yv(2,j))/                                &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
- 
-!      call kick(l,cur,lin,rx,ry,chi)
- 
-      xi = xv(1,j)-rx
-      yi = xv(2,j)-ry
-!hr03 yv(1,j) = yv(1,j)-c1m7*cur/chi*xi/(xi**2+yi**2)*                  &
-!hr03&(sqrt((lin+l)**2+xi**2+yi**2)-sqrt((lin-l)**2+                    &
-!hr03&xi**2+yi**2))
-      yv(1,j) = yv(1,j)-((((c1m7*cur)/chi)*xi)/(xi**2+yi**2))*          &!hr03
-     &(sqrt(((lin+l)**2+xi**2)+yi**2)-sqrt(((lin-l)**2+                 &!hr03
-     &xi**2)+yi**2))                                                     !hr03
-!GRD FOR CONSISTENSY
-!hr03 yv(2,j) = yv(2,j)-c1m7*cur/chi*yi/(xi**2+yi**2)*                  &
-!hr03&(sqrt((lin+l)**2+xi**2+yi**2)-sqrt((lin-l)**2+                    &
-!hr03&xi**2+yi**2))
-      yv(2,j) = yv(2,j)-((((c1m7*cur)/chi)*yi)/(xi**2+yi**2))*          &!hr03
-     &(sqrt(((lin+l)**2+xi**2)+yi**2)-sqrt(((lin-l)**2+                 &!hr03
-     &xi**2)+yi**2))                                                     !hr03
- 
-!     call drift(leff-lin)
- 
-!hr03 xv(1,j) = xv(1,j) + (leff-lin)*yv(1,j)/sqrt((1+dpsv(j))**2-       &
-!hr03&yv(1,j)**2-yv(2,j)**2)
-      xv(1,j) = xv(1,j) + ((leff-lin)*yv(1,j))/sqrt(((1d0+dpsv(j))**2-  &!hr03
-     &yv(1,j)**2)-yv(2,j)**2)                                            !hr03
-!hr03 xv(2,j) = xv(2,j) + (leff-lin)*yv(2,j)/sqrt((1+dpsv(j))**2-       &
-!hr03&yv(1,j)**2-yv(2,j)**2)
-      xv(2,j) = xv(2,j) + ((leff-lin)*yv(2,j))/sqrt(((1d0+dpsv(j))**2-  &!hr03
-     &yv(1,j)**2)-yv(2,j)**2)                                            !hr03
- 
-!     call invtilt(tx,ty)
- 
-!hr03 xv(1,j) = xv(1,j)-xv(2,j)*sin_rn(-ty)*yv(1,j)/sqrt((1+dpsv(j))**2-&
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))+ty)
-      xv(1,j) = xv(1,j)-(((xv(2,j)*sin_rn(-ty))*yv(1,j))/               &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(1,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(2,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))+ty)                                                   !hr03
-!+if crlibm
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(1,j)**2)/cos(atan(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))+ty)
-!hr03 xv(2,j) = xv(2,j)*(cos_rn(-ty)-sin_rn(-ty)*tan_rn(atan_rn(yv(2,j)/&
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty))
-      xv(2,j) = xv(2,j)*                                                &!hr03
-     &(cos_rn(-1d0*ty)-sin_rn(-1d0*ty)*tan_rn(atan_rn(yv(2,j)/          &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+ty))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty))
-!hr03 yv(2,j) = sqrt((1+dpsv(j))**2-yv(1,j)**2)*sin_rn(atan_rn(yv(2,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty)
-      yv(2,j) = sqrt((1d0+dpsv(j))**2-yv(1,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(2,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+ty)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty)
- 
-!hr03 xv(2,j) = xv(2,j)-xv(1,j)*sin_rn(-tx)*yv(2,j)/sqrt((1+dpsv(j))**2-&
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))+tx)
-      xv(2,j) = xv(2,j)-(((xv(1,j)*sin_rn(-1d0*tx))*yv(2,j))/           &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(2,j)**2))/cos_rn(atan_rn(yv(1,j)/        &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx)                !hr03
-!+if crlibm
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(2,j)**2)/cos(atan(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))+tx)
-!hr03 xv(1,j) = xv(1,j)*(cos_rn(-tx)-sin_rn(-tx)*tan_rn(atan_rn(yv(1,j)/
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx))
-      xv(1,j) = xv(1,j)*                                                &!hr03
-     &(cos_rn(-1d0*tx)-sin_rn(-1d0*tx)*tan_rn(atan_rn(yv(1,j)/          &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx))
-!hr03 yv(1,j) = sqrt((1+dpsv(j))**2-yv(2,j)**2)*sin_rn(atan_rn(yv(1,j)/
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx)
-      yv(1,j) = sqrt((1d0+dpsv(j))**2-yv(2,j)**2)*                       !hr03
-     &sin_rn(atan_rn(yv(1,j)/                                            !hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx)
- 
-!     call shift(-embl*tan(tx),-embl*tan(ty)/cos(tx))
- 
-      xv(1,j) = xv(1,j) + embl*tan_rn(tx)
-!hr03 xv(2,j) = xv(2,j) + embl*tan_rn(ty)/cos_rn(tx)
-      xv(2,j) = xv(2,j) + (embl*tan_rn(ty))/cos_rn(tx)                   !hr03
- 
-!     call drift(-embl/2)
- 
-!hr03 xv(1,j) = xv(1,j) - embl/2*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) - ((embl*0.5d0)*yv(1,j))/                       &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
-!hr03 xv(2,j) = xv(2,j) - embl/2*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) - ((embl*0.5d0)*yv(2,j))/                       &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
- 
-      xv(1,j) = xv(1,j) * c1e3
-      xv(2,j) = xv(2,j) * c1e3
-      yv(1,j) = yv(1,j) * c1e3
-      yv(2,j) = yv(2,j) * c1e3
- 
-!      write(*,*) 'End: ',j,xv(1,j),xv(2,j),yv(1,j),                       &
-!     &yv(2,j)
+        coord(1)=xv(1,j)
+        coord(2)=xv(2,j)
+        coord(3)=yv(1,j)
+        coord(4)=yv(2,j)
+        coord(9)=dpsv(j)
+        call thin6d_map_wire(coord,argf,argi)
+        xv(1,j)=coord(1)
+        xv(2,j)=coord(2)
+        yv(1,j)=coord(3)
+        yv(2,j)=coord(4)
  
 !-----------------------------------------------------------------------
  

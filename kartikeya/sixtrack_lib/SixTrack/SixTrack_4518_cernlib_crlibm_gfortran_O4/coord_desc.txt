@@ -21,7 +21,15 @@
             coord(23)=crkve(j)
             coord(24)=cikve(j)
             coord(25)=rkb(j)
- 
+            coord(26)=thin6d(1,j)
+            coord(27)=thin6d(2,j)
+            coord(28)=thin6d(3,j)
+            coord(29)=thin6d(4,j)
+            coord(30)=thin6d(5,j)
+            coord(31)=thin6d(6,j)
+
+
+
 
 
             xv(1,j)=coord(1)
