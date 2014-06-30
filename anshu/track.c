@@ -292,18 +292,6 @@ int update_counter(double dataf[], int datai[]) {
   return 1;
 };
 
-void update_gen(double dataf[], int datai[], int elem_id,int resi, double resf)
-{
-    int res_into,temp,type_id;
-    res_into = datai[elem_id+4];
-    temp = (res_into-2)/3;
-    if(temp%2==0)
-        datai[temp/2]=resi;
-    else
-        dataf[(temp-1)/2]=resf;
-    update_rot2d(dataf,datai,(temp-1)/2);    
-}
-
 make_vecmap(rot2d,2)
 
 #define kick2d_TYPE 2
@@ -337,15 +325,36 @@ make_vecmap(counter,2);
 
 #define expr_TYPE 4
 
+void update_gen(double dataf[], int datai[], int elem_id,int resi, double resf)
+{
+    int res_into,temp,type_id,res_type;
+    res_into = datai[elem_id+4];
+    res_type = datai[elem_id+5];
+    temp = (res_into-2)/3;
+    if(temp%2==0)
+        datai[temp/2]=resi;
+    else
+        dataf[(temp-1)/2]=resf;
+    switch(res_type)
+    {
+        case rot2d_TYPE: 
+            update_rot2d(dataf,datai,(temp-1)/2); break;
+        case kick2d_TYPE: 
+            update_kick2d(dataf, datai); break;
+        case counter_TYPE:
+            update_counter(dataf, datai); break;
+    }  
+}
+
 int map_expr(double dataf[], int datai[], int elem_id, double coord[])
 {
     int i,len,temp;
     struct Elem out;
     int *results;
     double *constf;
-    results = &datai[elem_id+6];
+    results = &datai[elem_id+7];
     constf = &dataf[datai[elem_id+2]];
-    len = datai[elem_id+5];
+    len = datai[elem_id+6];
     init_elem_stack();
     for(i=0;i<len;i++)
     {
@@ -454,3 +463,17 @@ int vec_map_loop(double dataf[], int datai[], double coord[], int coordi[]) {
   };
   return 1;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
