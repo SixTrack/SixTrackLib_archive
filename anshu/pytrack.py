@@ -116,8 +116,8 @@ class RPNparser(object):
         elif self.encode_opr.has_key(tok):
             enc_res.append(self.encode_opr[tok])
         else:
-            #print seq.search(tok)
-            enc_res.append(seq.search(tok))
+            to_append, neglect = seq.search(tok)
+            enc_res.append(to_append)
     seq.datai.extend([len(enc_res)])
     seq.datai.extend(enc_res)
     seq.dataf.extend(constf)
@@ -194,8 +194,8 @@ class Sequence(object):
     newid=len(self.datai)
     newfid=len(self.dataf)
     self.lst.extend([newid])
-    res_into = self.search(var_into)
-    self.datai.extend([newid,4,newfid,None,res_into])
+    res_into, res_into_type = self.search(var_into)
+    self.datai.extend([newid,4,newfid,None,res_into,res_into_type])
     RPNparser(self,expr)
     self.add_elem(label,Expression,newid)   
 
@@ -213,7 +213,7 @@ class Sequence(object):
       ret = 2*(main+offset+4)
     if choice==1:
       ret = 2*(self.datai[main+2]+offset)+1
-    return 3*ret+2
+    return 3*ret+2, self.elems[tag[0]][0]._typeid 
 
   def join(self):
     self.lst.extend([None])		
@@ -249,13 +249,16 @@ class Sequence(object):
 
 seq = Sequence()
 seq.add_rot("rot1",0.245)
-#seq.add_rot("rot2",0.3*math.pi)
-seq.add_kick("kick1",1,3)
+seq.add_rot("rot2",0.3*math.pi) 
+seq.add_kick("kick1",0.1,3)
 seq.add_count("cnt",1,250)
 seq.add_expr("exp1","rot1.angle","IF (cnt.count<100) (0.245) (IF (cnt.count<200) (0.245+(cnt.count-100)*0.00001) 0.246)")
+seq.track([1.0,1.0],[1,2])
 #rpn=RPNparser(seq,"IF (1 GE 0.9) 9 10")
 #print rpn.parser
-seq.track([1.0,1.0],[1,2])
+#seq.search("cnt.count")
+#rpn = RPNparser("3.2+2.1")
+#seq.join()
 #print seq.datai
 #print seq.dataf
 #print rpn.parser, rpn.constf
