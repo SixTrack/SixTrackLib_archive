@@ -117,7 +117,6 @@ void op_LT(){
     struct Elem a,b;
     b = elem_pop();
     a = elem_pop();
-//    printf("LT ");
     if(a.type==INT && b.type==INT) 
     {elem_pushInt(a.data.i<b.data.i?1:0);}
     if(a.type==FLOAT && b.type==INT) 
@@ -132,7 +131,6 @@ void op_GT(){
     struct Elem a,b;
     b = elem_pop();
     a = elem_pop();
-//    printf("GT ");
     if(a.type==INT && b.type==INT) 
     {elem_pushInt(a.data.i>b.data.i?1:0);}
     if(a.type==FLOAT && b.type==INT) 
@@ -147,7 +145,6 @@ void op_LE(){
     struct Elem a,b;
     b = elem_pop();
     a = elem_pop();
-//    printf("LE ");
     if(a.type==INT && b.type==INT) 
     {elem_pushInt(a.data.i<=b.data.i?1:0);}
     if(a.type==FLOAT && b.type==INT) 
@@ -162,7 +159,6 @@ void op_GE(){
     struct Elem a,b;
     b = elem_pop();
     a = elem_pop();
-//    printf("GE ");
     if(a.type==INT && b.type==INT) 
     {elem_pushInt(a.data.i>=b.data.i?1:0);}
     if(a.type==FLOAT && b.type==INT) 
@@ -186,6 +182,42 @@ void op_IF(){
     (a.data.i!=0)?elem_pushFloat(b.data.f):elem_pushInt(c.data.i);
     if(c.type==FLOAT && b.type==FLOAT) 
     (a.data.i!=0)?elem_pushFloat(b.data.f):elem_pushFloat(c.data.f);
+}
+
+void op_SIN(){
+    struct Elem a;
+    a = elem_pop();
+    if(a.type==INT)
+    elem_pushFloat(sin(a.data.i));
+    if(a.type==FLOAT)
+    elem_pushFloat(sin(a.data.f));
+}
+
+void op_COS(){
+    struct Elem a;
+    a = elem_pop(); 
+    if(a.type==INT)
+    elem_pushFloat(cos(a.data.i));
+    if(a.type==FLOAT)
+    elem_pushFloat(cos(a.data.f));
+}
+
+void op_SQRT(){
+    struct Elem a;
+    a = elem_pop();
+    if(a.type==INT)
+    elem_pushFloat(sqrt(a.data.i));
+    if(a.type==FLOAT)
+    elem_pushFloat(sqrt(a.data.f));
+}
+
+void op_EXP(){
+    struct Elem a;
+    a = elem_pop();
+    if(a.type==INT)
+    elem_pushFloat(exp(a.data.i));
+    if(a.type==FLOAT)
+    elem_pushFloat(exp(a.data.f));
 }
 
 void op_CONSTF(double constf[]){
@@ -249,6 +281,10 @@ void call_ops(int index)
         case 10: op_LE(); break;
         case 11: op_GE(); break;
         case 12: op_IF(); break;
+        case 13: op_SIN(); break;
+        case 14: op_COS(); break;
+        case 15: op_SQRT(); break;
+        case 16: op_EXP(); break;
     }
 }
 
@@ -312,6 +348,7 @@ make_vecmap(kick2d,2);
 
 int map_counter(double dataf[], int datai[], int elem_id, double coord[]) {
   int count,limit;
+  printf("%lf %lf \n",coord[0],coord[1]);
   limit=datai[elem_id+5];
   count=datai[elem_id+4]++;
   if (count<limit){
@@ -385,12 +422,12 @@ int map_expr(double dataf[], int datai[], int elem_id, double coord[])
     if(out.type==INT) 
     {
         update_gen(dataf,datai,elem_id,out.data.i,0);
-        printf("%d\n",datai[(decode(dataf,datai,datai[elem_id+4]))/2]);  
+        //printf("%d\n",datai[(decode(dataf,datai,datai[elem_id+4]))/2]);  
     }  
     if(out.type==FLOAT)
     {
         update_gen(dataf,datai,elem_id,0,out.data.f);
-        printf("%f %f %f\n",dataf[0],dataf[1],dataf[2]);
+        //printf("%f %f %f\n",dataf[0],dataf[1],dataf[2]);
     }
     return 1;
 }
