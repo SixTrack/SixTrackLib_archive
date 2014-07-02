@@ -25,12 +25,16 @@ class RPNparser(object):
   op_ge = "GE"
   op_le = "LE"
   op_if = "IF"
+  op_sin = "SIN"
+  op_cos = "COS"
+  op_sqrt = "SQRT"
+  op_exp = "EXP"
 
-  encode_opr={'+':3,'-':6,'=':9,'*':12,'/':15,'^':18,'<':24,'>':27,'LE':30,'GE':33, 'IF':36}
+  encode_opr={'+':3,'-':6,'=':9,'*':12,'/':15,'^':18,'<':24,'>':27,'LE':30,'GE':33, 'IF':36, 'SIN':39, 'COS':42, 'SQRT':45, 'EXP':48}
 
-  op_associativity = {op_pow: "right", op_mul: "left", op_div: "left", op_add: "left", op_sub: "left", op_equ: "left", op_lt: "left", op_gt: "left", op_le: "left", op_ge: "left", op_if:"left"}
+  op_associativity = {op_pow: "right", op_mul: "left", op_div: "left", op_add: "left", op_sub: "left", op_equ: "left", op_lt: "left", op_gt: "left", op_le: "left", op_ge: "left", op_if:"left", op_sin: "left", op_cos: "left", op_sqrt: "left", op_exp: "left"}
 
-  op_precedence = {op_pow: 5, op_mul: 4, op_div: 4, op_add: 3, op_sub: 3, op_lt:2, op_gt:2, op_le:2, op_ge:2, op_equ: 1, op_if:0, op_left: -1, op_right: -1}
+  op_precedence = {op_pow: 5, op_mul: 4, op_div: 4, op_add: 3, op_sub: 3, op_lt:2, op_gt:2, op_le:2, op_ge:2, op_sin: 1, op_cos: 1, op_sqrt: 1, op_exp: 4, op_equ: 1, op_if:0, op_left: -1, op_right: -1}
 
   def precedence(self,op):
     return self.op_precedence[op]
@@ -252,7 +256,8 @@ seq.add_rot("rot1",0.245)
 seq.add_rot("rot2",0.3*math.pi) 
 seq.add_kick("kick1",0.1,3)
 seq.add_count("cnt",1,250)
-seq.add_expr("exp1","rot1.angle","IF (cnt.count<100) (0.245) (IF (cnt.count<200) (0.245+(cnt.count-100)*0.00001) 0.246)")
+#seq.add_expr("exp1","rot1.angle","IF (cnt.count<100) (0.245) (IF (cnt.count<200) (0.245+(cnt.count-100)*0.00001) 0.246)")
+seq.add_expr("exp1","rot1.angle","0.33*2*3.14+0.01*SIN (2*3.14*0.1*cnt.count)")
 seq.track([1.0,1.0],[1,2])
 #rpn=RPNparser(seq,"IF (1 GE 0.9) 9 10")
 #print rpn.parser
