@@ -1188,7 +1188,8 @@
           endif
           goto 630
 !--HORIZONTAL DIPOLE
-   30     argf(34)=strack(i)
+   30     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           do 40 j=1,napx
             coord(3)=yv(1,j)
             coord(4)=yv(2,j)
@@ -3147,7 +3148,8 @@
             enddo
           endif
           goto 650
-   30     argf(34)=strack(i)
+   30     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3221,7 +3223,8 @@
      &(xv(1,j),yv(1,j),xv(2,j),yv(2,j),sigmv(j),dpsv(j),j=1,napx)
           goto 640
 !--HORIZONTAL DIPOLE
-   50     argf(34)=strack(i)
+   50     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           do 60 j=1,napx
             coord(3)=yv(1,j)
             coord(4)=yv(2,j)
@@ -3232,7 +3235,8 @@
    60     continue
           goto 640
 !--NORMAL QUADRUPOLE
-   70     argf(34)=strack(i)
+   70     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3261,7 +3265,8 @@
 !	  write(*,*) 'FREQ',  crabfreq
 !	  write(*,*) 'PHASE', crabph2(ix)
 !          write(*,*) '-------------------'
-          argf(34)=strack(i)
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3319,7 +3324,8 @@
           crabamp2 = ed(ix)!/(1+dpsv(j))
           crabfreq=ek(ix)*c1e3
 
-          argf(34)=strack(i)
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3370,7 +3376,8 @@
                 enddo
           goto 640
 !--NORMAL SEXTUPOLE
-   90     argf(34)=strack(i)
+   90     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3383,7 +3390,7 @@
             coord(5)=oidpsv(j)
             call thin6d_map_normal_sextupole(coord,argf,argi)
             yv(1,j)=coord(3)                          
-            yv(2,j)=coord(4)                                                  !hr02
+            yv(2,j)=coord(4)                                              
   100     continue
           goto 640
   756     continue
@@ -3399,7 +3406,8 @@
 !	  write(*,*) 'FREQ',  crabfreq
 !	  write(*,*) 'PHASE', crabph3(ix)
 !          write(*,*) '-------------------'
-          argf(34)=strack(i)
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3460,7 +3468,8 @@
           crabamp3 = ed(ix)!/(1+dpsv(j))
           crabfreq=ek(ix)*c1e3
 
-          argf(34)=strack(i)
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3514,7 +3523,8 @@
                 enddo
           goto 640
 !--NORMAL OCTUPOLE
-  110     argf(34)=strack(i)
+  110     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3527,7 +3537,7 @@
             coord(5)=oidpsv(j)
             call thin6d_map_normal_octupole(coord,argf,argi)
             yv(1,j)=coord(3)                          
-            yv(2,j)=coord(4)                                                  !hr02
+            yv(2,j)=coord(4)                                   
   120     continue
           goto 640
   757     continue
@@ -3544,7 +3554,8 @@
 !	  write(*,*) 'FREQ',  crabfreq
 !	  write(*,*) 'PHASE', crabph4(ix)
 !          write(*,*) '-------------------'
-          argf(34)=strack(i)
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3604,7 +3615,8 @@
           crabamp4 = ed(ix)!/(1+dpsv(j))
           crabfreq=ek(ix)*c1e3
           ! Sixtrack uses mm and mrad, input m^{-n+1}
-          argf(34)=strack(i)
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3657,7 +3669,8 @@
                 enddo
           goto 640
 !--NORMAL DECAPOLE
-  130     argf(34)=strack(i)
+  130     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3674,7 +3687,8 @@
   140     continue
           goto 640
 !--NORMAL DODECAPOLE
-  150     argf(34)=strack(i)
+  150     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3691,7 +3705,8 @@
   160     continue
           goto 640
 !--NORMAL 14-POLE
-  170     argf(34)=strack(i)
+  170     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3708,7 +3723,8 @@
   180     continue
           goto 640
 !--NORMAL 16-POLE
-  190     argf(34)=strack(i)
+  190     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3725,7 +3741,8 @@
   200     continue
           goto 640
 !--NORMAL 18-POLE
-  210     argf(34)=strack(i)
+  210     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3742,7 +3759,8 @@
   220     continue
           goto 640
 !--NORMAL 20-POLE
-  230     argf(34)=strack(i)
+  230     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3807,7 +3825,8 @@
   280     continue
           goto 410
   290     continue
-          argf(34)=strack(i)
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3832,7 +3851,8 @@
   300     continue
           goto 640
   310     continue
-          argf(34)=strack(i)
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3857,7 +3877,8 @@
   320     continue
           goto 410
   330     continue
-          argf(34)=strack(i)
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3883,7 +3904,8 @@
   340     continue
           goto 640
   350     continue
-          argf(34)=strack(i)
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3909,7 +3931,8 @@
   360     continue
           goto 410
   370     continue
-          argf(34)=strack(i)
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3935,7 +3958,8 @@
   380     continue
           goto 640
   390     continue
-          argf(34)=strack(i)
+          argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -3998,7 +4022,8 @@
           goto 640
 !--SKEW ELEMENTS
 !--VERTICAL DIPOLE
-  440     argf(34)=strack(i)
+  440     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           do 450 j=1,napx
             coord(3)=yv(1,j)
             coord(4)=yv(2,j)
@@ -4009,7 +4034,8 @@
   450     continue
           goto 640
 !--SKEW QUADRUPOLE
-  460     argf(34)=strack(i)
+  460     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -4026,7 +4052,8 @@
   470     continue
           goto 640
 !--SKEW SEXTUPOLE
-  480     argf(34)=strack(i)
+  480     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -4043,7 +4070,8 @@
   490     continue
           goto 640
 !--SKEW OCTUPOLE
-  500     argf(34)=strack(i)
+  500     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -4060,7 +4088,8 @@
   510     continue
           goto 640
 !--SKEW DECAPOLE
-  520     argf(34)=strack(i)
+  520     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -4077,7 +4106,8 @@
   530     continue
           goto 640
 !--SKEW DODECAPOLE
-  540     argf(34)=strack(i)
+  540     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -4094,7 +4124,8 @@
   550     continue
           goto 640
 !--SKEW 14-POLE
-  560     argf(34)=strack(i)
+  560     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -4111,7 +4142,8 @@
   570     continue
           goto 640
 !--SKEW 16-POLE
-  580     argf(34)=strack(i)
+  580     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -4128,7 +4160,8 @@
   590     continue
           goto 640
 !--SKEW 18-POLE
-  600     argf(34)=strack(i)
+  600     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -4145,7 +4178,8 @@
   610     continue
           goto 640
 !--SKEW 20-POLE
-  620     argf(34)=strack(i)
+  620     argf(1)=strackc(i)
+          argf(2)=stracks(i)
           argf(3)=xsiv(1,i)
           argf(4)=zsiv(1,i)
           argf(5)=tiltc(i)
@@ -4313,7 +4347,7 @@
               coord(16)=crzb(j)
               coord(17)=cbxb(j)
               coord(18)=cbzb(j)
-              call thin6d_map_beambeam_2_ibtyp_0(coord,argf,argi)
+              call thin6d_map_beambeam_3_ibtyp_0(coord,argf,argi)
               yv(1,j)=coord(3)
               yv(2,j)=coord(4)  
             enddo
@@ -4717,6 +4751,7 @@
       lin= dx *sin_rn(tx)+(embl*cos_rn(tx))*0.5d0                        !hr03
       ry = dy *cos_rn(ty)-lin *sin_rn(ty)
       lin= lin*cos_rn(ty)+dy  *sin_rn(ty)
+
       argf(94)=embl
       argf(95)=tx
       argf(96)=ty

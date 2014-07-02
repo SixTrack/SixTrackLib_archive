@@ -3390,7 +3390,7 @@
             coord(5)=oidpsv(j)
             call thin6d_map_normal_sextupole(coord,argf,argi)
             yv(1,j)=coord(3)                          
-            yv(2,j)=coord(4)                                                  !hr02
+            yv(2,j)=coord(4)                                              
   100     continue
           goto 640
   756     continue
@@ -3537,7 +3537,7 @@
             coord(5)=oidpsv(j)
             call thin6d_map_normal_octupole(coord,argf,argi)
             yv(1,j)=coord(3)                          
-            yv(2,j)=coord(4)                                                  !hr02
+            yv(2,j)=coord(4)                                   
   120     continue
           goto 640
   757     continue
@@ -4248,8 +4248,10 @@
           argf(48)=beamoff(6,imbb(i))
           argf(49)=bbcu(imbb(i),11)
           argf(50)=bbcu(imbb(i),12)
-          argf(51)=sigman2(1,imbb(i))
-          argf(52)=sigman2(1,imbb(i))
+          argf(51)=sigmanq(1,imbb(i))
+          argf(51)=sigmanq(2,imbb(i))
+          argf(53)=sigman2(1,imbb(i))
+          argf(54)=sigman2(2,imbb(i))
           if(ibtyp.eq.0) then
             do j=1,napx
               coord(1)=xv(1,j)
@@ -4334,8 +4336,10 @@
           argf(48)=beamoff(6,imbb(i))
           argf(49)=bbcu(imbb(i),11)
           argf(50)=bbcu(imbb(i),12)
-          argf(51)=sigman2(1,imbb(i))
-          argf(52)=sigman2(1,imbb(i))
+          argf(51)=sigmanq(1,imbb(i))
+          argf(51)=sigmanq(2,imbb(i))
+          argf(53)=sigman2(1,imbb(i))
+          argf(54)=sigman2(2,imbb(i))
           if(ibtyp.eq.0) then
             do j=1,napx
               coord(1)=xv(1,j)
@@ -4347,7 +4351,7 @@
               coord(16)=crzb(j)
               coord(17)=cbxb(j)
               coord(18)=cbzb(j)
-              call thin6d_map_beambeam_2_ibtyp_0(coord,argf,argi)
+              call thin6d_map_beambeam_3_ibtyp_0(coord,argf,argi)
               yv(1,j)=coord(3)
               yv(2,j)=coord(4)  
             enddo
@@ -4751,6 +4755,7 @@
       lin= dx *sin_rn(tx)+(embl*cos_rn(tx))*0.5d0                        !hr03
       ry = dy *cos_rn(ty)-lin *sin_rn(ty)
       lin= lin*cos_rn(ty)+dy  *sin_rn(ty)
+
       argf(94)=embl
       argf(95)=tx
       argf(96)=ty

@@ -56,7 +56,7 @@
          coord[3] = yp + LengthElementTiltSin * RatioPtoPj;       \
                                                                  \
          if(cnt##NAME##hordipole++ ==0)                         \
-            printf("NAME hor dipole\n");             \
+            printf(#NAME" hor dipole\n");             \
          return 1;                              \
         }                                               \
 
@@ -89,7 +89,7 @@ coord[2] = xp + RatioPtoPj * ( LengthElementTiltCos * crkve + LengthElementTiltS
 coord[3] = yp + RatioPtoPj * ( LengthElementTiltSin * crkve - LengthElementTiltCos * cikve );			\
 														\
 if( cntnorm##NAME++ == 0 )												\
-printf("norm##NAME## called %d times\n",cntnorm##NAME);								\
+printf("norm"#NAME" called %d times\n",cntnorm##NAME);								\
 return 1;													\
 }								\
 
@@ -121,7 +121,7 @@ coord[2] = xp + RatioPtoPj * ( LengthElementTiltCos * cikve - LengthElementTiltS
 coord[3] = yp + RatioPtoPj * ( LengthElementTiltCos * crkve + LengthElementTiltSin * cikve );			\
 														\
 if( cntskew##NAME++ == 0 )												\
-printf("skew##NAME## called %d times\n",cntskew##NAME);								\
+printf("skew"#NAME" called %d times\n",cntskew##NAME);								\
 return 1;													\
 }
 
@@ -152,7 +152,7 @@ return 1;													\
 		coord[5] = PathLengthDiff - ( RatioBetaToBetaj * VerticalBendingKick ) * zlvj;			\
 													\
                 if( cntmulhorz##NAME++ == 0 )												\
-			printf("mulhorzpprox##NAME## called %d times\n",cntmulhorz##NAME);							\
+			printf("mulhorzpprox"#NAME" called %d times   \n",cntmulhorz##NAME);							\
 		return 1;						\
 	}
 
@@ -183,7 +183,7 @@ coord[3] = ( yp - ((( PhysicalLengthOfBlock * xlvj ) * RatioPtoPj + RatioDeltaPt
 coord[5] = PathLengthDiff + ( RatioBetaToBetaj * HorizontalBendingKick ) * xlvj;					\
 															\
                 if( cntmulhornz##NAME++ == 0 )												\
-			printf("mulhornzpprox##NAME## called %d times\n",cntmulhornz##NAME);		\
+			printf("mulhornzpprox"#NAME" called %d times\n",cntmulhornz##NAME);		\
                 return 1;														\
 }
 
@@ -215,7 +215,7 @@ coord[3] = ( yp - ((( PhysicalLengthOfBlock * zlvj ) * RatioPtoPj - RatioDeltaPt
 coord[5] = PathLengthDiff - ( RatioBetaToBetaj * VerticalBendingKick ) * zlvj;			\
 										\
                 if( cntmulvernz##NAME++ == 0 )												\
-			printf("mulvernzpprox##NAME## called %d times\n",cntmulvernz##NAME);		\
+			printf("mulvernzpprox"#NAME" called %d times\n",cntmulvernz##NAME);		\
                 return 1;								\
 }
 
@@ -247,7 +247,7 @@ coord[5] = PathLengthDiff - ( RatioBetaToBetaj * VerticalBendingKick ) * zlvj;		
 		coord[5] = PathLengthDiff - ( RatioBetaToBetaj * VerticalBendingKick ) * zlvj;		\
 														\
                 if( cntmulverz##NAME++ == 0 )												\
-			printf("mulverzpprox##NAME## called %d times\n",cntmulverz##NAME);		\
+			printf("mulverzpprox"#NAME" called %d times\n",cntmulverz##NAME);		\
 		return 1;											\
 }
 
@@ -290,7 +290,7 @@ coord[8] = RatioDeltaPtoP;    coord[9] = RatioDeltaPtoP1;   \
 coord[12] = RatioBetaToBetaj;      \
 \
 cntcrabcavity##I++;   \
-printf("Crab Cavity##I called %d times\n",cntcrabcavity##I);   \
+printf("crab_cavity"#I" called %d times\n",cntcrabcavity##I);   \
 return 1;   \
 }; \
 
@@ -690,6 +690,7 @@ if(b >= 0) return abs(a);
 else return -abs(a);
 }
 
+int cntbb1 = 0;
 extern int thin6d_map_beambeam_1_(double *coord, double *argf, double argi)
 {
 double x = coord[0], y = coord[1];
@@ -701,7 +702,7 @@ double PhysicalLengthOfBlock = argf[33];
 int SwitchToLinearCoupling = (int)argf[34];
 double ClosedOrbitBeamX = argf[35], ClosedOrbitBeamY = argf[36], ClosedOrbitBeamSigma = argf[37], ClosedOrbitBeamPx = argf[38], ClosedOrbitBeamPy = argf[39], ClosedOrbitBeamDelta = argf[40];
 double HorBeamBeamSeparation = argf[9], VerBeamBeamSeparation = argf[10];
-double SquareOfSigmaN = argf[41];
+double SquareOfSigmaNX = argf[41];
 double BeamOffsetX = argf[42], BeamOffsetY = argf[43], BeamOffsetSigma = argf[44], BeamOffsetPx = argf[45], BeamOffsetPy = argf[46], BeamOffsetDelta = argf[47];
 double bbcu11 = argf[48], bbcu12 = argf[49];
 
@@ -715,13 +716,13 @@ cikvebj = ( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation;
 else
 {
 crkvebj = (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu11 + (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu12;
-cikvebj = (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu11 + (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu12;
+cikvebj = (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu11 - (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu12;
 }
 
 rho2bj = crkvebj*crkvebj + cikvebj*cikvebj;
 if( rho2bj <= OnePoweredToMinus38 ) return 1;
 
-tkbj = rho2bj / ( 2.0 * SquareOfSigmaN );
+tkbj = rho2bj / ( 2.0 * SquareOfSigmaNX );
 if( SwitchToLinearCoupling == 0 )
 {
 coord[2] = xp + RatioPtoPj * ((( PhysicalLengthOfBlock * crkvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPx );
@@ -732,14 +733,16 @@ else
 cccc = ((( PhysicalLengthOfBlock * crkvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPx ) * bbcu11 - ((( PhysicalLengthOfBlock * cikvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPy ) * bbcu12;
 
 coord[2] = xp + RatioPtoPj * cccc;
-cccc = ((( PhysicalLengthOfBlock * crkvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPx ) * bbcu12 - ((( PhysicalLengthOfBlock * cikvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPy ) * bbcu11;
+cccc = ((( PhysicalLengthOfBlock * crkvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPx ) * bbcu12 + ((( PhysicalLengthOfBlock * cikvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPy ) * bbcu11;
 
 coord[3] = yp + RatioPtoPj * cccc;
 }
+if(cntbb1++ == 0)
 printf("beam beam 1\n");
 return 1;
 }
 
+int cntbb20 = 0;
 extern int thin6d_map_beambeam_2_ibtyp_0_(double *coord, double *argf, double *argi)
 {
 double x = coord[0], y = coord[1];
@@ -774,7 +777,7 @@ cikvebj = ( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation;
 else
 {
 crkvebj = (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu11 + (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu12;
-cikvebj = (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu11 + (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu12;
+cikvebj = (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu11 - (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu12;
 }
 
 xrbj = abs(crkvebj) / rbj;
@@ -799,14 +802,15 @@ else
 cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu11 - (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu12;
 coord[2] = xp + RatioPtoPj * cccc;
 
-cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu12 - (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu11;
+cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu12 + (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu11;
 coord[3] = yp + RatioPtoPj * cccc;
 }
-
+if(cntbb20++ == 0)
 printf("beam beam 2 type 0\n");
 return 1;
 }
 
+int cntbb2ib11=0;
 extern int thin6d_map_beambeam_2_ibtyp_1_1_(double *coord, double *argf, double *argi)
 {
 double x = coord[0], y = coord[1];
@@ -861,9 +865,12 @@ zbbj = SigmaNqX * zrbj;
 coord[18] = xbbj;
 coord[19] = zbbj;
 
+if(cntbb2ib11++ == 0)
+printf("beam beam 2 ib 1 1\n");
 return 1;
 }
 
+int cntbb2ib12=0;
 extern int thin6d_map_beambeam_2_ibtyp_1_2_(double *coord, double *argf, double *argi)
 {
 double x = coord[0], y = coord[1];
@@ -902,7 +909,8 @@ cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj
 coord[3] = yp + RatioPtoPj * cccc;
 }
 
-printf("beam beam 2 type 0 2\n");
+if(cntbb2ib12++==0)
+printf("beam beam 2 type 1 2\n");
 return 1;
 }
 
@@ -969,7 +977,7 @@ cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj
 coord[3] = yp + RatioPtoPj * cccc;
 }
 
-printf("beam beam 2 type 0\n");
+//printf("beam beam 2 type 0\n");
 return 1;
 }
 
@@ -1037,21 +1045,22 @@ double xp = coord[2], yp = coord[3];
 double RatioPtoPj = coord[4];
 double crxbj = coord[14], crzbj = coord[15];
 double cbxbj = coord[16], cbzbj = coord[17];
-
-double SquareRootOfPi = sqrt(argf[15]);
-
-double PhysicalLengthOfBlock = argf[33];
-int SwitchToLinearCoupling = (int)argf[34];
-double ClosedOrbitBeamX = argf[35], ClosedOrbitBeamY = argf[36], ClosedOrbitBeamSigma = argf[37], ClosedOrbitBeamPx = argf[38], ClosedOrbitBeamPy = argf[39], ClosedOrbitBeamDelta = argf[40];
-double HorBeamBeamSeparation = argf[9], VerBeamBeamSeparation = argf[10];
-double SquareOfSigmaNX = argf[52], SquareOfSigmaNY = argf[53];
-double BeamOffsetX = argf[42], BeamOffsetY = argf[43], BeamOffsetSigma = argf[44], BeamOffsetPx = argf[45], BeamOffsetPy = argf[46], BeamOffsetDelta = argf[47];
-double bbcu11 = argf[48], bbcu12 = argf[49];
-double SigmaNqX = argf[50], SigmaNqY = argf[51];
 double xbbj = coord[18], zbbj = coord[19]; 
 double crkvebj = coord[22], cikvebj = coord[23];
 double rkbj = coord[25];
+
+double HorBeamBeamSeparation = argf[0], VerBeamBeamSeparation = argf[1];
+double PhysicalLengthOfBlock = argf[2];
+int SwitchToLinearCoupling = (int)argf[3];
+double ClosedOrbitBeamX = argf[4], ClosedOrbitBeamY = argf[5], ClosedOrbitBeamSigma = argf[6], ClosedOrbitBeamPx = argf[7], ClosedOrbitBeamPy = argf[8], ClosedOrbitBeamDelta = argf[9];
+double SquareOfSigmaNX = argf[20], SquareOfSigmaNY = argf[21];
+double BeamOffsetX = argf[10], BeamOffsetY = argf[11], BeamOffsetSigma = argf[12], BeamOffsetPx = argf[13], BeamOffsetPy = argf[14], BeamOffsetDelta = argf[15];
+double bbcu11 = argf[16], bbcu12 = argf[17];
+double SigmaNqX = argf[18], SigmaNqY = argf[19];
+
 double rho2bj, tkbj, cccc, r2bj, rbj, xrbj, zrbj;
+double SquareRootOfPi = sqrt(Pi);
+
 
 tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
 if( SwitchToLinearCoupling == 0 )
