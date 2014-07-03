@@ -175,6 +175,7 @@ int cntdrift = 0;
 extern int thin6d_map_exact_drift_(double *coord, double *argf, double *argi) {
   double xp = coord[2], yp = coord[3]; 
   double RatioPtoPj = coord[4];
+  double PathLengthDiff = coord[5];
   double EnergyOfParticle = coord[6], MomentumOfParticle = coord[7];
   double RatioDeltaPtoP = coord[8], RatioDeltaPtoPj1 = coord[9];
   double RatioBetaToBetaj = coord[12];
@@ -182,6 +183,22 @@ extern int thin6d_map_exact_drift_(double *coord, double *argf, double *argi) {
 
   double EnergyOfReferenceParticle = argf[1], MomentumOfReferenceParticle = argf[0]; 
   double RestMassOfParticle = argf[2]; 
+  double dppoff = argf[3];
+  double ElementType = argf[4];
+  double FirstAdditionalDatum = argf[5];
+  double FrequencyOfCavity = argf[6];
+  double LagPhaseOfCavity = argf[7];
+  double VoltageOfCavity = argf[8];
+  double RFFrequencyOfCavity = argf[9];
+  double PathLengthOffset = argf[10];
+
+  MomentumOfParticle0 = MomentumOfParticle;
+  if( abs( dppoff ) > OnePoweredToMinus38 ) PathLengthDiff  = PathLengthDiff - PathLengthOffset;
+
+  if( ElementType == 12 )
+    EnergyOfParticle += FirstAdditionalDatum * sin_rn( FrequencyOfCavity * PathLengthDiff + LagPhaseOfCavity );
+  else
+    EnergyOfParticle += VoltageOfCavity * sin_rn( RFFrequencyOfCavity * PathLengthDiff );
 
   coord[7] = sqrt( EnergyOfParticle*EnergyOfParticle - RestMassOfParticle*RestMassOfParticle );
   MomentumOfParticle = coord[7];
@@ -1193,7 +1210,7 @@ extern int thin6d_map_beambeam_3_ibtyp_1_1_( double *coord, double *argf, double
   coord[18] = xbbj;
   coord[19] = zbbj;
 
-  if( cntbb3ib11++ == 0 ) print("beam beam 3 type1 1\n");
+  if( cntbb3ib11++ == 0 ) printf("beam beam 3 type1 1\n");
 
   return 1;
 }

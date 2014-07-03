@@ -3146,18 +3146,19 @@
    30     argf(1)=e0f
           argf(2)=e0
           argf(3)=pma
+          argf(4)=dppoff
+          argf(5)=kz(ix)
+          argf(6)=ed(ix)
+          argf(7)=hsyc(ix)
+          argf(8)=phasc(ix)
+          argf(9)=hsy(1)
+          argf(10)=hsy(3)
+          argf(11)=sigmoff(i)
           do 40 j=1,napx
-            ejf0v(j)=ejfv(j)
-            if(abs(dppoff).gt.pieni) sigmv(j)=sigmv(j)-sigmoff(i)
-            if(kz(ix).eq.12) then
-              ejv(j)=ejv(j)+ed(ix)*sin_rn(hsyc(ix)*sigmv(j)+
-     &phasc(ix))
-            else
-              ejv(j)=ejv(j)+hsy(1)*sin_rn(hsy(3)*sigmv(j))
-            endif
             coord(3)=yv(1,j)
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
             coord(7)=ejv(j)
             coord(8)=ejfv(j)
             coord(9)=dpsv(j)
@@ -4495,29 +4496,34 @@
           pi=4d0*atan_rn(1d0)
         crabfreq=ek(ix)*c1e3
  
+          argf(1)=crabamp
+          argf(2)=crabfreq
+          argf(3)=crabph(ix)
+          argf(4)=ed(ix)
+          argf(5)=pma
+          argf(6)=e0f
+          argf(7)=e0
         do j=1,napx
-!hr03    crabamp=ed(ix)/(ejfv(j))*c1e3
-         crabamp=(ed(ix)/ejfv(j))*c1e3                                   !hr03
-!        write(*,*) crabamp, ejfv(j), clight, "HELLO"
- 
-!hr03   yv(xory,j)=yv(xory,j) - crabamp*                                &
-!hr03&sin_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))
-        yv(xory,j)=yv(xory,j) - crabamp*                                &!hr03
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))         !hr03
-!hr03 dpsv(j)=dpsv(j) - crabamp*crabfreq*2d0*pi/clight*xv(xory,j)*      &
-!hr03&cos_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))*c1m3
-      dpsv(j)=dpsv(j) -                                                 &!hr03
-     &((((((crabamp*crabfreq)*2d0)*pi)/clight)*xv(xory,j))*             &!hr03
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix)))*c1m3   !hr03
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(xory,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(xory,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call thin6d_map_crab_cavity_1(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
           goto 640
@@ -4530,30 +4536,35 @@
 !---------sigmv should be in mm --> sigmv*1e-3/clight*ek*1e6 in rad
           pi=4d0*atan_rn(1d0)
         crabfreq=ek(ix)*c1e3
- 
+
+          argf(1)=crabamp
+          argf(2)=crabfreq
+          argf(3)=crabph(ix)
+          argf(4)=ed(ix)
+          argf(5)=pma
+          argf(6)=e0f
+          argf(7)=e0
         do j=1,napx
-!hr03    crabamp=ed(ix)/(ejfv(j))*c1e3
-         crabamp=(ed(ix)/ejfv(j))*c1e3                                   !hr03
-!        write(*,*) crabamp, ejfv(j), clight, "HELLO"
- 
-!hr03   yv(xory,j)=yv(xory,j) - crabamp*                                &
-!hr03&sin_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))
-        yv(xory,j)=yv(xory,j) - crabamp*                                &!hr03
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))         !hr03
-!hr03 dpsv(j)=dpsv(j) - crabamp*crabfreq*2d0*pi/clight*xv(xory,j)*      &
-!hr03&cos_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))*c1m3
-      dpsv(j)=dpsv(j) -                                                 &!hr03
-     &((((((crabamp*crabfreq)*2d0)*pi)/clight)*xv(xory,j))*             &!hr03
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix)))*c1m3   !hr03
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(xory,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(xory,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call thin6d_map_crab_cavity_2(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
           goto 640

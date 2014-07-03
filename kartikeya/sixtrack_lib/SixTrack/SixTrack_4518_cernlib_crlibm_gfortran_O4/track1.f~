@@ -3146,18 +3146,19 @@
    30     argf(1)=e0f
           argf(2)=e0
           argf(3)=pma
+          argf(4)=dppoff
+          argf(5)=kz(ix)
+          argf(6)=ed(ix)
+          argf(7)=hsyc(ix)
+          argf(8)=phasc(ix)
+          argf(9)=hsy(1)
+          argf(10)=hsy(3)
+          argf(11)=sigmoff(i)
           do 40 j=1,napx
-            ejf0v(j)=ejfv(j)
-            if(abs(dppoff).gt.pieni) sigmv(j)=sigmv(j)-sigmoff(i)
-            if(kz(ix).eq.12) then
-              ejv(j)=ejv(j)+ed(ix)*sin_rn(hsyc(ix)*sigmv(j)+
-     &phasc(ix))
-            else
-              ejv(j)=ejv(j)+hsy(1)*sin_rn(hsy(3)*sigmv(j))
-            endif
             coord(3)=yv(1,j)
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
             coord(7)=ejv(j)
             coord(8)=ejfv(j)
             coord(9)=dpsv(j)
@@ -4050,26 +4051,28 @@
             yv(2,j)=coord(4) 
   630     continue
   680     continue
-          argf(10)=ed(ix)
-          argf(11)=ek(ix)
-          argf(26)=pieni
-          argf(34)=strack(i)
-          argf(35)=ibbc
-          argf(36)=clobeam(1,imbb(i))
-          argf(37)=clobeam(2,imbb(i))
-          argf(38)=clobeam(3,imbb(i))
-          argf(39)=clobeam(4,imbb(i))
-          argf(40)=clobeam(5,imbb(i))
-          argf(41)=clobeam(6,imbb(i))
-          argf(42)=sigman2(1,imbb(i))
-          argf(43)=beamoff(1,imbb(i))
-          argf(44)=beamoff(2,imbb(i))
-          argf(45)=beamoff(3,imbb(i))
-          argf(46)=beamoff(4,imbb(i))
-          argf(47)=beamoff(5,imbb(i))
-          argf(48)=beamoff(6,imbb(i))
-          argf(49)=bbcu(imbb(i),11)
-          argf(50)=bbcu(imbb(i),12)
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
           do 690 j=1,napx
             coord(1)=xv(1,j)
             coord(2)=xv(2,j)

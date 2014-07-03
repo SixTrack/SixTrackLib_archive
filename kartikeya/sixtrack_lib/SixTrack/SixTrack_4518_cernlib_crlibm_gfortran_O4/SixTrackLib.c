@@ -175,23 +175,40 @@ int cntdrift = 0;
 extern int thin6d_map_exact_drift_(double *coord, double *argf, double *argi) {
   double xp = coord[2], yp = coord[3]; 
   double RatioPtoPj = coord[4];
+  double PathLengthDiff = coord[5];
   double EnergyOfParticle = coord[6], MomentumOfParticle = coord[7];
-  double RatioDeltaPtoP = coord[8], RatioDeltaPtoPj1 = coord[9];
+  double RatioDeltaPtoPj = coord[8], RatioDeltaPtoPj1 = coord[9];
   double RatioBetaToBetaj = coord[12];
   double MomentumOfParticle0 = coord[13]; 
 
   double EnergyOfReferenceParticle = argf[1], MomentumOfReferenceParticle = argf[0]; 
   double RestMassOfParticle = argf[2]; 
+  double dppoff = argf[3];
+  double ElementType = argf[4];
+  double FirstAdditionalDatum = argf[5];
+  double FrequencyOfCavity = argf[6];
+  double LagPhaseOfCavity = argf[7];
+  double VoltageOfCavity = argf[8];
+  double RFFrequencyOfCavity = argf[9];
+  double PathLengthOffset = argf[10];
+
+  MomentumOfParticle0 = MomentumOfParticle;
+  if( abs( dppoff ) > OnePoweredToMinus38 ) PathLengthDiff  = PathLengthDiff - PathLengthOffset;
+
+  if( ElementType == 12 )
+    EnergyOfParticle += FirstAdditionalDatum * sin_rn( FrequencyOfCavity * PathLengthDiff + LagPhaseOfCavity );
+  else
+    EnergyOfParticle += VoltageOfCavity * sin_rn( RFFrequencyOfCavity * PathLengthDiff );
 
   coord[7] = sqrt( EnergyOfParticle*EnergyOfParticle - RestMassOfParticle*RestMassOfParticle );
   MomentumOfParticle = coord[7];
   coord[12] = ( EnergyOfParticle * MomentumOfReferenceParticle ) / ( EnergyOfReferenceParticle * MomentumOfParticle );
   RatioBetaToBetaj = coord[12];
   coord[8] = ( MomentumOfParticle - MomentumOfReferenceParticle ) / MomentumOfReferenceParticle;
-  RatioDeltaPtoP = coord[8];
-  coord[4] = 1.0 / ( 1.0 + RatioDeltaPtoP );
+  RatioDeltaPtoPj = coord[8];
+  coord[4] = 1.0 / ( 1.0 + RatioDeltaPtoPj );
   RatioPtoPj = coord[4];
-  coord[9] = ( RatioDeltaPtoP * OnePoweredTo3 ) * RatioPtoPj;
+  coord[9] = ( RatioDeltaPtoPj * OnePoweredTo3 ) * RatioPtoPj;
   RatioDeltaPtoPj1 = coord[9];
 
   coord[2] = ( MomentumOfParticle0 / MomentumOfParticle ) * xp;
@@ -209,7 +226,7 @@ extern int thin6d_map_exact_drift_(double *coord, double *argf, double *argi) {
       double xp = coord[2], yp = coord[3];                                                                              \
       double RatioPtoPj = coord[4];                                                                                     \
       double PathLengthDiff = coord[5];	                                                                                \
-      double RatioDeltaPtoP = coord[8], RatioDeltaPtoPj1 = coord[9];                                                    \
+      double RatioDeltaPtoPj = coord[8], RatioDeltaPtoPj1 = coord[9];                                                    \
       double RatioBetaToBetaj = coord[12];	                                                                        \
                                                                                                                         \
       double PhysicalLengthOfBlock = argf[0];                                                                           \
@@ -240,7 +257,7 @@ make_map_multipole_hor_zapprox(purehor_zapprox);
       double xp = coord[2], yp = coord[3];                                                                            \
       double RatioPtoPj = coord[4];                                                                                   \
       double PathLengthDiff = coord[5];	                                                                              \
-      double RatioDeltaPtoP = coord[8], RatioDeltaPtoPj1 = coord[9];                                                  \
+      double RatioDeltaPtoPj = coord[8], RatioDeltaPtoPj1 = coord[9];                                                  \
       double RatioBetaToBetaj = coord[12];                                                                            \
                                                                                                                       \
       double PhysicalLengthOfBlock = argf[0];                                                                        \
@@ -271,7 +288,7 @@ make_map_multipole_hor_nzapprox(purehor_nzapprox);
       double xp = coord[2], yp = coord[3];                                                                            \
       double RatioPtoPj = coord[4];                                                                                   \
       double PathLengthDiff = coord[5];	                                                                              \
-      double RatioDeltaPtoP = coord[8], RatioDeltaPtoPj1 = coord[9];                                                  \
+      double RatioDeltaPtoPj = coord[8], RatioDeltaPtoPj1 = coord[9];                                                  \
       double RatioBetaToBetaj = coord[12];                                                                            \
                                                                                                                       \
       double PhysicalLengthOfBlock = argf[0];                                                                         \
@@ -302,7 +319,7 @@ make_map_multipole_ver_nzapprox(purever_nzapprox);
       double xp = coord[2], yp = coord[3];                                                                            \
       double RatioPtoPj = coord[4];                                                                                   \
       double PathLengthDiff = coord[5];	                                                                              \
-      double RatioDeltaPtoP = coord[8], RatioDeltaPtoPj1 = coord[9];                                                  \
+      double RatioDeltaPtoPj = coord[8], RatioDeltaPtoPj1 = coord[9];                                                  \
       double RatioBetaToBetaj = coord[12];                                                                            \
                                                                                                                       \
       double PhysicalLengthOfBlock = argf[0];                                                                         \
@@ -334,7 +351,7 @@ make_map_multipole_ver_zapprox(purever_zapprox);
     double RatioPtoPj = coord[4];                                                                                      \
     double PathLengthDiff = coord[5];                                                                                  \
     double EnergyOfParticle = coord[6], MomentumOfParticle = coord[7];                                                 \
-    double RatioDeltaPtoP = coord[8], RatioDeltaPtoP1 = coord[9];                                                      \
+    double RatioDeltaPtoPj = coord[8], RatioDeltaPtoPj1 = coord[9];                                                      \
     double RatioBetaToBetaj = coord[12];                                                                               \
     double MomentumOfParticle0 = coord[13];                                                                            \
                                                                                                                        \
@@ -345,13 +362,13 @@ make_map_multipole_ver_zapprox(purever_zapprox);
                                                                                                                        \
     AmplitudeCrabCavity = ( FirstAdditionalDatum / MomentumOfParticle ) * OnePoweredTo3;                               \
     C##p = C##p - AmplitudeCrabCavity * sin_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity );                                                                                                                     \
-    RatioDeltaPtoP = RatioDeltaPtoP - (((((( AmplitudeCrabCavity * FrequencyCrabCavity) * 2.0 ) * Pi ) / SpeedOfLight_mps ) * C ) * cos_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity ) ) * OnePoweredToMinus3;  \
+    RatioDeltaPtoPj = RatioDeltaPtoPj - (((((( AmplitudeCrabCavity * FrequencyCrabCavity) * 2.0 ) * Pi ) / SpeedOfLight_mps ) * C ) * cos_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity ) ) * OnePoweredToMinus3;  \
                                                                                                                        \
     MomentumOfParticle0 = MomentumOfParticle;                                                                          \
-    MomentumOfParticle = RatioDeltaPtoP * MomentumOfReferenceParticle + MomentumOfReferenceParticle;                   \
+    MomentumOfParticle = RatioDeltaPtoPj * MomentumOfReferenceParticle + MomentumOfReferenceParticle;                   \
     EnergyOfParticle = sqrt( MomentumOfParticle*MomentumOfParticle + RestMassOfParticle*RestMassOfParticle );          \
-    RatioPtoPj = One / ( One + RatioDeltaPtoP );                                                                       \
-    RatioDeltaPtoP1 = ( RatioDeltaPtoP * OnePoweredTo3 ) * RatioPtoPj;                                                 \
+    RatioPtoPj = One / ( One + RatioDeltaPtoPj );                                                                       \
+    RatioDeltaPtoPj1 = ( RatioDeltaPtoPj * OnePoweredTo3 ) * RatioPtoPj;                                                 \
     xp = ( MomentumOfParticle0 / MomentumOfParticle ) * xp;                                                            \
     yp = ( MomentumOfParticle0 / MomentumOfParticle ) * yp;                                                            \
     RatioBetaToBetaj = ( EnergyOfParticle * MomentumOfReferenceParticle ) / ( EnergyOfReferenceParticle * MomentumOfParticle );  \
@@ -359,7 +376,7 @@ make_map_multipole_ver_zapprox(purever_zapprox);
     coord[2] = xp;    coord[3] = yp;                                                                                   \
     coord[4] = RatioPtoPj;                                                                                             \
     coord[6] = EnergyOfParticle;  coord[7] = MomentumOfParticle; coord[13] = MomentumOfParticle0;                      \
-    coord[8] = RatioDeltaPtoP;    coord[9] = RatioDeltaPtoP1;                                                          \
+    coord[8] = RatioDeltaPtoPj;    coord[9] = RatioDeltaPtoPj1;                                                          \
     coord[12] = RatioBetaToBetaj;                                                                                      \
                                                                                                                        \
    if( cntcrabcavity##I++ == 0 ) printf("crab_cavity"#I" called %d times\n",cntcrabcavity##I);                         \
@@ -375,7 +392,7 @@ extern int thin6d_modify_coords_for_hirata_(double *coord, double *argf, double 
   double xp = coord[2], yp = coord[3];
   double RatioPtoPj = coord[4];
   double PathLengthDiff = coord[5];
-  double RatioDeltaPtoP = coord[8];
+  double RatioDeltaPtoPj = coord[8];
   double ModifiedX = coord[25], ModifiedXp = coord[26], ModifiedY = coord[27], ModifiedYp = coord[28], ModifiedSigma = coord[29], ModifiedDelta = coord[30];
 
   double HorBeamBeamSeparation = argf[0], VerBeamBeamSeparation = argf[1];
@@ -386,7 +403,7 @@ extern int thin6d_modify_coords_for_hirata_(double *coord, double *argf, double 
   ModifiedY = ( y + VerBeamBeamSeparation - ClosedOrbitBeamY ) * OnePoweredToMinus3;
   ModifiedYp = ( yp / RatioPtoPj  - ClosedOrbitBeamPy ) * OnePoweredToMinus3;
   ModifiedSigma = ( PathLengthDiff - ClosedOrbitBeamSigma ) * OnePoweredToMinus3;
-  ModifiedDelta = RatioDeltaPtoP - ClosedOrbitBeamDelta;
+  ModifiedDelta = RatioDeltaPtoPj - ClosedOrbitBeamDelta;
 
   coord[25] = ModifiedX;
   coord[26] = ModifiedXp;
@@ -405,7 +422,7 @@ extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi
   double RatioPtoPj = coord[4];
   double PathLengthDiff = coord[5];
   double EnergyOfParticle = coord[6], MomentumOfParticle = coord[7];
-  double RatioDeltaPtoP = coord[8];
+  double RatioDeltaPtoPj = coord[8];
   double RatioBetaToBetaj = coord[12];
   double ModifiedX = coord[25], ModifiedXp = coord[26], ModifiedY = coord[27], ModifiedYp = coord[28], ModifiedSigma = coord[29], ModifiedDelta = coord[30];
 
@@ -419,15 +436,15 @@ extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi
   coord[0] = x;
   y = ( ModifiedY * OnePoweredTo3 + ClosedOrbitBeamY ) - BeamOffsetY;
   coord[1] = y;
-  RatioDeltaPtoP = ( ModifiedDelta + ClosedOrbitBeamDelta ) - BeamOffsetDelta;
-  coord[8] = RatioDeltaPtoP;
-  RatioPtoPj = One / ( One + RatioDeltaPtoP );
+  RatioDeltaPtoPj = ( ModifiedDelta + ClosedOrbitBeamDelta ) - BeamOffsetDelta;
+  coord[8] = RatioDeltaPtoPj;
+  RatioPtoPj = One / ( One + RatioDeltaPtoPj );
   coord[4] = RatioPtoPj;
   xp = (( ModifiedXp * OnePoweredTo3 + ClosedOrbitBeamPx ) - BeamOffsetPx ) * RatioPtoPj;
   coord[2] = xp;
   yp = (( ModifiedYp * OnePoweredTo3 + ClosedOrbitBeamPy ) - BeamOffsetPy ) * RatioPtoPj;
   coord[3] = yp;
-  MomentumOfParticle = RatioDeltaPtoP * MomentumOfReferenceParticle + MomentumOfReferenceParticle;
+  MomentumOfParticle = RatioDeltaPtoPj * MomentumOfReferenceParticle + MomentumOfReferenceParticle;
   coord[7] = MomentumOfParticle;
   EnergyOfParticle = sqrt( MomentumOfParticle*MomentumOfParticle + RestMassOfParticle*RestMassOfParticle );
   coord[6] = EnergyOfParticle;
@@ -444,7 +461,7 @@ extern int thin6d_map_accelerating_cavity_(double *coord, double *argf, double *
   double x = coord[0], y = coord[1];
   double xp = coord[2], yp = coord[3];
   double PathLengthDiff = coord[5];
-  double RatioDeltaPtoP = coord[8];
+  double RatioDeltaPtoPj = coord[8];
 
   int idz1 = (int)argf[0], idz2 = (int)argf[1];
   double cotr_irrtr_1 = argf[2], cotr_irrtr_2 = argf[3], cotr_irrtr_3 = argf[4], cotr_irrtr_4 = argf[5], cotr_irrtr_5 = argf[6], cotr_irrtr_6 = argf[7];
@@ -452,10 +469,10 @@ extern int thin6d_map_accelerating_cavity_(double *coord, double *argf, double *
 
   double pux,dpsv3j;
 
-  PathLengthDiff  = ((((( PathLengthDiff + cotr_irrtr_5 ) + rrtr_irrtr_5_1 * x ) + rrtr_irrtr_5_2 * xp ) + rrtr_irrtr_5_3 * y ) + rrtr_irrtr_5_4 * yp ) + ( rrtr_irrtr_5_6 * RatioDeltaPtoP ) * OnePoweredTo3;
+  PathLengthDiff  = ((((( PathLengthDiff + cotr_irrtr_5 ) + rrtr_irrtr_5_1 * x ) + rrtr_irrtr_5_2 * xp ) + rrtr_irrtr_5_3 * y ) + rrtr_irrtr_5_4 * yp ) + ( rrtr_irrtr_5_6 * RatioDeltaPtoPj ) * OnePoweredTo3;
   coord[5] = PathLengthDiff;
   pux = x;
-  dpsv3j = RatioDeltaPtoP * OnePoweredTo3;
+  dpsv3j = RatioDeltaPtoPj * OnePoweredTo3;
   x = (( cotr_irrtr_2 + rrtr_irrtr_1_1 * pux ) + rrtr_irrtr_1_2 * xp ) + ( (double)idz1 * dpsv3j ) * rrtr_irrtr_1_6;
   coord[0] = x;
   xp = (( cotr_irrtr_2 + rrtr_irrtr_2_1 * pux ) + rrtr_irrtr_2_2 * xp ) + ( (double)idz1 * dpsv3j ) * rrtr_irrtr_2_6;
@@ -595,7 +612,7 @@ int cntwire = 0;
 extern int thin6d_map_wire_(double *coord, double *argf, double *argi) {
   double x = coord[0], y = coord[1];
   double xp = coord[2], yp = coord[3];
-  double RatioDeltaPtoP = coord[8];
+  double RatioDeltaPtoPj = coord[8];
 
   double embl = argf[0], tx = argf[1], ty= argf[2], lin = argf[3];
   double rx = argf[4], ry = argf[5], cur = argf[6], chi = argf[7], l = argf[8], leff = argf[9];
@@ -607,22 +624,22 @@ extern int thin6d_map_wire_(double *coord, double *argf, double *argi) {
   xp = xp * OnePoweredToMinus3;
   yp = yp * OnePoweredToMinus3;
 
-  x = x - (( embl * 0.5 ) * xp ) / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp );
-  y = y - (( embl * 0.5 ) * yp ) / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp );
+  x = x - (( embl * 0.5 ) * xp ) / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp );
+  y = y - (( embl * 0.5 ) * yp ) / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp );
 
-  y = y - ((( x * sin_rn(tx) ) * yp ) / sqrt(( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - yp*yp )) / cos_rn(atan_rn(xp / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp )) - tx );
+  y = y - ((( x * sin_rn(tx) ) * yp ) / sqrt(( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - yp*yp )) / cos_rn(atan_rn(xp / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp )) - tx );
 
-  x = x * ( cos_rn(tx) - sin_rn(tx) * tan_rn(atan_rn(xp / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp )) - tx ));
+  x = x * ( cos_rn(tx) - sin_rn(tx) * tan_rn(atan_rn(xp / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp )) - tx ));
 
-  xp = sqrt(( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - yp*yp ) * sin_rn(atan_rn(xp / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp )) - tx );
+  xp = sqrt(( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - yp*yp ) * sin_rn(atan_rn(xp / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp )) - tx );
 
-  x = x - ((( y * sin_rn(ty) ) * xp ) / sqrt(( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - yp*yp )) / cos_rn(atan_rn(yp / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp )) - ty );
-  y = y * ( cos_rn(ty) - sin_rn(ty) * tan_rn(atan_rn(yp / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp )) - ty ));
+  x = x - ((( y * sin_rn(ty) ) * xp ) / sqrt(( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - yp*yp )) / cos_rn(atan_rn(yp / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp )) - ty );
+  y = y * ( cos_rn(ty) - sin_rn(ty) * tan_rn(atan_rn(yp / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp )) - ty ));
 
-  yp = sqrt(( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - yp*yp ) * sin_rn(atan_rn(yp / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp )) - ty );
+  yp = sqrt(( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - yp*yp ) * sin_rn(atan_rn(yp / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp )) - ty );
  
-  x = x + ( lin * xp ) / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp );
-  y = y + ( lin * yp ) / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp );
+  x = x + ( lin * xp ) / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp );
+  y = y + ( lin * yp ) / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp );
 
   xi = x - rx;
   yi = y - ry;
@@ -630,26 +647,26 @@ extern int thin6d_map_wire_(double *coord, double *argf, double *argi) {
   xp = xp - (((( OnePoweredToMinus7 * cur ) / chi ) * xi ) / ( xi*xi + yi*yi )) * ( sqrt((( lin + l )*( lin + l ) + xi*xi ) + yi*yi ) - sqrt((( lin -l )*( lin -l ) + xi*xi ) + yi*yi ));
   yp = yp - (((( OnePoweredToMinus7 * cur ) / chi ) * yi ) / ( xi*xi + yi*yi )) * ( sqrt((( lin + l )*( lin + l ) + xi*xi ) + yi*yi ) - sqrt((( lin -l )*( lin -l ) + xi*xi ) + yi*yi ));
 
-  x = x + (( leff - lin ) * xp ) / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp );
-  y = y + (( leff - lin ) * yp ) / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp );
+  x = x + (( leff - lin ) * xp ) / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp );
+  y = y + (( leff - lin ) * yp ) / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp );
 
-  x = x - ((( y * sin_rn(-ty) ) * xp ) / sqrt(( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp )) / cos_rn(atan_rn(yp / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp )) + ty );
+  x = x - ((( y * sin_rn(-ty) ) * xp ) / sqrt(( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp )) / cos_rn(atan_rn(yp / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp )) + ty );
 
-  y = y * ( cos_rn(-1.0 * ty) - sin_rn(-1.0 * ty) * tan_rn(atan_rn(yp / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp )) + ty ));
+  y = y * ( cos_rn(-1.0 * ty) - sin_rn(-1.0 * ty) * tan_rn(atan_rn(yp / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp )) + ty ));
 
-  yp = sqrt(( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) * sin_rn(atan_rn(yp / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp )) + ty );
+  yp = sqrt(( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) * sin_rn(atan_rn(yp / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp )) + ty );
 
-  y = y - ((( x * sin_rn(-1.0 * tx) ) * yp ) / sqrt(( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - yp*yp )) / cos_rn(atan_rn(yp / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp )) + tx );
+  y = y - ((( x * sin_rn(-1.0 * tx) ) * yp ) / sqrt(( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - yp*yp )) / cos_rn(atan_rn(yp / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp )) + tx );
 
-  x = x * ( cos_rn(-1.0 * tx) - sin_rn(-1.0 * tx) * tan_rn(atan_rn(xp / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp )) + tx ));
+  x = x * ( cos_rn(-1.0 * tx) - sin_rn(-1.0 * tx) * tan_rn(atan_rn(xp / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp )) + tx ));
 
-  xp = sqrt(( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - yp*yp ) * sin_rn(atan_rn(xp / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp )) + tx );
+  xp = sqrt(( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - yp*yp ) * sin_rn(atan_rn(xp / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp )) + tx );
 
   x = x + embl * tan_rn(tx);
   y = y + (embl * tan_rn(ty) ) / cos_rn(tx);
 
-  x = x - (( embl * 0.5 ) * xp ) / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp );
-  y = y - (( embl * 0.5 ) * yp ) / sqrt((( 1.0 + RatioDeltaPtoP )*( 1.0 + RatioDeltaPtoP ) - xp*xp ) - yp*yp );
+  x = x - (( embl * 0.5 ) * xp ) / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp );
+  y = y - (( embl * 0.5 ) * yp ) / sqrt((( 1.0 + RatioDeltaPtoPj )*( 1.0 + RatioDeltaPtoPj ) - xp*xp ) - yp*yp );
 
   x = x * OnePoweredTo3;
   y = y * OnePoweredTo3;
@@ -671,42 +688,42 @@ extern int thin6d_map_wire_(double *coord, double *argf, double *argi) {
   coord[3] = yp - (( AmplitudeCrabCavity2 * cikve ) * RatioPtoPj ) * cos_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity2 );                                                                               \
   xp = coord[2];                                                                                               \
   yp = coord[3];                                                                                               \
-  coord[8] = RatioDeltaPtoP - (((( 0.5 * ( AmplitudeCrabCavity2 * RatioPtoPj )) * ( crkve*crkve - cikve*cikve )) * ((( FrequencyCrabCavity * 2.0 ) * Pi ) / SpeedOfLight_mps )) * OnePoweredToMinus3 ) * sin_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity2 );                                                                    
+  coord[8] = RatioDeltaPtoPj - (((( 0.5 * ( AmplitudeCrabCavity2 * RatioPtoPj )) * ( crkve*crkve - cikve*cikve )) * ((( FrequencyCrabCavity * 2.0 ) * Pi ) / SpeedOfLight_mps )) * OnePoweredToMinus3 ) * sin_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity2 );                                                                    
 
 #define thin6d_map_jbgrfcc_multipoles_order2_2_main_assignment                                                 \
   coord[3] = yp + (( AmplitudeCrabCavity2 * cikve ) * RatioPtoPj ) * cos_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity2 );                                                                               \
   coord[2] = xp + (( AmplitudeCrabCavity2 * crkve ) * RatioPtoPj ) * cos_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi +  PhaseCrabCavity2 );                                                                              \
   xp = coord[2];                                                                                               \
   yp = coord[3];                                                                                               \
-  coord[8] = RatioDeltaPtoP - (((( AmplitudeCrabCavity2 * RatioPtoPj ) * ( crkve*crkve )) * ((( FrequencyCrabCavity * 2.0 ) * Pi ) / SpeedOfLight_mps )) * OnePoweredToMinus3 ) * sin_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity2 );
+  coord[8] = RatioDeltaPtoPj - (((( AmplitudeCrabCavity2 * RatioPtoPj ) * ( crkve*crkve )) * ((( FrequencyCrabCavity * 2.0 ) * Pi ) / SpeedOfLight_mps )) * OnePoweredToMinus3 ) * sin_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity2 );
 
 #define thin6d_map_jbgrfcc_multipoles_order3_main_assignment                                                   \
   coord[2] = xp + ((( AmplitudeCrabCavity3 * RatioPtoPj ) * OnePoweredToMinus3) * ( crkve*crkve - cikve*cikve )) * cos_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity3 );                                  \
   coord[3] = yp - (( 2.0*((( AmplitudeCrabCavity3 * crkve )* cikve ) * RatioPtoPj )) * OnePoweredToMinus3 ) * cos_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity3 );                                  \
   xp = coord[2];                                                                                               \
   yp = coord[3];                                                                                               \
-  coord[8] = RatioDeltaPtoP - (((( (1.0/3.0) * ( AmplitudeCrabCavity3 * RatioPtoPj )) * ( crkve*crkve*crkve - ( 3.0*cikve*cikve ) *crkve )) * ((( FrequencyCrabCavity * 2.0 ) * Pi ) / SpeedOfLight_mps )) * OnePoweredToMinus6 ) * sin_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity3 );
+  coord[8] = RatioDeltaPtoPj - (((( (1.0/3.0) * ( AmplitudeCrabCavity3 * RatioPtoPj )) * ( crkve*crkve*crkve - ( 3.0*cikve*cikve ) *crkve )) * ((( FrequencyCrabCavity * 2.0 ) * Pi ) / SpeedOfLight_mps )) * OnePoweredToMinus6 ) * sin_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity3 );
 
 #define thin6d_map_jbgrfcc_multipoles_order3_2_main_assignment                                                 \
   coord[3] = yp - ((( AmplitudeCrabCavity3 * RatioPtoPj ) * OnePoweredToMinus3 ) * ((cikve*cikve) - (crkve*crkve))) * cos_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity3 );            \
   coord[2] = xp + (( 2.0 * ( AmplitudeCrabCavity3 * (crkve * (cikve * RatioPtoPj )))) * OnePoweredToMinus3) * cos_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity3 );                                  \
   xp = coord[2];                                                                                               \
   yp = coord[3];                                                                                               \
-  coord[8] = RatioDeltaPtoP + (((( (1.0/3.0) * ( AmplitudeCrabCavity3 * RatioPtoPj )) * ( cikve*cikve*cikve - ( 3.0*crkve*crkve ) *cikve )) * ((( FrequencyCrabCavity * 2.0 ) * Pi ) / SpeedOfLight_mps )) * OnePoweredToMinus6 ) * sin_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity3 );
+  coord[8] = RatioDeltaPtoPj + (((( (1.0/3.0) * ( AmplitudeCrabCavity3 * RatioPtoPj )) * ( cikve*cikve*cikve - ( 3.0*crkve*crkve ) *cikve )) * ((( FrequencyCrabCavity * 2.0 ) * Pi ) / SpeedOfLight_mps )) * OnePoweredToMinus6 ) * sin_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity3 );
 
 #define thin6d_map_jbgrfcc_multipoles_order4_main_assignment                                                   \
   coord[2] = xp + ((( AmplitudeCrabCavity4 * RatioPtoPj ) * ( crkve*crkve*crkve - ( 3.0*crkve )* cikve*cikve )) * OnePoweredToMinus6 ) * cos_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity4 );            \
   coord[3] = yp - ((( AmplitudeCrabCavity4 * RatioPtoPj ) * (( 3.0*cikve) * crkve*crkve - cikve*cikve*cikve )) * OnePoweredToMinus6 ) * cos_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity4 );            \
   xp = coord[2];                                                                                               \
   yp = coord[3];                                                                                               \
-  coord[8] = RatioDeltaPtoP - (((( 0.25 * ( AmplitudeCrabCavity4 * RatioPtoPj )) * ( crkve*crkve*crkve*crkve - ( 6.0*crkve*crkve ) *cikve*cikve + cikve*cikve*cikve*cikve )) * ((( FrequencyCrabCavity * 2.0 ) * Pi ) / SpeedOfLight_mps )) * OnePoweredToMinus9 ) * sin_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity4 );
+  coord[8] = RatioDeltaPtoPj - (((( 0.25 * ( AmplitudeCrabCavity4 * RatioPtoPj )) * ( crkve*crkve*crkve*crkve - ( 6.0*crkve*crkve ) *cikve*cikve + cikve*cikve*cikve*cikve )) * ((( FrequencyCrabCavity * 2.0 ) * Pi ) / SpeedOfLight_mps )) * OnePoweredToMinus9 ) * sin_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity4 );
 
 #define thin6d_map_jbgrfcc_multipoles_order4_2_main_assignment                                                 \
   coord[2] = xp + ((( AmplitudeCrabCavity4 * RatioPtoPj ) * ( cikve*cikve*cikve - ( 3.0*cikve )* crkve*crkve )) * OnePoweredToMinus6 ) * cos_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity4 );            \
   coord[3] = yp + ((( AmplitudeCrabCavity4 * RatioPtoPj ) * (( 3.0*crkve) * cikve*cikve - crkve*crkve*crkve )) * OnePoweredToMinus6 ) * cos_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity4 );            \
   xp = coord[2];                                                                                               \
   yp = coord[3];                                                                                               \
-  coord[8] = RatioDeltaPtoP - (((( AmplitudeCrabCavity4 * RatioPtoPj ) * (( crkve*crkve*crkve * cikve ) - ( cikve*cikve*cikve * crkve ))) * ((( FrequencyCrabCavity * 2.0 ) * Pi ) / SpeedOfLight_mps )) * OnePoweredToMinus9 ) * sin_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity4 );
+  coord[8] = RatioDeltaPtoPj - (((( AmplitudeCrabCavity4 * RatioPtoPj ) * (( crkve*crkve*crkve * cikve ) - ( cikve*cikve*cikve * crkve ))) * ((( FrequencyCrabCavity * 2.0 ) * Pi ) / SpeedOfLight_mps )) * OnePoweredToMinus9 ) * sin_rn(((( PathLengthDiff / SpeedOfLight_mps ) * FrequencyCrabCavity ) * 2.0 ) * Pi + PhaseCrabCavity4 );
 
 
 #define make_map_jbgrfcc_multipoles(NAME,i)                                                                         \
@@ -717,7 +734,7 @@ extern int thin6d_map_jbgrfcc_multipoles_##NAME##_(double *coord, double *argf, 
   double RatioPtoPj = coord[4];                                                                                     \
   double PathLengthDiff = coord[5];                                                                                 \
   double EnergyOfParticle = coord[6], MomentumOfParticle = coord[7];                                                \
-  double RatioDeltaPtoP = coord[8], RatioDeltaPtoPj1 = coord[9], OnePlusRatioDeltaPtoP = coord[10], SqrtRatioDeltaPtoP = coord[11];  \
+  double RatioDeltaPtoPj = coord[8], RatioDeltaPtoPj1 = coord[9], OnePlusRatioDeltaPtoP = coord[10], SqrtRatioDeltaPtoP = coord[11];  \
   double RatioBetaToBetaj = coord[12];                                                                              \
   double MomentumOfParticle0 = coord[13];                                                                           \
                                                                                                                     \
@@ -737,16 +754,16 @@ extern int thin6d_map_jbgrfcc_multipoles_##NAME##_(double *coord, double *argf, 
                                                                                                                     \
   thin6d_map_jbgrfcc_multipoles_##NAME##_main_assignment                                                            \
                                                                                                                     \
-  RatioDeltaPtoP = coord[8];                                                                                        \
+  RatioDeltaPtoPj = coord[8];                                                                                        \
   coord[13] = MomentumOfParticle;                                                                                   \
   MomentumOfParticle0 = coord[13];                                                                                  \
-  coord[7] = RatioDeltaPtoP * MomentumOfReferenceParticle + MomentumOfReferenceParticle;                            \
+  coord[7] = RatioDeltaPtoPj * MomentumOfReferenceParticle + MomentumOfReferenceParticle;                            \
   MomentumOfParticle = coord[7];                                                                                    \
   coord[6] = sqrt( MomentumOfParticle*MomentumOfParticle + RestMassOfParticle*RestMassOfParticle );                 \
   EnergyOfParticle = coord[6];                                                                                      \
-  coord[4] = 1.0 / ( 1.0 + RatioDeltaPtoP );                                                                        \
+  coord[4] = 1.0 / ( 1.0 + RatioDeltaPtoPj );                                                                        \
   RatioPtoPj = coord[4];                                                                                            \
-  coord[9] = ( RatioDeltaPtoP * OnePoweredTo3 ) * RatioPtoPj;                                                       \
+  coord[9] = ( RatioDeltaPtoPj * OnePoweredTo3 ) * RatioPtoPj;                                                       \
   RatioDeltaPtoPj1 = coord[9];                                                                                      \
   coord[2] = ( MomentumOfParticle0 / MomentumOfParticle ) * xp;                                                     \
   coord[3] = ( MomentumOfParticle0 / MomentumOfParticle ) * yp;                                                     \

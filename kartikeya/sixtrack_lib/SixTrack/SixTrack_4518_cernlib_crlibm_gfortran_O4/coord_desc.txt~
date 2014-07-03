@@ -27,20 +27,7 @@
             coord(29)=thin6d(4,j)
             coord(30)=thin6d(5,j)
             coord(31)=thin6d(6,j)
-            coord(32)=cos_rn((strackz(i)*ejf0v(j))/ejfv(j))
-            coord(33)=sin_rn((strackz(i)*ejf0v(j))/ejfv(j)) 
-            coord(34)=cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))
-            coord(35)=sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))
-            coord(36)=cos_rn(atan_rn(yv(1,j)/sqrt(((1d0+dpsv(j))**2-    &
-     &yv(1,j)**2)-yv(2,j)**2))-tx)
-            coord(37)=tan_rn(atan_rn(yv(1,j)/                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-tx)
-            coord(37)=sin_rn(atan_rn(yv(1,j)/                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-tx)
-            coord(38)=cos_rn(atan_rn(yv(2,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))-ty)
-            coord(38)=tan_rn(atan_rn(yv(2,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))-ty)
+            coord(32)=sigmoff(j)
 
 
 
