@@ -3,12 +3,12 @@
 #include"crlibm/crlibm.h"
 
 #define OnePoweredToMinus38               1.0e-38
-#define zero                              0.0
-#define half                              0.5
+#define Zero                              0.0
+#define Half                              0.5
 #define One                               1.0
-#define two                               2.0
-#define three                             3.0
-#define four                              4.0
+#define Two                               2.0
+#define Three                             3.0
+#define Four                              4.0
 #define OnePoweredTo1                     1.0e1
 #define OnePoweredTo2                     1.0e2
 #define OnePoweredTo3                     1.0e3
@@ -51,6 +51,92 @@ if(b >= 0) return abs(a);
 else return -abs(a);
 }
 
+int cntexactdrift = 0;
+extern int thin6d_map_exact_drift_(double *coord, double *argf, double *argi) {
+  double x = coord[0], y = coord[1];
+  double xp = coord[2], yp = coord[3];
+  double PathLengthDiff = coord[5];
+  double RatioBetaToBetaj = coord[12];
+
+  double PhysicalLengthOfBlock = argf[0];
+
+  double Pz;
+
+  x *= OnePoweredToMinus3;
+  y *= OnePoweredToMinus3;
+  xp *= OnePoweredToMinus3;
+  yp *= OnePoweredToMinus3;
+  PathLengthDiff *= OnePoweredToMinus3;
+
+  Pz = sqrt( One - ( xp * xp + yp * yp ));
+  x += PhysicalLengthOfBlock * ( xp / Pz );
+  y += PhysicalLengthOfBlock * ( yp / Pz );
+  PathLengthDiff += PhysicalLengthOfBlock * ( One - ( RatioBetaToBetaj / Pz ));
+
+  x *= OnePoweredTo3;
+  y *= OnePoweredTo3;
+  xp *= OnePoweredTo3;
+  yp *= OnePoweredTo3;
+  PathLengthDiff *= OnePoweredTo3;
+
+  coord[0] = x;
+  coord[1] = y;
+  coord[2] = xp;
+  coord[3] = yp;
+  coord[5] = PathLengthDiff;
+
+  if( cntexactdrift++ == 0 ) printf("thin6d exact drift \n");
+
+  return 1;
+}
+
+int cntaccelaratingcavity = 0;
+extern int thin6d_map_accelarating_cavity_(double *coord, double *argf, double *argi) {
+  double xp = coord[2], yp = coord[3]; 
+  double RatioPtoPj = coord[4];
+  double PathLengthDiff = coord[5];
+  double EnergyOfParticle = coord[6], MomentumOfParticle = coord[7];
+  double RatioDeltaPtoPj = coord[8], RatioDeltaPtoPj1 = coord[9];
+  double RatioBetaToBetaj = coord[12];
+  double MomentumOfParticle0 = coord[13]; 
+
+  double EnergyOfReferenceParticle = argf[0], MomentumOfReferenceParticle = argf[1]; 
+  double RestMassOfParticle = argf[2]; 
+  double dppoff = argf[3];
+  double ElementType = argf[4];
+  double FirstAdditionalDatum = argf[5];
+  double FrequencyOfCavity = argf[6];
+  double LagPhaseOfCavity = argf[7];
+  double VoltageOfCavity = argf[8];
+  double RFFrequencyOfCavity = argf[9];
+  double PathLengthOffset = argf[10];
+
+  MomentumOfParticle0 = MomentumOfParticle;
+  if( abs( dppoff ) > OnePoweredToMinus38 ) PathLengthDiff  = PathLengthDiff - PathLengthOffset;
+
+  if( ElementType == 12 )
+    EnergyOfParticle += FirstAdditionalDatum * sin_rn( FrequencyOfCavity * PathLengthDiff + LagPhaseOfCavity );
+  else
+    EnergyOfParticle += VoltageOfCavity * sin_rn( RFFrequencyOfCavity * PathLengthDiff );
+
+  coord[7] = sqrt( EnergyOfParticle*EnergyOfParticle - RestMassOfParticle*RestMassOfParticle );
+  MomentumOfParticle = coord[7];
+  coord[12] = ( EnergyOfParticle * MomentumOfReferenceParticle ) / ( EnergyOfReferenceParticle * MomentumOfParticle );
+  RatioBetaToBetaj = coord[12];
+  coord[8] = ( MomentumOfParticle - MomentumOfReferenceParticle ) / MomentumOfReferenceParticle;
+  RatioDeltaPtoPj = coord[8];
+  coord[4] = 1.0 / ( 1.0 + RatioDeltaPtoPj );
+  RatioPtoPj = coord[4];
+  coord[9] = ( RatioDeltaPtoPj * OnePoweredTo3 ) * RatioPtoPj;
+  RatioDeltaPtoPj1 = coord[9];
+
+  coord[2] = ( MomentumOfParticle0 / MomentumOfParticle ) * xp;
+  coord[3] = ( MomentumOfParticle0 / MomentumOfParticle ) * yp;
+
+  if(cntaccelaratingcavity++ == 0) printf("thin6d accelarating cavity called\n");
+
+  return 1;
+}
 
 int cnthordipole = 0;     
 extern int thin6d_map_horizontal_dipole_(double *coord, double *argf, double *argi) {
@@ -171,53 +257,7 @@ make_map_skew_pole( 16pole, 6 );
 make_map_skew_pole( 18pole, 7 );
 make_map_skew_pole( 20pole, 8 );
 
-int cntdrift = 0;
-extern int thin6d_map_exact_drift_(double *coord, double *argf, double *argi) {
-  double xp = coord[2], yp = coord[3]; 
-  double RatioPtoPj = coord[4];
-  double PathLengthDiff = coord[5];
-  double EnergyOfParticle = coord[6], MomentumOfParticle = coord[7];
-  double RatioDeltaPtoPj = coord[8], RatioDeltaPtoPj1 = coord[9];
-  double RatioBetaToBetaj = coord[12];
-  double MomentumOfParticle0 = coord[13]; 
 
-  double EnergyOfReferenceParticle = argf[1], MomentumOfReferenceParticle = argf[0]; 
-  double RestMassOfParticle = argf[2]; 
-  double dppoff = argf[3];
-  double ElementType = argf[4];
-  double FirstAdditionalDatum = argf[5];
-  double FrequencyOfCavity = argf[6];
-  double LagPhaseOfCavity = argf[7];
-  double VoltageOfCavity = argf[8];
-  double RFFrequencyOfCavity = argf[9];
-  double PathLengthOffset = argf[10];
-
-  MomentumOfParticle0 = MomentumOfParticle;
-  if( abs( dppoff ) > OnePoweredToMinus38 ) PathLengthDiff  = PathLengthDiff - PathLengthOffset;
-
-  if( ElementType == 12 )
-    EnergyOfParticle += FirstAdditionalDatum * sin_rn( FrequencyOfCavity * PathLengthDiff + LagPhaseOfCavity );
-  else
-    EnergyOfParticle += VoltageOfCavity * sin_rn( RFFrequencyOfCavity * PathLengthDiff );
-
-  coord[7] = sqrt( EnergyOfParticle*EnergyOfParticle - RestMassOfParticle*RestMassOfParticle );
-  MomentumOfParticle = coord[7];
-  coord[12] = ( EnergyOfParticle * MomentumOfReferenceParticle ) / ( EnergyOfReferenceParticle * MomentumOfParticle );
-  RatioBetaToBetaj = coord[12];
-  coord[8] = ( MomentumOfParticle - MomentumOfReferenceParticle ) / MomentumOfReferenceParticle;
-  RatioDeltaPtoPj = coord[8];
-  coord[4] = 1.0 / ( 1.0 + RatioDeltaPtoPj );
-  RatioPtoPj = coord[4];
-  coord[9] = ( RatioDeltaPtoPj * OnePoweredTo3 ) * RatioPtoPj;
-  RatioDeltaPtoPj1 = coord[9];
-
-  coord[2] = ( MomentumOfParticle0 / MomentumOfParticle ) * xp;
-  coord[3] = ( MomentumOfParticle0 / MomentumOfParticle ) * yp;
-
-  if(cntdrift++ == 0) printf("thin6d exact drift called\n");
-
-  return 1;
-}
 
 #define make_map_multipole_hor_zapprox(NAME)                                                                            \
     int cntmulhorz##NAME = 0;                                                                                           \
@@ -242,7 +282,7 @@ extern int thin6d_map_exact_drift_(double *coord, double *argf, double *argi) {
       coord[3] = ( yp + PhysicalLengthOfBlock * TiltComponentCos * RatioDeltaPtoPj1 ) - (( OnePoweredTo3 * VerticalBendingKick ) * RatioPtoPj ) * ( 1.0 - TiltComponentCos);                                                                                                       \
       coord[5] = PathLengthDiff - ( RatioBetaToBetaj * VerticalBendingKick ) * zlvj;                                     \
                                                                                                                          \
-      if( cntmulhorz##NAME++ == 0 ) printf("multipole hor zero approx "#NAME" called  \n");                                     \
+      if( cntmulhorz##NAME++ == 0 ) printf("multipole hor Zero approx "#NAME" called  \n");                                     \
                                                                                                                          \
       return 1;	                                                                                                         \
    }
@@ -273,7 +313,7 @@ make_map_multipole_hor_zapprox(purehor_zapprox);
       coord[3] = ( yp - ((( PhysicalLengthOfBlock * xlvj ) * RatioPtoPj + RatioDeltaPtoPj1 ) * HorizontalBendingKick ) * TiltComponentSin ) + (( OnePoweredTo3 * HorizontalBendingKick ) * RatioPtoPj ) *  TiltComponentSin;                                         \
       coord[5] = PathLengthDiff + ( RatioBetaToBetaj * HorizontalBendingKick ) * xlvj;	                               \
                                                                                                                        \
-      if( cntmulhornz##NAME++ == 0 ) printf("mulipole hor non zero approx "#NAME" called\n");                           \
+      if( cntmulhornz##NAME++ == 0 ) printf("mulipole hor non Zero approx "#NAME" called\n");                           \
                                                                                                                        \
       return 1;	                                                                                                       \
   }
@@ -304,7 +344,7 @@ make_map_multipole_hor_nzapprox(purehor_nzapprox);
       coord[3] = ( yp - ((( PhysicalLengthOfBlock * zlvj ) * RatioPtoPj - RatioDeltaPtoPj1 ) * VerticalBendingKick ) * TiltComponentCos ) - (( OnePoweredTo3 * VerticalBendingKick ) * RatioPtoPj ) * ( 1.0 - TiltComponentCos);			                \
       coord[5] = PathLengthDiff - ( RatioBetaToBetaj * VerticalBendingKick ) * zlvj;			                \
 										\
-      if( cntmulvernz##NAME++ == 0 ) printf("mulipole verticle non-zero approx "#NAME" called \n");		\
+      if( cntmulvernz##NAME++ == 0 ) printf("mulipole verticle non-Zero approx "#NAME" called \n");		\
                                                                                                                         \
       return 1;                                                                                                         \
 }
@@ -335,7 +375,7 @@ make_map_multipole_ver_nzapprox(purever_nzapprox);
       coord[3] = ( yp + PhysicalLengthOfBlock * TiltComponentCos * RatioDeltaPtoPj1 ) - (( OnePoweredTo3 * VerticalBendingKick ) * RatioPtoPj ) * ( 1.0 - TiltComponentCos);                                                                                                    \
       coord[5] = PathLengthDiff - ( RatioBetaToBetaj * VerticalBendingKick ) * zlvj;                                  \
                                                                                                                       \
-      if( cntmulverz##NAME++ == 0 ) printf("mulipole vericle zero approx "#NAME" called \n");                                          \
+      if( cntmulverz##NAME++ == 0 ) printf("mulipole vericle Zero approx "#NAME" called \n");                                          \
                                                                                                                       \
       return 1;                                                                                                       \
 }
@@ -457,7 +497,7 @@ extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi
 }
 
 int cntacccavity = 0;
-extern int thin6d_map_accelerating_cavity_(double *coord, double *argf, double *argi) {
+extern int thin6d_map_accelerating_cavity2_(double *coord, double *argf, double *argi) {
   double x = coord[0], y = coord[1];
   double xp = coord[2], yp = coord[3];
   double PathLengthDiff = coord[5];
@@ -495,9 +535,9 @@ extern int thin6d_map_dipedge_(double *coord, double *argf, double *argi) {
   double RatioPtoPj = coord[4];
   double RatioBetaToBetaj = coord[12];
 
-  double CurrentEntryDisplacementX = argf[0], CurrentEntryDisplacementY = argf[1];
-  double TiltComponentCos = argf[2], TiltComponentSin = argf[3];
-  double PhysicalLengthOfBlock = argf[4];
+  double PhysicalLengthOfBlock = argf[0];                                                                                
+  double TiltComponentCos = argf[1], TiltComponentSin = argf[2];                                                         
+  double CurrentEntryDisplacementX = argf[3], CurrentEntryDisplacementY = argf[4]; 
   double PhysicalLengthOfBlockHorComp = argf[5],  PhysicalLengthOfBlockVerComp = argf[6];
 
   double xlvj, zlvj, crkve, cikve;
@@ -566,7 +606,7 @@ extern int thin6d_map_ac_dipole_(double *coord, double *argf, double *argi) {
   double MomentumOfParticle = coord[7];
 
   double TiltComponentCos = argf[0], TiltComponentSin = argf[1];
-  double xory = argf[2];
+  double xory = (int)argf[2];
   double ACDipoleAmplitude = argf[3], ACDipoleAmplitudeHorComp = argf[4], ACDipoleAmplitudeVerComp = argf[5];
   int nramp1 = (int)argf[6], nramp2 = (int)argf[7], nac = (int)argf[8], nplato = (int)argf[9];
   double Qd = argf[10], ACPhase = argf[11];
@@ -869,7 +909,7 @@ void errf( double *var_xx, double *var_yy, double *var_wx, double *var_wy ) {
 }
 
 int cntbb1 = 0;
-extern int thin6d_map_beambeam_1_( double *coord, double *argf, double argi ) {
+extern int thin6d_map_beambeam_type1_( double *coord, double *argf, double argi ) {
   double x = coord[0], y = coord[1];
   double xp = coord[2], yp = coord[3];
   double RatioPtoPj = coord[4];
@@ -878,10 +918,10 @@ extern int thin6d_map_beambeam_1_( double *coord, double *argf, double argi ) {
   double PhysicalLengthOfBlock = argf[2];
   int SwitchToLinearCoupling = (int)argf[3];
   double ClosedOrbitBeamX = argf[4], ClosedOrbitBeamY = argf[5], ClosedOrbitBeamSigma = argf[6], ClosedOrbitBeamPx = argf[7], ClosedOrbitBeamPy = argf[8], ClosedOrbitBeamDelta = argf[9];
-  double SquareOfSigmaNX = argf[20], SquareOfSigmaNY = argf[21];
   double BeamOffsetX = argf[10], BeamOffsetY = argf[11], BeamOffsetSigma = argf[12], BeamOffsetPx = argf[13], BeamOffsetPy = argf[14], BeamOffsetDelta = argf[15];
   double bbcu11 = argf[16], bbcu12 = argf[17];
   double SigmaNqX = argf[18], SigmaNqY = argf[19];
+  double SquareOfSigmaNX = argf[20], SquareOfSigmaNY = argf[21];
 
   double crkvebj, cikvebj, rho2bj, tkbj, cccc;
 
@@ -920,8 +960,8 @@ cccc = ((( PhysicalLengthOfBlock * crkvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 *
   return 1;
 }
 
-int cntbb20 = 0;
-extern int thin6d_map_beambeam_2_ibtyp_0_( double *coord, double *argf, double *argi ) {
+int cntbb2_0 = 0, cntbb21 = 0;
+extern int thin6d_map_beambeam_type2_( double *coord, double *argf, double *argi ) {
   double x = coord[0], y = coord[1];
   double xp = coord[2], yp = coord[3];
   double RatioPtoPj = coord[4];
@@ -936,161 +976,112 @@ extern int thin6d_map_beambeam_2_ibtyp_0_( double *coord, double *argf, double *
   double BeamOffsetX = argf[10], BeamOffsetY = argf[11], BeamOffsetSigma = argf[12], BeamOffsetPx = argf[13], BeamOffsetPy = argf[14], BeamOffsetDelta = argf[15];
   double bbcu11 = argf[16], bbcu12 = argf[17];
   double SigmaNqX = argf[18], SigmaNqY = argf[19];
+  double NoOfParticles = (int)argf[20], SwitchToFastBeamBeamAlgo = (int)argf[21];
 
   double crkvebj, cikvebj, rho2bj, tkbj, cccc, r2bj, rbj, rkbj, xbbj, zbbj, xrbj, zrbj;
   double SquareRootOfPi = sqrt(Pi);
 
-  r2bj = 2.0 * ( SquareOfSigmaNX - SquareOfSigmaNY );
-  rbj = sqrt(r2bj);
-
-  rkbj = ( PhysicalLengthOfBlock * SquareRootOfPi ) / rbj;
-
-  if( SwitchToLinearCoupling == 0 )
+  if( SwitchToFastBeamBeamAlgo == 0 )
   {
-    crkvebj = ( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation;
-    cikvebj = ( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation;
+    r2bj = 2.0 * ( SquareOfSigmaNX - SquareOfSigmaNY );
+    rbj = sqrt(r2bj);
+
+    rkbj = ( PhysicalLengthOfBlock * SquareRootOfPi ) / rbj;
+
+    if( SwitchToLinearCoupling == 0 )
+    {
+      crkvebj = ( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation;
+      cikvebj = ( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation;
+    }
+    else
+    {
+      crkvebj = (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu11 + (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu12;
+      cikvebj = (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu11 - (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu12;
+    }
+
+    xrbj = abs(crkvebj) / rbj;
+    zrbj = abs(cikvebj) / rbj;
+
+    errf( &xrbj, &zrbj, &crxbj, &crzbj );
+
+    tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
+
+    xbbj = SigmaNqY * xrbj;
+    zbbj = SigmaNqX * zrbj;
+
+    errf( &xbbj, &zbbj, &cbxbj, &cbzbj );
+
+    if( SwitchToLinearCoupling == 0 )
+    {
+      coord[2] = xp + RatioPtoPj * (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) *sign( 1.0, crkvebj ) - BeamOffsetPx );
+      coord[3] = yp + RatioPtoPj * (( rkbj * ( crxbj - exp_rn( -1.0 * tkbj ) * cbxbj )) *sign( 1.0, cikvebj ) - BeamOffsetPy );
+    }
+    else
+    {
+      cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu11 - (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu12;
+      coord[2] = xp + RatioPtoPj * cccc;
+
+      cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu12 + (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu11;
+      coord[3] = yp + RatioPtoPj * cccc;
+    }
+
+    if( cntbb2_0++ == 0 ) printf("beam beam 2 type 0\n");
+
   }
-  else
+  else if(  SwitchToFastBeamBeamAlgo == 1 )
   {
-    crkvebj = (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu11 + (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu12;
-    cikvebj = (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu11 - (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu12;
+    r2bj = 2.0 * ( SquareOfSigmaNX - SquareOfSigmaNY );
+    rbj = sqrt(r2bj);
+
+    rkbj = ( PhysicalLengthOfBlock * SquareRootOfPi ) / rbj;
+
+    if( SwitchToLinearCoupling == 0 )
+    {
+      crkvebj = ( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation;
+      cikvebj = ( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation;
+    }
+    else
+    {
+      crkvebj = (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu11 + (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu12;
+      cikvebj = (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu11 - (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu12;
+    }
+
+    xrbj = abs(crkvebj) / rbj;
+    zrbj = abs(cikvebj) / rbj;
+
+    tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
+
+    xbbj = SigmaNqY * xrbj;
+    zbbj = SigmaNqX * zrbj;
+
+    if( ( cntbb21++ ) % 60 == 0 ) 
+    {
+      wzsubv_( &NoOfParticles, &xrbj, &zrbj, &crxbj, &crzbj );
+      wzsubv_( &NoOfParticles, &xbbj, &zbbj, &cbxbj, &cbzbj );
+    }
+
+    tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
+
+    if( SwitchToLinearCoupling == 0 )
+    {
+      coord[2] = xp + RatioPtoPj * (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) *sign( 1.0, crkvebj ) - BeamOffsetPx );
+      coord[3] = yp + RatioPtoPj * (( rkbj * ( crxbj - exp_rn( -1.0 * tkbj ) * cbxbj )) *sign( 1.0, cikvebj ) - BeamOffsetPy );
+    }
+    else
+    {
+      cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu11 - (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu12;
+      coord[2] = xp + RatioPtoPj * cccc;
+
+      cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu12 + (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu11;
+      coord[3] = yp + RatioPtoPj * cccc;
+    }
   }
-
-  xrbj = abs(crkvebj) / rbj;
-  zrbj = abs(cikvebj) / rbj;
-
-  errf( &xrbj, &zrbj, &crxbj, &crzbj );
-
-  tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
-
-  xbbj = SigmaNqY * xrbj;
-  zbbj = SigmaNqX * zrbj;
-
-  errf( &xbbj, &zbbj, &cbxbj, &cbzbj );
-
-  if( SwitchToLinearCoupling == 0 )
-  {
-    coord[2] = xp + RatioPtoPj * (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) *sign( 1.0, crkvebj ) - BeamOffsetPx );
-    coord[3] = yp + RatioPtoPj * (( rkbj * ( crxbj - exp_rn( -1.0 * tkbj ) * cbxbj )) *sign( 1.0, cikvebj ) - BeamOffsetPy );
-  }
-  else
-  {
-    cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu11 - (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu12;
-    coord[2] = xp + RatioPtoPj * cccc;
-
-    cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu12 + (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu11;
-    coord[3] = yp + RatioPtoPj * cccc;
-  }
-
-  if( cntbb20++ == 0 ) printf("beam beam 2 type 0\n");
 
   return 1;
 }
 
-int cntbb2ib11=0;
-extern int thin6d_map_beambeam_2_ibtyp_1_1_( double *coord, double *argf, double *argi ) {
-  double x = coord[0], y = coord[1];
-  double xp = coord[2], yp = coord[3];
-  double RatioPtoPj = coord[4];
-  double crxbj = coord[14], crzbj = coord[15];
-  double cbxbj = coord[16], cbzbj = coord[17];
-  double xbbj = coord[18], zbbj = coord[19]; 
-  double crkvebj = coord[22], cikvebj = coord[23];
-  double rkbj = coord[25];
-
-  double HorBeamBeamSeparation = argf[0], VerBeamBeamSeparation = argf[1];
-  double PhysicalLengthOfBlock = argf[2];
-  int SwitchToLinearCoupling = (int)argf[3];
-  double ClosedOrbitBeamX = argf[4], ClosedOrbitBeamY = argf[5], ClosedOrbitBeamSigma = argf[6], ClosedOrbitBeamPx = argf[7], ClosedOrbitBeamPy = argf[8], ClosedOrbitBeamDelta = argf[9];
-  double SquareOfSigmaNX = argf[20], SquareOfSigmaNY = argf[21];
-  double BeamOffsetX = argf[10], BeamOffsetY = argf[11], BeamOffsetSigma = argf[12], BeamOffsetPx = argf[13], BeamOffsetPy = argf[14], BeamOffsetDelta = argf[15];
-  double bbcu11 = argf[16], bbcu12 = argf[17];
-  double SigmaNqX = argf[18], SigmaNqY = argf[19];
-
-  double rho2bj, tkbj, cccc, r2bj, rbj, xrbj, zrbj;
-  double SquareRootOfPi = sqrt(Pi);
-
-  r2bj = 2.0 * ( SquareOfSigmaNX - SquareOfSigmaNY );
-  rbj = sqrt(r2bj);
-
-  rkbj = ( PhysicalLengthOfBlock * SquareRootOfPi ) / rbj;
-  coord[25] = rkbj;
-
-  if( SwitchToLinearCoupling == 0 )
-  {
-    crkvebj = ( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation;
-    cikvebj = ( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation;
-    coord[22] = crkvebj;
-    coord[23] = cikvebj;
-  }
-  else
-  {
-    crkvebj = (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu11 + (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu12;
-    cikvebj = (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu11 - (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu12;
-    coord[22] = crkvebj;
-    coord[23] = cikvebj;
-  }
-
-  xrbj = abs(crkvebj) / rbj;
-  zrbj = abs(cikvebj) / rbj;
-
-  tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
-
-  xbbj = SigmaNqY * xrbj;
-  zbbj = SigmaNqX * zrbj;
-  coord[18] = xbbj;
-  coord[19] = zbbj;
-
-  if( cntbb2ib11++ == 0 ) printf("beam beam 2 ib 1 1\n");
-
-  return 1;
-}
-
-int cntbb2ib12=0;
-extern int thin6d_map_beambeam_2_ibtyp_1_2_( double *coord, double *argf, double *argi ) {
-  double x = coord[0], y = coord[1];
-  double xp = coord[2], yp = coord[3];
-  double RatioPtoPj = coord[4];
-  double crxbj = coord[14], crzbj = coord[15];
-  double cbxbj = coord[16], cbzbj = coord[17];
-  double xbbj = coord[18], zbbj = coord[19]; 
-  double crkvebj = coord[22], cikvebj = coord[23];
-  double rkbj = coord[25];
-
-  double HorBeamBeamSeparation = argf[0], VerBeamBeamSeparation = argf[1];
-  double PhysicalLengthOfBlock = argf[2];
-  int SwitchToLinearCoupling = (int)argf[3];
-  double ClosedOrbitBeamX = argf[4], ClosedOrbitBeamY = argf[5], ClosedOrbitBeamSigma = argf[6], ClosedOrbitBeamPx = argf[7], ClosedOrbitBeamPy = argf[8], ClosedOrbitBeamDelta = argf[9];
-  double SquareOfSigmaNX = argf[20], SquareOfSigmaNY = argf[21];
-  double BeamOffsetX = argf[10], BeamOffsetY = argf[11], BeamOffsetSigma = argf[12], BeamOffsetPx = argf[13], BeamOffsetPy = argf[14], BeamOffsetDelta = argf[15];
-  double bbcu11 = argf[16], bbcu12 = argf[17];
-  double SigmaNqX = argf[18], SigmaNqY = argf[19];
-
-  double rho2bj, tkbj, cccc, r2bj, rbj, xrbj, zrbj;
-  double SquareRootOfPi = sqrt(Pi);
-
-  tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
-  if( SwitchToLinearCoupling == 0 )
-  {
-    coord[2] = xp + RatioPtoPj * (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) *sign( 1.0, crkvebj ) - BeamOffsetPx );
-    coord[3] = yp + RatioPtoPj * (( rkbj * ( crxbj - exp_rn( -1.0 * tkbj ) * cbxbj )) *sign( 1.0, cikvebj ) - BeamOffsetPy );
-  }
-  else
-  {
-    cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu11 - (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu12;
-    coord[2] = xp + RatioPtoPj * cccc;
-
-    cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu12 + (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu11;
-    coord[3] = yp + RatioPtoPj * cccc;
-  }
-
-  if( cntbb2ib12++==0 ) printf("beam beam 2 type 1 2\n");
-
-  return 1;
-}
-
-int cntbb3ib0 = 0;
-extern int thin6d_map_beambeam_3_ibtyp_0_( double *coord, double *argf, double *argi ) {
+int cntbb3_0 = 0, cntbb31 = 0;
+extern int thin6d_map_beambeam_type3_( double *coord, double *argf, double *argi ) {
   double x = coord[0], y = coord[1];
   double xp = coord[2], yp = coord[3];
   double RatioPtoPj = coord[4];
@@ -1105,155 +1096,400 @@ extern int thin6d_map_beambeam_3_ibtyp_0_( double *coord, double *argf, double *
   double BeamOffsetX = argf[10], BeamOffsetY = argf[11], BeamOffsetSigma = argf[12], BeamOffsetPx = argf[13], BeamOffsetPy = argf[14], BeamOffsetDelta = argf[15];
   double bbcu11 = argf[16], bbcu12 = argf[17];
   double SigmaNqX = argf[18], SigmaNqY = argf[19];
+  double NoOfParticles = (int)argf[20], SwitchToFastBeamBeamAlgo = (int)argf[21];
 
   double crkvebj, cikvebj, rho2bj, tkbj, cccc, r2bj, rbj, rkbj, xbbj, zbbj, xrbj, zrbj;
   double SquareRootOfPi = sqrt(Pi);
 
-  r2bj = 2.0 * ( SquareOfSigmaNY - SquareOfSigmaNX );
-  rbj = sqrt(r2bj);
-
-  rkbj = ( PhysicalLengthOfBlock * SquareRootOfPi ) / rbj;
-
-  if( SwitchToLinearCoupling == 0 )
+  if( SwitchToFastBeamBeamAlgo == 0 )
   {
-    crkvebj = ( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation;
-    cikvebj = ( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation;
+    r2bj = 2.0 * ( SquareOfSigmaNY - SquareOfSigmaNX );
+    rbj = sqrt(r2bj);
+
+    rkbj = ( PhysicalLengthOfBlock * SquareRootOfPi ) / rbj;
+
+    if( SwitchToLinearCoupling == 0 )
+    {
+      crkvebj = ( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation;
+      cikvebj = ( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation;
+    }
+    else
+    {
+      crkvebj = (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu11 + (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu12;
+      cikvebj = (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu11 + (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu12;
+    }
+
+    xrbj = abs(crkvebj) / rbj;
+    zrbj = abs(cikvebj) / rbj;
+
+    errf_( &zrbj, &xrbj, &crzbj, &crxbj );
+
+    tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
+
+    xbbj = SigmaNqY * xrbj;
+    zbbj = SigmaNqX * zrbj;
+
+    errf_( &zbbj, &xbbj, &cbzbj, &cbxbj );
+
+    if( SwitchToLinearCoupling == 0 )
+    {
+      coord[2] = xp + RatioPtoPj * (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) *sign( 1.0, crkvebj ) - BeamOffsetPx );
+      coord[3] = yp + RatioPtoPj * (( rkbj * ( crxbj - exp_rn( -1.0 * tkbj ) * cbxbj )) *sign( 1.0, cikvebj ) - BeamOffsetPy );
+    }
+    else
+    {
+      cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu11 - (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu12;
+      coord[2] = xp + RatioPtoPj * cccc;
+
+      cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu12 + (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu11;
+      coord[3] = yp + RatioPtoPj * cccc;
+    }
+
+    if( cntbb3_0++ == 0 ) printf(" Beam Beam type 3 0 \n");
+
   }
-  else
+  else if(  SwitchToFastBeamBeamAlgo == 1 )
   {
-    crkvebj = (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu11 + (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu12;
-    cikvebj = (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu11 + (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu12;
+    r2bj = 2.0 * ( SquareOfSigmaNY - SquareOfSigmaNX );
+    rbj = sqrt(r2bj);
+
+    rkbj = ( PhysicalLengthOfBlock * SquareRootOfPi ) / rbj;
+
+    if( SwitchToLinearCoupling == 0 )
+    {
+      crkvebj = ( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation;
+      cikvebj = ( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation;
+    }
+    else
+    {
+      crkvebj = (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu11 + (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu12;
+      cikvebj = (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu11 - (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu12;
+    }
+
+    xrbj = abs(crkvebj) / rbj;
+    zrbj = abs(cikvebj) / rbj;
+
+    tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
+
+    xbbj = SigmaNqY * xrbj;
+    zbbj = SigmaNqX * zrbj;
+
+    if( ( cntbb31++ ) % 60 == 0 ) 
+    {
+      wzsubv_( &NoOfParticles, &zrbj, &xrbj, &crzbj, &crxbj );
+      wzsubv_( &NoOfParticles, &zbbj, &xbbj, &cbzbj, &cbxbj );
+    }
+
+    tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
+
+    if( SwitchToLinearCoupling == 0 )
+    {
+      coord[2] = xp + RatioPtoPj * (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) *sign( 1.0, crkvebj ) - BeamOffsetPx );
+      coord[3] = yp + RatioPtoPj * (( rkbj * ( crxbj - exp_rn( -1.0 * tkbj ) * cbxbj )) *sign( 1.0, cikvebj ) - BeamOffsetPy );
+    }
+    else
+    {
+      cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu11 - (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu12;
+      coord[2] = xp + RatioPtoPj * cccc;
+
+      cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu12 + (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu11;
+      coord[3] = yp + RatioPtoPj * cccc;
+    }
   }
-
-  xrbj = abs(crkvebj) / rbj;
-  zrbj = abs(cikvebj) / rbj;
-
-  errf_( &zrbj, &xrbj, &crzbj, &crxbj );
-
-  tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
-
-  xbbj = SigmaNqY * xrbj;
-  zbbj = SigmaNqX * zrbj;
-
-  errf_( &zbbj, &xbbj, &cbzbj, &cbxbj );
-
-  if( SwitchToLinearCoupling == 0 )
-  {
-    coord[2] = xp + RatioPtoPj * (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) *sign( 1.0, crkvebj ) - BeamOffsetPx );
-    coord[3] = yp + RatioPtoPj * (( rkbj * ( crxbj - exp_rn( -1.0 * tkbj ) * cbxbj )) *sign( 1.0, cikvebj ) - BeamOffsetPy );
-  }
-  else
-  {
-    cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu11 - (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu12;
-    coord[2] = xp + RatioPtoPj * cccc;
-
-    cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu12 + (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu11;
-    coord[3] = yp + RatioPtoPj * cccc;
-  }
-
-  if( cntbb3ib0++ == 0 ) printf("beam beam 3 type 0\n");
 
   return 1;
 }
 
-int cntbb3ib11 = 0;
-extern int thin6d_map_beambeam_3_ibtyp_1_1_( double *coord, double *argf, double *argi ) {
-  double x = coord[0], y = coord[1];
-  double xp = coord[2], yp = coord[3];
-  double RatioPtoPj = coord[4];
-  double crxbj = coord[14], crzbj = coord[15];
-  double cbxbj = coord[16], cbzbj = coord[17];
-  double xbbj = coord[18], zbbj = coord[19]; 
-  double crkvebj = coord[22], cikvebj = coord[23];
-  double rkbj = coord[25];
+int cntthin6duaaccavity = 0;
+extern int thin6dua_map_accelarating_cavity_( double *coord, double *argf, double *argi ) {              
+  double xp = coord[2], yp = coord[3];                                                                               
+  double RatioPtoPj = coord[4];                                                                                      
+  double PathLengthDiff = coord[5];                                                                                  
+  double EnergyOfParticle = coord[6], MomentumOfParticle = coord[7];                                                 
+  double RatioDeltaPtoPj = coord[8], RatioDeltaPtoPj1 = coord[9];                                                    
+  double RatioBetaToBetaj = coord[12];                                                                               
+  double MomentumOfParticle0 = coord[13];
 
-  double HorBeamBeamSeparation = argf[0], VerBeamBeamSeparation = argf[1];
-  double PhysicalLengthOfBlock = argf[2];
-  int SwitchToLinearCoupling = (int)argf[3];
-  double ClosedOrbitBeamX = argf[4], ClosedOrbitBeamY = argf[5], ClosedOrbitBeamSigma = argf[6], ClosedOrbitBeamPx = argf[7], ClosedOrbitBeamPy = argf[8], ClosedOrbitBeamDelta = argf[9];
-  double SquareOfSigmaNX = argf[20], SquareOfSigmaNY = argf[21];
-  double BeamOffsetX = argf[10], BeamOffsetY = argf[11], BeamOffsetSigma = argf[12], BeamOffsetPx = argf[13], BeamOffsetPy = argf[14], BeamOffsetDelta = argf[15];
-  double bbcu11 = argf[16], bbcu12 = argf[17];
-  double SigmaNqX = argf[18], SigmaNqY = argf[19];
+  double RestMassOfParticle = argf[0];
+  double dppoff = argf[1];
+  double ElementType = argf[2];
+  double FrequencyOfCavity = argf[3];
+  double LagPhaseOfCavity = argf[4];
+  double VoltageOfCavity = argf[5];
+  double RFFrequencyOfCavity = argf[6];
+  double PathLengthOffset = argf[7];
+  double EnergyOfReferenceParticle = argf[8], MomentumOfReferenceParticle = argf[9];
+  double SynchrotronAccelarationPhase = argf[10];
+  double HorBeamBeamSeparation = argf[11];
 
-  double rho2bj, tkbj, cccc, r2bj, rbj, xrbj, zrbj;
-  double SquareRootOfPi = sqrt(Pi);
+  double EnergyOfReferenceParticle_O, MomentumOfReferenceParticle_O;
 
-  r2bj = 2.0 * ( SquareOfSigmaNY - SquareOfSigmaNX );
-  rbj = sqrt(r2bj);
-
-  rkbj = ( PhysicalLengthOfBlock * SquareRootOfPi ) / rbj;
-  coord[25] = rkbj;
-
-  if( SwitchToLinearCoupling == 0 )
+  MomentumOfParticle0 = MomentumOfParticle;
+  if( abs( dppoff ) > OnePoweredToMinus38 ) PathLengthDiff -= PathLengthOffset;
+  if( PathLengthDiff < Zero ) PathLengthDiff *= ( MomentumOfReferenceParticle * EnergyOfReferenceParticle_O ) / ( MomentumOfReferenceParticle_O * EnergyOfReferenceParticle );
+  if( ElementType = 12 )
   {
-    crkvebj = ( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation;
-    cikvebj = ( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation;
-    coord[22] = crkvebj;
-    coord[23] = cikvebj;
+    EnergyOfParticle += HorBeamBeamSeparation * sin_rn(( FrequencyOfCavity * PathLengthDiff + SynchrotronAccelarationPhase ) + LagPhaseOfCavity );
   }
   else
   {
-    crkvebj = (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu11 + (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu12;
-    cikvebj = (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu11 - (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu12;
-    coord[22] = crkvebj;
-    coord[23] = cikvebj;
+    EnergyOfParticle += HorBeamBeamSeparation * sin_rn( RFFrequencyOfCavity * PathLengthDiff + SynchrotronAccelarationPhase );
   }
 
-  xrbj = abs(crkvebj) / rbj;
-  zrbj = abs(cikvebj) / rbj;
+  MomentumOfParticle = sqrt( EnergyOfParticle * EnergyOfParticle - RestMassOfParticle * RestMassOfParticle );
+  RatioBetaToBetaj = ( EnergyOfParticle * MomentumOfReferenceParticle ) / ( EnergyOfReferenceParticle * MomentumOfParticle );
+  RatioDeltaPtoPj = ( MomentumOfParticle - MomentumOfReferenceParticle ) / MomentumOfReferenceParticle ;
+  RatioPtoPj = One / ( One + RatioDeltaPtoPj );
+  RatioDeltaPtoPj1 = ( RatioDeltaPtoPj * OnePoweredTo3 ) * RatioPtoPj;
+  if( PathLengthDiff > Zero ) PathLengthDiff = MomentumOfReferenceParticle * EnergyOfReferenceParticle_O / ( MomentumOfReferenceParticle_O *
+ EnergyOfReferenceParticle ) * PathLengthDiff;
+  xp *= MomentumOfParticle0 / MomentumOfParticle;
+  yp *= MomentumOfParticle0 / MomentumOfParticle;
+  
+  coord[2] = xp;
+  coord[3] = yp;
+  coord[4] = RatioPtoPj;
+  coord[5] = PathLengthDiff;
+  coord[6] = EnergyOfParticle;
+  coord[7] = MomentumOfParticle;
+  coord[8] = RatioDeltaPtoPj;
+  coord[9] = RatioDeltaPtoPj1;
+  coord[12] = RatioBetaToBetaj;
+  coord[13] = MomentumOfParticle0;
+ 
+  if( cntthin6duaaccavity++ == 0 ) printf(" thin6dua accelarating cavity called\n");
+  
+  return 1;
+}
 
-  tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
+#define make_thin4d_map_multipole_hor_nzapprox(NAME)                                                                         \
+    int cntthin4dmulhornz##NAME = 0;						                                              \
+    extern int thin4d_map_multipole_##NAME##_(double *coord, double *argf, double *argi) {                            \
+      double x = coord[0], y = coord[1];                                                                              \
+      double xp = coord[2], yp = coord[3];                                                                            \
+      double RatioPtoPj = coord[4];                                                                                   \
+      double PathLengthDiff = coord[5];	                                                                              \
+      double RatioDeltaPtoPj = coord[8], RatioDeltaPtoPj1 = coord[9];                                                 \
+                                                                                                                      \
+      double PhysicalLengthOfBlock = argf[0];                                                                        \
+      double TiltComponentCos = argf[1], TiltComponentSin = argf[2];                                                  \
+      double CurrentEntryDisplacementX = argf[3], CurrentEntryDisplacementY = argf[4];                                \
+      double HorizontalBendingKick = argf[5];	                                                                      \
+                                                                                                                      \
+      double xlvj, zlvj;                                                                                              \
+                                                                                                                      \
+      xlvj = ( x - CurrentEntryDisplacementX ) * TiltComponentCos + ( y - CurrentEntryDisplacementY ) * TiltComponentSin;	\
+      zlvj = ( y - CurrentEntryDisplacementY ) * TiltComponentCos - ( x - CurrentEntryDisplacementX ) * TiltComponentSin;	\
+      coord[2] = ( xp - ((( PhysicalLengthOfBlock * xlvj ) * RatioPtoPj + RatioDeltaPtoPj1 ) * HorizontalBendingKick ) * TiltComponentCos ) + (( OnePoweredTo3 * HorizontalBendingKick ) * RatioPtoPj ) * ( 1.0 - TiltComponentCos );	                               \
+      coord[3] = ( yp - ((( PhysicalLengthOfBlock * xlvj ) * RatioPtoPj + RatioDeltaPtoPj1 ) * HorizontalBendingKick ) * TiltComponentSin ) + (( OnePoweredTo3 * HorizontalBendingKick ) * RatioPtoPj ) *  TiltComponentSin;                                         \
+                                                                                                                       \
+      if( cntthin4dmulhornz##NAME++ == 0 ) printf("thin4d mulipole hor non Zero approx "#NAME" called\n");                           \
+                                                                                                                       \
+      return 1;	                                                                                                       \
+  }
 
-  xbbj = SigmaNqY * xrbj;
-  zbbj = SigmaNqX * zrbj;
-  coord[18] = xbbj;
-  coord[19] = zbbj;
+make_thin4d_map_multipole_hor_nzapprox(hor_nzapprox_ho);
+make_thin4d_map_multipole_hor_nzapprox(purehor_nzapprox);
 
-  if( cntbb3ib11++ == 0 ) printf("beam beam 3 type1 1\n");
+#define make_thin4d_map_multipole_hor_zapprox(NAME)                                                                            \
+    int cntthin4dmulhorz##NAME = 0;                                                                                           \
+    extern int thin4d_map_multipole_##NAME##_(double *coord, double *argf, double *argi) {                              \
+      double xp = coord[2], yp = coord[3];                                                                              \
+      double RatioPtoPj = coord[4];                                                                                     \
+      double RatioDeltaPtoPj1 = coord[9];                                                    \
+                                                                                                                        \
+      double PhysicalLengthOfBlock = argf[0];                                                                           \
+      double TiltComponentCos = argf[1], TiltComponentSin = argf[2];                                                    \
+      double VerticalBendingKick = argf[3];							                        \
+                                                                                                                       \
+      coord[2] = ( xp - PhysicalLengthOfBlock * TiltComponentSin * RatioDeltaPtoPj1 ) + (( OnePoweredTo3 * VerticalBendingKick ) * RatioPtoPj ) *	 TiltComponentSin;                                                                                                        \
+      coord[3] = ( yp + PhysicalLengthOfBlock * TiltComponentCos * RatioDeltaPtoPj1 ) - (( OnePoweredTo3 * VerticalBendingKick ) * RatioPtoPj ) * ( 1.0 - TiltComponentCos);                                                                                                       \
+                                                                                                                         \
+      if( cntthin4dmulhorz##NAME++ == 0 ) printf("thin4d multipole hor Zero approx "#NAME" called  \n");                                     \
+                                                                                                                         \
+      return 1;	                                                                                                         \
+   }
+
+make_thin4d_map_multipole_hor_zapprox(hor_zapprox_ho);
+make_thin4d_map_multipole_hor_zapprox(purehor_zapprox);
+
+#define make_thin4d_map_multipole_ver_nzapprox(NAME)  \
+    int cntthin4dmulvernz##NAME = 0;						\
+    extern int thin4d_map_multipole_##NAME##_(double *coord, double *argf, double *argi) {                            \
+      double x = coord[0], y = coord[1];                                                                              \
+      double xp = coord[2], yp = coord[3];                                                                            \
+      double RatioPtoPj = coord[4];                                                                                   \
+      double RatioDeltaPtoPj = coord[8], RatioDeltaPtoPj1 = coord[9];                                                  \
+                                                                                                                      \
+      double PhysicalLengthOfBlock = argf[0];                                                                         \
+      double TiltComponentCos = argf[1], TiltComponentSin = argf[2];                                                  \
+      double CurrentEntryDisplacementX = argf[3], CurrentEntryDisplacementY = argf[4];                                \
+      double VerticalBendingKick = argf[5];                                                                           \
+                                                                                                                      \
+      double xlvj, zlvj;                                                                                              \
+													\
+      xlvj = ( x - CurrentEntryDisplacementX ) * TiltComponentCos + ( y - CurrentEntryDisplacementY ) * TiltComponentSin;	\
+      zlvj = ( y - CurrentEntryDisplacementY ) * TiltComponentCos - ( x - CurrentEntryDisplacementX ) * TiltComponentSin;	\
+      coord[2] = ( xp + ((( PhysicalLengthOfBlock * zlvj ) * RatioPtoPj - RatioDeltaPtoPj1 ) * VerticalBendingKick ) * TiltComponentSin ) + (( OnePoweredTo3 * VerticalBendingKick ) * RatioPtoPj ) * TiltComponentSin;                                             \
+      coord[3] = ( yp - ((( PhysicalLengthOfBlock * zlvj ) * RatioPtoPj - RatioDeltaPtoPj1 ) * VerticalBendingKick ) * TiltComponentCos ) - (( OnePoweredTo3 * VerticalBendingKick ) * RatioPtoPj ) * ( 1.0 - TiltComponentCos);			                \
+										\
+      if( cntthin4dmulvernz##NAME++ == 0 ) printf("thin4d mulipole verticle non-Zero approx "#NAME" called \n");		\
+                                                                                                                        \
+      return 1;                                                                                                         \
+}
+
+make_thin4d_map_multipole_ver_nzapprox(ver_nzapprox_ho);
+make_thin4d_map_multipole_ver_nzapprox(purever_nzapprox);
+
+#define make_thin4d_map_multipole_ver_zapprox(NAME)                                                                   \
+    int cntthin4dmulverz##NAME = 0;                                                                                   \
+    extern int thin4d_map_multipole_##NAME##_(double *coord, double *argf, double *argi) {                            \
+      double xp = coord[2], yp = coord[3];                                                                            \
+      double RatioPtoPj = coord[4];                                                                                   \
+      double RatioDeltaPtoPj = coord[8], RatioDeltaPtoPj1 = coord[9];                                                  \
+                                                                                                                      \
+      double PhysicalLengthOfBlock = argf[0];                                                                         \
+      double TiltComponentCos = argf[1], TiltComponentSin = argf[2];                                                  \
+      double VerticalBendingKick = argf[3];                                                                           \
+                                                                                                                      \
+      coord[2] = ( xp - PhysicalLengthOfBlock * TiltComponentSin * RatioDeltaPtoPj1 ) + (( OnePoweredTo3 * VerticalBendingKick ) * RatioPtoPj ) * TiltComponentSin;                                                                                                     \
+      coord[3] = ( yp + PhysicalLengthOfBlock * TiltComponentCos * RatioDeltaPtoPj1 ) - (( OnePoweredTo3 * VerticalBendingKick ) * RatioPtoPj ) * ( 1.0 - TiltComponentCos);                                                                                                    \
+                                                                                                                      \
+      if( cntthin4dmulverz##NAME++ == 0 ) printf("mulipole vericle Zero approx "#NAME" called \n");                                          \
+                                                                                                                      \
+      return 1;                                                                                                       \
+}
+
+make_thin4d_map_multipole_ver_zapprox(ver_zapprox_ho);
+make_thin4d_map_multipole_ver_zapprox(purever_zapprox);
+
+int cntthin4dsolenoid = 0;
+extern int thin4d_map_solenoid_(double *coord, double *argf, double *argi) {
+  double x = coord[0], y = coord[1];
+  double xp = coord[2], yp = coord[3];
+  double EnergyOfParticle = coord[6], MomentumOfParticle = coord[7];
+  double RatioBetaToBetaj = coord[12];
+  double MomentumOfParticle0 = coord[13];
+
+  double PhysicalLengthOfBlockHorComp = argf[0],  PhysicalLengthOfBlockVerComp = argf[1];
+  double crkve, cikve, temp;
+
+  xp = xp - y * PhysicalLengthOfBlockHorComp;
+  yp = yp + x * PhysicalLengthOfBlockHorComp;
+  crkve = xp - ((( x * PhysicalLengthOfBlockHorComp ) * PhysicalLengthOfBlockVerComp ) * MomentumOfParticle0 ) / MomentumOfParticle;
+
+  cikve = yp - ((( y * PhysicalLengthOfBlockHorComp ) * PhysicalLengthOfBlockVerComp ) * MomentumOfParticle0 ) / MomentumOfParticle;
+
+  temp = ( PhysicalLengthOfBlockVerComp * MomentumOfParticle0 ) / MomentumOfParticle;
+
+  xp = crkve * cos_rn(( PhysicalLengthOfBlockVerComp * MomentumOfParticle0 ) / MomentumOfParticle ) + cikve * sin_rn(( PhysicalLengthOfBlockVerComp * MomentumOfParticle0 ) / MomentumOfParticle );
+  yp = cikve * cos_rn(( PhysicalLengthOfBlockVerComp * MomentumOfParticle0 ) / MomentumOfParticle ) - crkve * sin_rn(( PhysicalLengthOfBlockVerComp * MomentumOfParticle0 ) / MomentumOfParticle );
+
+  crkve = x * cos_rn(( PhysicalLengthOfBlockVerComp * MomentumOfParticle0 ) / MomentumOfParticle ) + y * sin_rn(( PhysicalLengthOfBlockVerComp * MomentumOfParticle0 ) / MomentumOfParticle );
+  cikve = y * cos_rn(( PhysicalLengthOfBlockVerComp * MomentumOfParticle0 ) / MomentumOfParticle ) - x * sin_rn(( PhysicalLengthOfBlockVerComp * MomentumOfParticle0 ) / MomentumOfParticle );
+  x = crkve;
+  y = cikve;
+  xp = xp + y * PhysicalLengthOfBlockHorComp;
+  yp = yp - x * PhysicalLengthOfBlockHorComp;
+
+  coord[0] = x;   coord[1] = y;
+  coord[2] = xp;  coord[3]= yp;
+
+  if( cntthin4dsolenoid++ == 0 ) printf("thin4d solenoid called \n");
 
   return 1;
 }
 
-int cntbb3ib12 = 0;
-extern int thin6d_map_beambeam_3_ibtyp_1_2_( double *coord, double *argf, double *argi ) {
+int cntthin4dacccavity = 0;
+extern int thin4d_map_accelerating_cavity2_(double *coord, double *argf, double *argi) {
   double x = coord[0], y = coord[1];
   double xp = coord[2], yp = coord[3];
-  double RatioPtoPj = coord[4];
-  double crxbj = coord[14], crzbj = coord[15];
-  double cbxbj = coord[16], cbzbj = coord[17];
-  double xbbj = coord[18], zbbj = coord[19]; 
-  double crkvebj = coord[22], cikvebj = coord[23];
-  double rkbj = coord[25];
+  double RatioDeltaPtoPj = coord[8];
 
-  double HorBeamBeamSeparation = argf[0], VerBeamBeamSeparation = argf[1];
-  double PhysicalLengthOfBlock = argf[2];
-  int SwitchToLinearCoupling = (int)argf[3];
-  double ClosedOrbitBeamX = argf[4], ClosedOrbitBeamY = argf[5], ClosedOrbitBeamSigma = argf[6], ClosedOrbitBeamPx = argf[7], ClosedOrbitBeamPy = argf[8], ClosedOrbitBeamDelta = argf[9];
-  double SquareOfSigmaNX = argf[20], SquareOfSigmaNY = argf[21];
-  double BeamOffsetX = argf[10], BeamOffsetY = argf[11], BeamOffsetSigma = argf[12], BeamOffsetPx = argf[13], BeamOffsetPy = argf[14], BeamOffsetDelta = argf[15];
-  double bbcu11 = argf[16], bbcu12 = argf[17];
-  double SigmaNqX = argf[18], SigmaNqY = argf[19];
+  int idz1 = (int)argf[0], idz2 = (int)argf[1];
+  double cotr_irrtr_1 = argf[2], cotr_irrtr_2 = argf[3], cotr_irrtr_3 = argf[4], cotr_irrtr_4 = argf[5], cotr_irrtr_5 = argf[6], cotr_irrtr_6 = argf[7];
+  double rrtr_irrtr_5_1 = argf[8], rrtr_irrtr_5_2 = argf[9], rrtr_irrtr_5_3 = argf[10], rrtr_irrtr_5_4 = argf[11], rrtr_irrtr_5_6 = argf[12], rrtr_irrtr_1_1 = argf[13], rrtr_irrtr_1_2 = argf[14], rrtr_irrtr_1_6 = argf[15], rrtr_irrtr_2_1 = argf[16], rrtr_irrtr_2_2 = argf[17], rrtr_irrtr_2_6 = argf[18], rrtr_irrtr_3_3 = argf[19], rrtr_irrtr_3_4 = argf[20], rrtr_irrtr_3_6 = argf[21], rrtr_irrtr_4_3 = argf[22], rrtr_irrtr_4_4 = argf[23], rrtr_irrtr_4_6 = argf[24];
 
-  double rho2bj, tkbj, cccc, r2bj, rbj, xrbj, zrbj;
-  double SquareRootOfPi = sqrt(Pi);
+  double pux,dpsv3j;
 
-  tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
-  if( SwitchToLinearCoupling == 0 )
-  {
-    coord[2] = xp + RatioPtoPj * (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) *sign( 1.0, crkvebj ) - BeamOffsetPx );
-    coord[3] = yp + RatioPtoPj * (( rkbj * ( crxbj - exp_rn( -1.0 * tkbj ) * cbxbj )) *sign( 1.0, cikvebj ) - BeamOffsetPy );
-  }
-  else
-  {
-    cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu11 - (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu12;
-    coord[2] = xp + RatioPtoPj * cccc;
+  pux = x;
+  dpsv3j = RatioDeltaPtoPj * OnePoweredTo3;
+  x = (( cotr_irrtr_2 + rrtr_irrtr_1_1 * pux ) + rrtr_irrtr_1_2 * xp ) + ( (double)idz1 * dpsv3j ) * rrtr_irrtr_1_6;
+  coord[0] = x;
+  xp = (( cotr_irrtr_2 + rrtr_irrtr_2_1 * pux ) + rrtr_irrtr_2_2 * xp ) + ( (double)idz1 * dpsv3j ) * rrtr_irrtr_2_6;
+  coord[2] = xp;
+  pux = y;
+  y = (( cotr_irrtr_3 + rrtr_irrtr_3_3 * pux ) + rrtr_irrtr_3_4 * yp ) + ( (double)idz2 * dpsv3j ) * rrtr_irrtr_3_6;
+  coord[1] = y;
+  yp = (( cotr_irrtr_4 + rrtr_irrtr_4_3 * pux ) + rrtr_irrtr_4_4 * yp ) + ( (double)idz2 * dpsv3j ) * rrtr_irrtr_4_6;
+  coord[3] = yp;
 
-    cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu12 + (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu11;
-    coord[3] = yp + RatioPtoPj * cccc;
-  }
+  if( cntthin4dacccavity++ == 0 ) printf("thin4d accelerating cavity2\n");
 
-  if( cntbb3ib12++ == 0 ) printf("beam beam 3 type 1 2\n");
+  return 1;
+}
+
+int cnt_thck4d_goto_index20 = 0;
+extern int thck4d_map_goto_index20_( double *coord, double *argf, double *argi ) {
+  double x = coord[0], y = coord[1];
+  double xp = coord[2], yp = coord[3];
+  double RatioDeltaPtoPj = coord[8];
+  double bl1v_1_1_j_ix = coord[18], bl1v_2_1_j_ix = coord[19], bl1v_3_1_j_ix = coord[20], bl1v_4_1_j_ix = coord[21], bl1v_5_1_j_ix = coord[22], bl1v_6_1_j_ix = coord[23];
+ 
+  double TriggerDispContribTransverseCoord1 = (int)argf[0], TriggerDispContribTransverseCoord2 = (int)argf[1];
+  double puxve, puzve;
+
+  puxve = x;
+  puzve = xp;
+
+  x = bl1v_1_1_j_ix * puxve + bl1v_2_1_j_ix * puzve + (( (double)TriggerDispContribTransverseCoord1 * bl1v_5_1_j_ix ) * RatioDeltaPtoPj ) * OnePoweredTo3;
+  y = bl1v_3_1_j_ix * puxve + bl1v_4_1_j_ix * puzve + (( (double)TriggerDispContribTransverseCoord1 * bl1v_6_1_j_ix ) * RatioDeltaPtoPj ) * OnePoweredTo3;
+
+  puxve = y;
+  puzve = yp;
+
+  xp = bl1v_1_1_j_ix * puxve + bl1v_2_1_j_ix * puzve + (( (double)TriggerDispContribTransverseCoord2 * bl1v_5_1_j_ix ) * RatioDeltaPtoPj ) * OnePoweredTo3;
+  yp = bl1v_3_1_j_ix * puxve + bl1v_4_1_j_ix * puzve + (( (double)TriggerDispContribTransverseCoord2 * bl1v_6_1_j_ix ) * RatioDeltaPtoPj ) * OnePoweredTo3;
+
+  coord[0] = x;
+  coord[1] = y;
+  coord[2] = xp;
+  coord[3] = yp;
+
+  if( cnt_thck4d_goto_index20++ == 0 ) printf(" Thick 4d goto 20 called\n");
+
+  return 1;
+}
+
+int cnt_thck6d_goto_index20 = 0;
+extern int thck6d_map_goto_index20_( double *coord, double *argf, double *argi ) {
+  double x = coord[0], y = coord[1];
+  double xp = coord[2], yp = coord[3];
+  double PathLengthDiff = coord[5];
+  double as_1_1_j_jx = coord[24], as_2_1_j_jx = coord[25], as_3_1_j_jx = coord[26], as_4_1_j_jx = coord[27], as_5_1_j_jx = coord[28], as_6_1_j_jx = coord[29], as_1_2_j_jx = coord[30], as_2_2_j_jx = coord[31], as_3_2_j_jx = coord[32], as_4_2_j_jx = coord[33], as_5_2_j_jx = coord[34], as_6_2_j_jx = coord[35];
+  double al_1_1_j_jx = coord[36], al_2_1_j_jx = coord[37], al_3_1_j_jx = coord[38], al_4_1_j_jx = coord[39], al_5_1_j_jx = coord[40], al_6_1_j_jx = coord[41], al_1_2_j_jx = coord[42], al_2_2_j_jx = coord[43], al_3_2_j_jx = coord[44], al_4_2_j_jx = coord[45], al_5_2_j_jx = coord[46], al_6_2_j_jx = coord[47];
+
+  double TriggerDispContribTransverseCoord1 = (int)argf[0], TriggerDispContribTransverseCoord2 = (int)argf[1];
+  double puxve1, puzve1, puxve2, puzve2;
+
+  puxve1 = x;
+  puzve1 = y;
+  puxve2 = xp;
+  puzve2 = yp; 
+
+  PathLengthDiff = ((((( PathLengthDiff + as_1_1_j_jx ) + puxve1 * (( as_2_1_j_jx + as_4_1_j_jx * puzve1 ) + as_5_1_j_jx * puxve1 )) + puzve1 * ( as_3_1_j_jx + as_6_1_j_jx * puzve1 )) + as_1_2_j_jx ) + puxve2 * ( as_2_2_j_jx + as_4_2_j_jx * puzve2 + as_5_2_j_jx * puxve2 )) + puzve2 * ( as_3_2_j_jx + as_6_2_j_jx * puzve2 );
+
+  x = ( al_1_1_j_jx * puxve1 + al_2_1_j_jx * puzve1 ) + (double)TriggerDispContribTransverseCoord1 * al_5_1_j_jx;
+  y = ( al_1_2_j_jx * puxve2 + al_2_2_j_jx * puzve2 ) + (double)TriggerDispContribTransverseCoord2 * al_5_2_j_jx;
+  xp = ( al_3_1_j_jx * puxve1 + al_4_1_j_jx * puzve1 ) + (double)TriggerDispContribTransverseCoord1 * al_6_1_j_jx;
+  yp = ( al_3_2_j_jx * puxve2 + al_4_2_j_jx * puzve2 ) + (double)TriggerDispContribTransverseCoord2 * al_6_2_j_jx;
+  
+  coord[0] = x;
+  coord[1] = y;
+  coord[2] = xp;
+  coord[3] = yp;
+
+  if( cnt_thck6d_goto_index20++ == 0 ) printf(" Thick 6d goto 20 called\n");      
 
   return 1;
 }
