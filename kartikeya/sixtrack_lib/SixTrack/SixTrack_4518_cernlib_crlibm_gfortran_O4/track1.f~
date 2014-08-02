@@ -4198,6 +4198,13 @@
             argf(15)=beamoff(4,imbb(i))
             argf(16)=beamoff(5,imbb(i))
             argf(17)=beamoff(6,imbb(i))
+            argf(18)=parbe(ix,1)
+            argf(19)=parbe(ix,2)
+            argf(20)=parbe(ix,3)
+            argf(21)=parbe(ix,4)
+            argf(22)=parbe(ix,5)      
+            argf(23)=ibtyp
+            argf(24)=ibbc   
             do j=1,napx
               coord(1)=xv(1,j)
               coord(2)=xv(2,j)
@@ -12139,7 +12146,7 @@
      &di0zs(npart),dip0xs(npart),dip0zs(npart),xau(2,6),cloau(6),       &
      &di0au(4),tau(6,6),tasau(npart,6,6),wx(3),x1(6),x2(6),fake(2,20)
       integer numx
-      double precision e0f,coord(1000),coord(1000),coord(1000)
+      double precision e0f,coord(1000),argf(1000),argi(1000)
       common/main4/ e0f,numx
       integer ktrack,nwri
       double precision dpsv1,strack,strackc,stracks,strackx,strackz

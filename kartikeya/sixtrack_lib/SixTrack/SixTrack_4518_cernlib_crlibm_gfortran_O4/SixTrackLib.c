@@ -426,7 +426,7 @@ make_map_multipole_ver_zapprox(purever_zapprox);
 
 make_map_crab_cavity(1,x);
 make_map_crab_cavity(2,y);
-
+/*
 extern int thin6d_modify_coords_for_hirata_(double *coord, double *argf, double *argi) {
   double x = coord[0], y = coord[1];
   double xp = coord[2], yp = coord[3];
@@ -456,7 +456,7 @@ extern int thin6d_modify_coords_for_hirata_(double *coord, double *argf, double 
 }
 
 int cnthirata = 0;
-extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi) {
+extern int thin6d_map_hirata_beambeam1_(double *coord, double *argf, double *argi) {
   double x = coord[0], y = coord[1];
   double xp = coord[2], yp = coord[3];
   double RatioPtoPj = coord[4];
@@ -495,7 +495,7 @@ extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi
 
   return 1;
 }
-
+*/
 int cntacccavity = 0;
 extern int thin6d_map_accelerating_cavity2_(double *coord, double *argf, double *argi) {
   double x = coord[0], y = coord[1];
@@ -1493,3 +1493,252 @@ extern int thck6d_map_goto_index20_( double *coord, double *argf, double *argi )
 
   return 1;
 }
+
+
+//----------------------HIRATA SPACE------------------------------------------------------------------------//
+
+int cnt_hirata = 0;
+extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi)
+{
+    double x = coord[0], y = coord[1];
+    double xp = coord[2], yp = coord[3];
+    double RatioPtoPj = coord[4];
+    double PathLengthDiff = coord[5];
+    double EnergyOfParticle = coord[6];
+    double MomentumOfParticle = coord[7];
+    double RatioDeltaPtoPj = coord[8];
+    double RatioBetaToBetaj = coord[12];
+
+    double HorBeamBeamSeparation = argf[0], VerBeamBeamSeparation = argf[1];
+    double EnergyOfReferenceParticle = argf[2], MomentumOfReferenceParticle = argf[3];
+    double RestMassOfParticle = argf[4];
+    double ClosedOrbitBeamX = argf[5], ClosedOrbitBeamY = argf[6], ClosedOrbitBeamSigma = argf[7], ClosedOrbitBeamPx = argf[8], ClosedOrbitBeamPy = argf[9], ClosedOrbitBeamDelta = argf[10];
+    double BeamOffsetX = argf[11], BeamOffsetY = argf[12], BeamOffsetSigma = argf[13], BeamOffsetPx = argf[14], BeamOffsetPy = argf[15], BeamOffsetDelta = argf[16];
+    double SwitchToFastBeamBeamAlgo = argf[22];
+    double SwitchToLinearCoupling = argf[23], SwitchToLinearCoupling1;
+
+    double StrongBeamCoord[3][100], Dum[14], bcu_ibb[10];
+    double CrossingAngle, CrossingAngle2, CrossingAngleCosComponent, CrossingAngleSinComponent, CrossingAngleTanComponent, CrossingAngleCosComponent2, CrossingAngleSinComponent2, CrossingAngleTanComponent2;
+    double CrossingPlaneAngle, CrossingPlaneAngle2, CrossingPlaneAngleCosComponent, CrossingPlaneAngleSinComponent, CrossingPlaneAngleTanComponent, CrossingPlaneAngleCosComponent2, CrossingPlaneAngleSinComponent2, CrossingPlaneAngleTanComponent2;
+    double StrengthOfSlice;
+    double RMSBunchLength, RMSBunchLengthS, LongitudinalBorder, Border, LongitudinalBorder1;
+    double WeakBeamCoordX, WeakBeamCoordXp, WeakBeamCoordY, WeakBeamCoordYp, WeakBeamCoordSigma, WeakBeamCoordDelta;
+    double BeamBeamTransKickX, BeamBeamTransKickY, BeamBeamLongKickX, BeamBeamLongKickY, BeamBeamTransKick0;
+
+    double CosTh, SinTh, CosThP, SinThP, Det;
+    double SepX, SepY, SepX0, SepY0, Sx, Sy, SFac;
+    double yy, H, H1, H1X, H1Y, H1Z, HD1, X1, Y1, Z1, S, SP, H1D;
+
+    int i, Slice;
+    int NumberOfSlices;
+
+    WeakBeamCoordX = ( x + HorBeamBeamSeparation - ClosedOrbitBeamX ) * OnePoweredToMinus3;
+    WeakBeamCoordXp = ( xp / RatioPtoPj - ClosedOrbitBeamPx ) * OnePoweredToMinus3;
+    WeakBeamCoordY = ( y + VerBeamBeamSeparation - ClosedOrbitBeamY ) * OnePoweredToMinus3;
+    WeakBeamCoordYp = ( yp / RatioPtoPj  - ClosedOrbitBeamPy ) * OnePoweredToMinus3;
+    WeakBeamCoordSigma = ( PathLengthDiff - ClosedOrbitBeamSigma ) * OnePoweredToMinus3;
+    WeakBeamCoordDelta = RatioDeltaPtoPj - ClosedOrbitBeamDelta;
+
+    CrossingAngle = argf[17];
+    NumberOfSlices = (int)argf[18];
+    CrossingPlaneAngle = argf[19];
+    CrossingAngle2 = argf[21];
+    StrengthOfSlice = argf[20] / (double) NumberOfSlices;
+    CrossingAngleSinComponent = sin_rn( CrossingAngle );
+    CrossingAngleSinComponent2 = sin_rn( CrossingAngle2 );
+    CrossingAngleCosComponent = cos_rn( CrossingAngle );
+    CrossingAngleCosComponent2 = cos_rn( CrossingAngle2 );
+    CrossingAngleTanComponent = tan_rn( CrossingAngle );
+    CrossingAngleTanComponent2 = tan_rn( CrossingAngle2 );
+    CrossingPlaneAngleCosComponent = cos_rn( CrossingPlaneAngle );
+    CrossingPlaneAngleSinComponent = sin_rn( CrossingPlaneAngle );
+
+// --------------------------       STSLD stuff ----------------------------------------------//
+    RMSBunchLength = RMSBunchLengthS / CrossingAngleCosComponent2;
+    LongitudinalBorder = Border;
+
+    for( i = NumberOfSlices ; i>=1 ; i-- )
+    {
+        yy = ( 1.0 / (double)NumberOfSlices ) * (double)(i-1);
+        if( i != 1 ) LongitudinalBorder1 = gauinv_( yy );
+        if( i == 1 ) LongitudinalBorder1 = -1.0 * Border;
+        StrongBeamCoord[2][i] = ((( exp_rn(( -1.0 * LongitudinalBorder * LongitudinalBorder ) * Half ) - exp_rn(( -1.0 * LongitudinalBorder1 * LongitudinalBorder1 ) * Half )) / sqrt( 2.0 * Pi )) * ( double )NumberOfSlices ) * RMSBunchLength;
+        LongitudinalBorder = LongitudinalBorder1;
+        StrongBeamCoord[0][i] = ( StrongBeamCoord[2][i] * CrossingAngleSinComponent2 ) * CrossingPlaneAngleCosComponent;
+        StrongBeamCoord[1][i] = ( StrongBeamCoord[2][i] * CrossingAngleSinComponent2 ) * CrossingPlaneAngleSinComponent;
+    }
+
+// ----------------------------------     BOOST STuff i=1 to np loop---------------------------------------//
+
+
+    H = ( WeakBeamCoordDelta + One ) - sqrt((( One + WeakBeamCoordDelta ) * ( One + WeakBeamCoordDelta ) - WeakBeamCoordXp * WeakBeamCoordXp ) - WeakBeamCoordYp * WeakBeamCoordYp );
+
+    WeakBeamCoordDelta = (( WeakBeamCoordDelta - ( CrossingPlaneAngleCosComponent * CrossingAngleTanComponent ) * WeakBeamCoordXp ) - ( WeakBeamCoordYp * CrossingPlaneAngleSinComponent ) * CrossingAngleTanComponent ) + H * CrossingAngleTanComponent * CrossingAngleTanComponent;
+
+    WeakBeamCoordXp = ( WeakBeamCoordXp - ( CrossingAngleTanComponent * H ) * CrossingPlaneAngleCosComponent ) / CrossingAngleCosComponent;
+    WeakBeamCoordYp = ( WeakBeamCoordYp - ( CrossingAngleTanComponent * H ) * CrossingPlaneAngleSinComponent ) / CrossingAngleCosComponent;
+
+    HD1 = sqrt((( One + WeakBeamCoordDelta ) * ( One + WeakBeamCoordDelta ) - WeakBeamCoordXp * WeakBeamCoordXp ) - WeakBeamCoordYp * WeakBeamCoordYp );
+
+    H1X = WeakBeamCoordXp / HD1;
+    H1Y = WeakBeamCoordYp / HD1;
+    H1Z = One - ( One + WeakBeamCoordDelta ) / HD1;
+
+    X1 = (( CrossingPlaneAngleCosComponent * CrossingAngleTanComponent ) * WeakBeamCoordSigma + ( One + ( CrossingPlaneAngleCosComponent * CrossingAngleSinComponent ) * H1X ) * WeakBeamCoordX ) + (( WeakBeamCoordY * CrossingPlaneAngleSinComponent ) * CrossingAngleSinComponent ) * H1X;
+    Y1 = (( CrossingPlaneAngleSinComponent * CrossingAngleTanComponent ) * WeakBeamCoordSigma + ( One + ( CrossingPlaneAngleSinComponent * CrossingAngleSinComponent ) * H1Y ) * WeakBeamCoordY ) + (( WeakBeamCoordX * CrossingPlaneAngleCosComponent ) * CrossingAngleSinComponent ) * H1Y;
+
+    WeakBeamCoordSigma = WeakBeamCoordSigma / CrossingAngleCosComponent + H1Z * (( CrossingAngleSinComponent * CrossingPlaneAngleCosComponent ) * WeakBeamCoordX + ( CrossingAngleSinComponent * CrossingPlaneAngleSinComponent ) * WeakBeamCoordY );
+    WeakBeamCoordX = X1;
+    WeakBeamCoordY = Y1;
+
+
+
+    for( Slice = 1; Slice <= NumberOfSlices; Slice++ )
+    {
+        S = ( WeakBeamCoordSigma - StrongBeamCoord[2][Slice] ) * Half;
+        SP = S / CrossingAngleCosComponent2;
+        Dum[1] = ( bcu_ibb[1] + ( Two * bcu_ibb[4] ) * SP ) + bcu_ibb[6] * SP * SP;
+        Dum[2] = ( bcu_ibb[2] + ( Two * bcu_ibb[9] ) * SP ) + bcu_ibb[6] * SP * SP;
+        Dum[3] = ( bcu_ibb[3] + ( Two * bcu_ibb[4] ) * SP ) + bcu_ibb[6] * SP * SP;
+        Dum[4] = Dum[1] - Dum[2];
+        Dum[5] = Dum[4] * Dum[4] + Four * Dum[3] * Dum[3];
+        if( SwitchToLinearCoupling == 1 && ( abs( Dum[4] ) > OnePoweredToMinus38 && abs( Dum[5] ) > OnePoweredToMinus38 ))
+        {
+            SwitchToLinearCoupling1 = 1;
+            Dum[5] = sqrt( Dum[5] );
+        }
+        else
+        {
+            SwitchToLinearCoupling1 = 0;
+        }
+
+        SepX0 = ( WeakBeamCoordX + WeakBeamCoordXp * S ) - StrongBeamCoord[0][Slice];
+        SepY0 = ( WeakBeamCoordY + WeakBeamCoordYp * S ) - StrongBeamCoord[1][Slice];
+        if( SwitchToLinearCoupling1 == 1 )
+        {
+            SFac = One;
+            if( Dum[4] < Zero ) SFac = -1.0 * One;
+
+            Dum[6] = ( SFac * Dum[4] ) / Dum[5];
+            Dum[7] = Dum[1] + Dum[2];
+
+            CosTh = Half * ( One + Dum[6] );
+            if( abs( CosTh ) > OnePoweredToMinus38 ) CosTh = sqrt( CosTh );
+            else CosTh = Zero;
+
+            SinTh = Half * ( One - Dum[6]  );
+            if( abs( SinTh ) > OnePoweredToMinus38 ) SinTh = ( -1.0 * SFac ) * sqrt( SinTh );
+            else SinTh = Zero;
+
+
+            if( Dum[3] < Zero ) SinTh = -1.0 * SinTh;
+            Sy = SFac * Dum[5];
+            Sx = ( Dum[7] + Sy ) * Half;
+            Sy = ( Dum[7] - Sy ) * Half;
+            SepX = SepX0 * CosTh + SepY0 * SinTh;
+            SepY = SepY0 * CosTh - SepX0 * SinTh;
+
+        }
+        else
+        {
+            Sx = Dum[1];
+            Sy = Dum[2];
+            SepX = SepX0;
+            SepY = SepY0;
+        }
+
+        if( Sx > Sy ) bbf_( &SepX, &SepY, &Sx, &Sy, &BeamBeamTransKickX, &BeamBeamTransKickY, &BeamBeamLongKickX, &BeamBeamLongKickY, &SwitchToFastBeamBeamAlgo );
+        else          bbf_( &SepY, &SepX, &Sy, &Sx, &BeamBeamTransKickY, &BeamBeamTransKickX, &BeamBeamLongKickY, &BeamBeamLongKickX, &SwitchToFastBeamBeamAlgo );
+
+        BeamBeamTransKickX = StrengthOfSlice * BeamBeamTransKickX;
+        BeamBeamTransKickY = StrengthOfSlice * BeamBeamTransKickY;
+        BeamBeamLongKickX = StrengthOfSlice * BeamBeamLongKickX;
+        BeamBeamLongKickY = StrengthOfSlice * BeamBeamLongKickY;
+
+
+        if( SwitchToLinearCoupling1 == 1 )
+        {
+            Dum[8] = Two * (( bcu_ibb[4] - bcu_ibb[9] ) + (bcu_ibb[6] - bcu_ibb[10] ) * SP );
+            Dum[9] = ( bcu_ibb[5] + bcu_ibb[7] ) + ( Two * bcu_ibb[8] ) * SP;
+            Dum[10] = ((( Dum[4] * Dum[8] + ( Four * Dum[3] ) * Dum[9] ) / Dum[5] ) / Dum[5] ) / Dum[5];
+            Dum[11] = SFac * ( Dum[8] / Dum[5] - Dum[4] * Dum[10] );
+            Dum[12] = ( bcu_ibb[4] + bcu_ibb[9] ) + ( bcu_ibb[6] + bcu_ibb[10] ) * SP;
+            Dum[13] = ( SFac * (( Dum[4] * Dum[8] ) * Half + ( Two * Dum[3] ) * Dum[9] )) / Dum[5];
+
+            if( abs( CosTh ) > OnePoweredToMinus38 ) CosThP = ( Dum[11] / Four ) / CosTh;
+            else   CosThP = Zero;
+
+            if( abs( SinTh ) > OnePoweredToMinus38 ) SinThP = ( Dum[11] / Four ) / SinTh;
+            else   SinThP = Zero;
+
+
+            WeakBeamCoordDelta = WeakBeamCoordDelta - (((( BeamBeamTransKickX * ( CosThP * SepX0 + SinThP * SepY0 ) + BeamBeamTransKickY * ( CosThP * SepY0 + SinThP * SepX0 )) + BeamBeamLongKickX * ( Dum[12] + Dum[13] )) + BeamBeamLongKickY * ( Dum[12] - Dum[13] )) / CrossingAngleCosComponent ) * Half;
+
+            BeamBeamTransKick0 = BeamBeamTransKickX;
+            BeamBeamTransKickX = BeamBeamTransKick0 * CosTh - BeamBeamTransKickY * SinTh;
+            BeamBeamTransKickY = BeamBeamTransKick0 * SinTh - BeamBeamTransKickY * CosTh;
+
+        }
+        else
+        {
+            WeakBeamCoordDelta = WeakBeamCoordDelta - ( BeamBeamLongKickX * ( bcu_ibb[4] + bcu_ibb[6] * SP ) + BeamBeamLongKickY * ( bcu_ibb[9] + bcu_ibb[10] * SP )) / CrossingAngleCosComponent;
+        }
+
+        WeakBeamCoordDelta = WeakBeamCoordDelta - ( BeamBeamTransKickX * ( WeakBeamCoordXp - BeamBeamTransKickX * Half ) + BeamBeamTransKickY * ( WeakBeamCoordYp - BeamBeamTransKickY * Half )) * Half;
+
+        WeakBeamCoordX = WeakBeamCoordX + S * BeamBeamTransKickX;
+        WeakBeamCoordXp = WeakBeamCoordXp - BeamBeamTransKickX;
+        WeakBeamCoordY = WeakBeamCoordY + S * BeamBeamTransKickY;
+        WeakBeamCoordYp = WeakBeamCoordYp - BeamBeamTransKickY;
+
+    }
+
+//--------------------------------------- BOOSTI STUFF ----------------------------------------//
+
+    H1D = sqrt((( One + WeakBeamCoordDelta ) * ( One + WeakBeamCoordDelta ) - WeakBeamCoordXp * WeakBeamCoordXp ) - WeakBeamCoordYp * WeakBeamCoordYp );
+    H1X = WeakBeamCoordXp / H1D;
+    H1Y = WeakBeamCoordYp / H1D;
+    H1Z = One - ( One + WeakBeamCoordDelta ) / H1D;
+
+    H1 = (( WeakBeamCoordDelta + One ) - sqrt((( One + WeakBeamCoordDelta ) * ( One + WeakBeamCoordDelta ) - WeakBeamCoordXp * WeakBeamCoordXp ) - WeakBeamCoordYp * WeakBeamCoordYp )) * CrossingAngleCosComponent * CrossingAngleCosComponent;
+
+    Det = One / CrossingAngleCosComponent + CrossingAngleTanComponent * (( H1X * CrossingPlaneAngleCosComponent + H1Y * CrossingPlaneAngleSinComponent ) - H1Z * CrossingAngleSinComponent );
+
+    X1 = ( WeakBeamCoordX * ( One / CrossingAngleCosComponent + ( CrossingPlaneAngleSinComponent * ( H1Y - ( H1Z * CrossingPlaneAngleSinComponent ) * CrossingAngleSinComponent )) * CrossingAngleTanComponent ) + (( WeakBeamCoordY * CrossingPlaneAngleSinComponent ) * CrossingAngleTanComponent ) * (( H1Z * CrossingPlaneAngleCosComponent ) * CrossingAngleSinComponent - H1X )) - ( WeakBeamCoordSigma * (( CrossingPlaneAngleCosComponent + (( H1Y * CrossingPlaneAngleCosComponent ) * CrossingPlaneAngleSinComponent ) * CrossingAngleSinComponent ) - ( H1X * CrossingPlaneAngleSinComponent * CrossingPlaneAngleSinComponent ) * CrossingAngleSinComponent )) * CrossingAngleTanComponent;
+
+    Y1 = ((( WeakBeamCoordX * CrossingPlaneAngleCosComponent ) * CrossingAngleTanComponent ) * (( H1Z * CrossingPlaneAngleSinComponent ) * CrossingAngleSinComponent - H1Y ) + WeakBeamCoordY * ( One / CrossingAngleCosComponent + ( CrossingPlaneAngleCosComponent * (H1X - ( H1Z * CrossingPlaneAngleCosComponent ) * CrossingAngleSinComponent )) * CrossingAngleTanComponent )) - ( WeakBeamCoordSigma * ( CrossingPlaneAngleSinComponent - ( H1Y * CrossingPlaneAngleCosComponent * CrossingPlaneAngleCosComponent ) * CrossingAngleSinComponent + (( H1X * CrossingPlaneAngleCosComponent ) * CrossingPlaneAngleSinComponent ) * CrossingAngleSinComponent )) * CrossingAngleTanComponent;
+
+    Z1 = ( WeakBeamCoordSigma * (( One + ( H1X * CrossingPlaneAngleCosComponent ) * CrossingAngleSinComponent ) + ( H1Y * CrossingPlaneAngleSinComponent ) * CrossingAngleSinComponent ) - (( WeakBeamCoordX * H1Z ) * CrossingPlaneAngleCosComponent ) * CrossingAngleSinComponent ) - (( WeakBeamCoordY * H1Z ) * CrossingPlaneAngleSinComponent ) * CrossingAngleSinComponent;
+
+    WeakBeamCoordX = X1 / Det;
+    WeakBeamCoordY = Y1 / Det;
+    WeakBeamCoordSigma = Z1 / Det;
+
+    WeakBeamCoordDelta = ( WeakBeamCoordDelta + ( CrossingPlaneAngleCosComponent * CrossingAngleSinComponent ) * WeakBeamCoordXp ) + ( CrossingPlaneAngleSinComponent * CrossingAngleSinComponent ) * WeakBeamCoordYp;
+    WeakBeamCoordXp = ( WeakBeamCoordXp + ( CrossingPlaneAngleCosComponent * CrossingAngleSinComponent ) * H1 ) * CrossingAngleCosComponent;
+    WeakBeamCoordYp = ( WeakBeamCoordYp + ( CrossingPlaneAngleSinComponent * CrossingAngleSinComponent ) * H1 ) * CrossingAngleCosComponent;
+
+    x = ( WeakBeamCoordX * OnePoweredTo3 + ClosedOrbitBeamX ) - BeamOffsetX;
+    coord[0] = x;
+    y = ( WeakBeamCoordY * OnePoweredTo3 + ClosedOrbitBeamY ) - BeamOffsetY;
+    coord[1] = y;
+    RatioDeltaPtoPj = ( WeakBeamCoordDelta + ClosedOrbitBeamDelta ) - BeamOffsetDelta;
+    coord[8] = RatioDeltaPtoPj;
+    RatioPtoPj = One / ( One + RatioDeltaPtoPj );
+    coord[4] = RatioPtoPj;
+    xp = (( WeakBeamCoordXp * OnePoweredTo3 + ClosedOrbitBeamPx ) - BeamOffsetPx ) * RatioPtoPj;
+    coord[2] = xp;
+    yp = (( WeakBeamCoordYp * OnePoweredTo3 + ClosedOrbitBeamPy ) - BeamOffsetPy ) * RatioPtoPj;
+    coord[3] = yp;
+    MomentumOfParticle = RatioDeltaPtoPj * MomentumOfReferenceParticle + MomentumOfReferenceParticle;
+    coord[7] = MomentumOfParticle;
+    EnergyOfParticle = sqrt( MomentumOfParticle*MomentumOfParticle + RestMassOfParticle*RestMassOfParticle );
+    coord[6] = EnergyOfParticle;
+    RatioBetaToBetaj = ( EnergyOfParticle * MomentumOfReferenceParticle ) / ( EnergyOfReferenceParticle * MomentumOfParticle );
+    coord[12] = RatioBetaToBetaj;
+
+    if( cnt_hirata++ == 0 ) printf("Hirata called\n");
+
+    return 1;
+}
+

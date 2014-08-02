@@ -1,0 +1,32 @@
+phi - CrossingAngle
+cphi - CrossingAngleCosComponent
+sphi - CrossingAngleSinComponent
+star(1,jsli) - StrongBeamCoord1
+star(2,jsli) - StrongBeamCoord2
+star(3,jsli) - StrongBeamCoord3
+sigz - RMSBunchLength
+nsli - NumberOfSlices
+calpha - CrossingPlaneAngleCosComponent
+salpha - CrossingPlaneAngleSinComponent
+track(1,j) - WeakBeamCoordX
+track(2,j) - WeakBeamCoordXp
+track(3,j) - WeakBeamCoordY
+track(4,j) - WeakBeamCoordYp
+track(5,j) - WeakBeamCoordSigma
+track(6,j) - WeakBeamCoordDelta
+f - StrengthOfSlice
+alpha - CrossingPlaneAngle
+
+parbe(i,1) - parbe_i_1
+parbe(i,2) - parbe_i_2
+parbe(i,1) - parbe_i_1
+parbe(i,2) - parbe_i_2
+parbe(i,1) - parbe_i_1
+
+bord - LongitudinalBorder
+border - Border
+
+bbfx - BeamBeamTransKickX;
+bbfy - BeamBeamTransKickY;
+bbgx - BeamBeamLongKickX;
+bbgy - BeamBeamLongKickY;
