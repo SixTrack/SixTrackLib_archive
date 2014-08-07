@@ -4205,6 +4205,11 @@
             argf(22)=parbe(ix,5)      
             argf(23)=ibtyp
             argf(24)=ibbc   
+            argf(25)=sigz
+            argf(26)=imbb(i)
+            do j=1,12
+              argf(26+j)=bbcu(imbb(i),j)
+            enddo
             do j=1,napx
               coord(1)=xv(1,j)
               coord(2)=xv(2,j)

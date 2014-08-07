@@ -4205,30 +4205,11 @@
             argf(22)=parbe(ix,5)      
             argf(23)=ibtyp
             argf(24)=ibbc   
-            do j=1,napx
-              coord(1)=xv(1,j)
-              coord(2)=xv(2,j)
-              coord(3)=yv(1,j)
-              coord(4)=yv(2,j)
-              coord(5)=oidpsv(j)
-              coord(6)=sigmv(j)
-              coord(9)=dpsv(j)
-              coord(26)=track6d(1,j)
-              coord(27)=track6d(2,j)
-              coord(28)=track6d(3,j)
-              coord(29)=track6d(4,j)
-              coord(30)=track6d(5,j)
-              coord(31)=track6d(6,j)
-              call thin6d_modify_coords_for_hirata(coord,argf,argi)
-              track6d(1,j)=coord(26)
-              track6d(2,j)=coord(27)
-              track6d(3,j)=coord(28)
-              track6d(4,j)=coord(29)
-              track6d(5,j)=coord(30)
-              track6d(6,j)=coord(31)
+            argf(25)=sigz
+            argf(26)=imbb(i)
+            do j=1,12
+              argf(26+j)=bbcu(ibb,j)
             enddo
-            call beamint(napx,track6d,parbe,sigz,bbcu,imbb(i),ix,ibtyp, &
-     &ibbc)
             do j=1,napx
               coord(1)=xv(1,j)
               coord(2)=xv(2,j)
@@ -4240,12 +4221,6 @@
               coord(8)=ejfv(j)
               coord(9)=dpsv(j)
               coord(13)=rvv(j)
-              coord(26)=track6d(1,j)
-              coord(27)=track6d(2,j)
-              coord(28)=track6d(3,j)
-              coord(29)=track6d(4,j)
-              coord(30)=track6d(5,j)
-              coord(31)=track6d(6,j)
               call thin6d_map_hirata_beambeam(coord,argf,argi)
               xv(1,j)=coord(1)
               xv(2,j)=coord(2)
