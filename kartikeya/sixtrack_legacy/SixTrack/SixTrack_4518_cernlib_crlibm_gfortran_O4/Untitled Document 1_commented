@@ -1,0 +1,95 @@
+/*
+extern int thin6d_modify_coords_for_hirata_(double *coord, double *argf, double *argi) {
+  double x = coord[0], y = coord[1];
+  double xp = coord[2], yp = coord[3];
+  double RatioPtoPj = coord[4];
+  double PathLengthDiff = coord[5];
+  double RatioDeltaPtoPj = coord[8];
+  double ModifiedX = coord[25], ModifiedXp = coord[26], ModifiedY = coord[27], ModifiedYp = coord[28], ModifiedSigma = coord[29], ModifiedDelta = coord[30];
+
+  double HorBeamBeamSeparation = argf[0], VerBeamBeamSeparation = argf[1];
+  double ClosedOrbitBeamX = argf[5], ClosedOrbitBeamY = argf[6], ClosedOrbitBeamSigma = argf[7], ClosedOrbitBeamPx = argf[8], ClosedOrbitBeamPy = argf[9], ClosedOrbitBeamDelta = argf[10];
+
+  ModifiedX = ( x + HorBeamBeamSeparation - ClosedOrbitBeamX ) * OnePoweredToMinus3;
+  ModifiedXp = ( xp / RatioPtoPj - ClosedOrbitBeamPx ) * OnePoweredToMinus3;
+  ModifiedY = ( y + VerBeamBeamSeparation - ClosedOrbitBeamY ) * OnePoweredToMinus3;
+  ModifiedYp = ( yp / RatioPtoPj  - ClosedOrbitBeamPy ) * OnePoweredToMinus3;
+  ModifiedSigma = ( PathLengthDiff - ClosedOrbitBeamSigma ) * OnePoweredToMinus3;
+  ModifiedDelta = RatioDeltaPtoPj - ClosedOrbitBeamDelta;
+
+  coord[25] = ModifiedX;
+  coord[26] = ModifiedXp;
+  coord[27] = ModifiedY;
+  coord[28] = ModifiedYp;
+  coord[29] = ModifiedSigma;
+  coord[30] = ModifiedDelta;
+
+  return 1;
+}
+
+int cnthirata = 0;
+extern int thin6d_map_hirata_beambeam1_(double *coord, double *argf, double *argi) {
+  double x = coord[0], y = coord[1];
+  double xp = coord[2], yp = coord[3];
+  double RatioPtoPj = coord[4];
+  double PathLengthDiff = coord[5];
+  double EnergyOfParticle = coord[6], MomentumOfParticle = coord[7];
+  double RatioDeltaPtoPj = coord[8];
+  double RatioBetaToBetaj = coord[12];
+  double ModifiedX = coord[25], ModifiedXp = coord[26], ModifiedY = coord[27], ModifiedYp = coord[28], ModifiedSigma = coord[29], ModifiedDelta = coord[30];
+
+  double HorBeamBeamSeparation = argf[0], VerBeamBeamSeparation = argf[1];
+  double EnergyOfReferenceParticle = argf[2], MomentumOfReferenceParticle = argf[3];
+  double RestMassOfParticle = argf[4];
+  double ClosedOrbitBeamX = argf[5], ClosedOrbitBeamY = argf[6], ClosedOrbitBeamSigma = argf[7], ClosedOrbitBeamPx = argf[8], ClosedOrbitBeamPy = argf[9], ClosedOrbitBeamDelta = argf[10];
+  double BeamOffsetX = argf[11], BeamOffsetY = argf[12], BeamOffsetSigma = argf[13], BeamOffsetPx = argf[14], BeamOffsetPy = argf[15], BeamOffsetDelta = argf[16];
+
+  x = ( ModifiedX * OnePoweredTo3 + ClosedOrbitBeamX ) - BeamOffsetX;
+  coord[0] = x;
+  y = ( ModifiedY * OnePoweredTo3 + ClosedOrbitBeamY ) - BeamOffsetY;
+  coord[1] = y;
+  RatioDeltaPtoPj = ( ModifiedDelta + ClosedOrbitBeamDelta ) - BeamOffsetDelta;
+  coord[8] = RatioDeltaPtoPj;
+  RatioPtoPj = One / ( One + RatioDeltaPtoPj );
+  coord[4] = RatioPtoPj;
+  xp = (( ModifiedXp * OnePoweredTo3 + ClosedOrbitBeamPx ) - BeamOffsetPx ) * RatioPtoPj;
+  coord[2] = xp;
+  yp = (( ModifiedYp * OnePoweredTo3 + ClosedOrbitBeamPy ) - BeamOffsetPy ) * RatioPtoPj;
+  coord[3] = yp;
+  MomentumOfParticle = RatioDeltaPtoPj * MomentumOfReferenceParticle + MomentumOfReferenceParticle;
+  coord[7] = MomentumOfParticle;
+  EnergyOfParticle = sqrt( MomentumOfParticle*MomentumOfParticle + RestMassOfParticle*RestMassOfParticle );
+  coord[6] = EnergyOfParticle;
+  RatioBetaToBetaj = ( EnergyOfParticle * MomentumOfReferenceParticle ) / ( EnergyOfReferenceParticle * MomentumOfParticle );
+  coord[12] = RatioBetaToBetaj;
+
+  if( cnthirata++ == 0 ) printf("Hirata called\n");
+
+  return 1;
+}
+*/
+
+/*
+extern int stsld_c_(double StrongBeamCoord[3][99],double *CrossingAngleCosComponent2,double *CrossingAngleSinComponent2,double *RMSBunchLengthS,int *NumberOfSlices,double *CrossingPlaneAngleCosComponent,double *CrossingPlaneAngleSinComponent) {
+
+double RMSBunchLength,LongitudinalBorder,Border=8.0,LongitudinalBorder1,yy;
+int i;
+    RMSBunchLength = *RMSBunchLengthS / *CrossingAngleCosComponent2;
+ LongitudinalBorder = Border;
+
+    for( i = (*NumberOfSlices) ; i>=1 ; i-- )
+    {
+        yy = ( 1.0 / (double)(*NumberOfSlices )) * (double)(i-1);
+        if( i != 1 ) LongitudinalBorder1 = gauinv_( &yy );
+        if( i == 1 ) LongitudinalBorder1 = -1.0 * Border;
+        StrongBeamCoord[2][i-1] = ((( exp_rn(( -1.0 * LongitudinalBorder * LongitudinalBorder ) * Half ) - exp_rn(( -1.0 * LongitudinalBorder1 * LongitudinalBorder1 ) * Half )) / sqrt( 2.0 * Pi )) * ( double )(*NumberOfSlices )) * RMSBunchLength;
+        LongitudinalBorder = LongitudinalBorder1;
+        StrongBeamCoord[0][i-1] = ( StrongBeamCoord[2][i-1] * (*CrossingAngleSinComponent2 )) * (*CrossingPlaneAngleCosComponent);
+        StrongBeamCoord[1][i-1] = ( StrongBeamCoord[2][i-1] * (*CrossingAngleSinComponent2 )) * (*CrossingPlaneAngleSinComponent);
+    }
+
+printf("STSLD Called\n");
+return 1;
+}
+*/
+

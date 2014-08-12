@@ -10228,17 +10228,16 @@
             goto 480
    20       argf(1)=idz1
             argf(2)=idz2
-            argf(3)=kz(ix)
             do 30 j=1,napx
               coord(1)=xv(1,j)
               coord(2)=xv(2,j)
               coord(3)=yv(1,j)
-              coord(4)=yv(2,j)
+              coord(4)=yv(2,j)    
               coord(9)=dpsv(j)
               coord(19)=bl1v(1,1,j,ix)
               coord(20)=bl1v(2,1,j,ix)
               coord(21)=bl1v(3,1,j,ix)
-              coord(22)=bl1v(4,1,j,ix)
+              coord(22)=bl1v(4,1,j,ix) !hr
               coord(23)=bl1v(5,1,j,ix)
               coord(24)=bl1v(6,1,j,ix)
               coord(49)=bl1v(1,2,j,ix)

@@ -1492,7 +1492,7 @@ extern int thck6d_map_goto_index20_( double *coord, double *argf, double *argi )
 
     if( cnt_thck6d_goto_index20++ == 0 ) printf(" Thick 6d goto 20 called\n");
 
-    return 1;
+    return 1; 
 }
 
 int cnt_hirata = 0;

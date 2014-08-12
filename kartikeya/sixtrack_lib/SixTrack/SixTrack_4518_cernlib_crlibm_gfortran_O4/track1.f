@@ -10232,7 +10232,7 @@
               coord(1)=xv(1,j)
               coord(2)=xv(2,j)
               coord(3)=yv(1,j)
-              coord(4)=yv(2,j)
+              coord(4)=yv(2,j)    
               coord(9)=dpsv(j)
               coord(19)=bl1v(1,1,j,ix)
               coord(20)=bl1v(2,1,j,ix)

@@ -1,0 +1,16 @@
+all: SixTrack_4518_cernlib_crlibm_gfortran_O4
+
+SixTrack_4518_cernlib_crlibm_gfortran_O4: track.o SixTrackLib.o sixve.o sixvefox.o dabnews.o lielib.o  -lgraflib -lgrafX11 -lpacklib crlibm/crlibm.a
+	gfortran  -m32 -o SixTrack_4518_cernlib_crlibm_gfortran_O4 track.o SixTrackLib.o sixve.o sixvefox.o dabnews.o lielib.o  -lgraflib -lgrafX11 -lpacklib crlibm/crlibm.a
+
+sixve.o: sixve.f
+	gfortran -c sixve.f
+
+track.o: track.f
+	gfortran -c track.f
+
+SixTrackLib.o: SixTrackLib.c
+	gcc -c SixTrackLib.c
+
+clean:
+	rm -rf *o SixTrack_4518_cernlib_crlibm_gfortran_O4
