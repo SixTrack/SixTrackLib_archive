@@ -4207,8 +4207,9 @@
             argf(24)=ibbc   
             argf(25)=sigz
             argf(26)=imbb(i)
+            argf(27)=ithick
             do j=1,12
-              argf(26+j)=bbcu(ibb,j)
+              argf(26+j)=bbcu(imbb(i),j)
             enddo
             do j=1,napx
               coord(1)=xv(1,j)
@@ -4407,10 +4408,11 @@
           argf(5)=pma
           argf(6)=e0
           argf(7)=e0f
+          argf(8)=ithick
         do j=1,napx
-            coord(1)=xv(xory,j)
+            coord(1)=xv(1,j)
             coord(2)=xv(2,j)
-            coord(3)=yv(xory,j)
+            coord(3)=yv(1,j)
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
             coord(6)=sigmv(j)
@@ -4449,9 +4451,9 @@
           argf(6)=e0
           argf(7)=e0f
         do j=1,napx
-            coord(1)=xv(xory,j)
+            coord(1)=xv(1,j)
             coord(2)=xv(2,j)
-            coord(3)=yv(xory,j)
+            coord(3)=yv(1,j)
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
             coord(6)=sigmv(j)
@@ -10226,6 +10228,7 @@
             goto 480
    20       argf(1)=idz1
             argf(2)=idz2
+            argf(3)=kz(ix)
             do 30 j=1,napx
               coord(1)=xv(1,j)
               coord(2)=xv(2,j)
@@ -10238,6 +10241,12 @@
               coord(22)=bl1v(4,1,j,ix)
               coord(23)=bl1v(5,1,j,ix)
               coord(24)=bl1v(6,1,j,ix)
+              coord(49)=bl1v(1,2,j,ix)
+              coord(50)=bl1v(2,2,j,ix)
+              coord(51)=bl1v(3,2,j,ix)
+              coord(52)=bl1v(4,2,j,ix)
+              coord(53)=bl1v(5,2,j,ix)
+              coord(54)=bl1v(6,2,j,ix)
               call thck4d_map_goto_index20(coord,argf,argi)
               xv(1,j)=coord(1)
               xv(2,j)=coord(2)
@@ -11550,29 +11559,35 @@
           pi=4d0*atan_rn(1d0)
         crabfreq=ek(ix)*c1e3
  
+          argf(1)=crabamp
+          argf(2)=crabfreq
+          argf(3)=crabph(ix)
+          argf(4)=ed(ix)
+          argf(5)=pma
+          argf(6)=e0
+          argf(7)=e0f
+          argf(8)=ithick
         do j=1,napx
-!hr03    crabamp=ed(ix)/(ejfv(j))*c1e3
-         crabamp=(ed(ix)/ejfv(j))*c1e3                                   !hr03
-!        write(*,*) crabamp, ejfv(j), clight, "HELLO"
- 
-!hr03   yv(xory,j)=yv(xory,j) - crabamp*                                &
-!hr03&sin_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))
-        yv(xory,j)=yv(xory,j) - crabamp*                                &!hr03
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))         !hr03
-!hr03 dpsv(j)=dpsv(j) - crabamp*crabfreq*2d0*pi/clight*xv(xory,j)*      &
-!hr03&cos_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))*c1m3
-      dpsv(j)=dpsv(j) -                                                 &!hr03
-     &((((((crabamp*crabfreq)*2d0)*pi)/clight)*xv(xory,j))*             &!hr03
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix)))*c1m3   !hr03
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call thin6d_map_crab_cavity_1(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
           goto 470
@@ -11586,29 +11601,35 @@
           pi=4d0*atan_rn(1d0)
         crabfreq=ek(ix)*c1e3
  
+          argf(1)=crabamp
+          argf(2)=crabfreq
+          argf(3)=crabph(ix)
+          argf(4)=ed(ix)
+          argf(5)=pma
+          argf(6)=e0
+          argf(7)=e0f
+          argf(8)=ithick
         do j=1,napx
-!hr03    crabamp=ed(ix)/(ejfv(j))*c1e3
-         crabamp=(ed(ix)/ejfv(j))*c1e3                                   !hr03
-!        write(*,*) crabamp, ejfv(j), clight, "HELLO"
- 
-!hr03   yv(xory,j)=yv(xory,j) - crabamp*                                &
-!hr03&sin_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))
-        yv(xory,j)=yv(xory,j) - crabamp*                                &!hr03
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))         !hr03
-!hr03 dpsv(j)=dpsv(j) - crabamp*crabfreq*2d0*pi/clight*xv(xory,j)*      &
-!hr03&cos_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))*c1m3
-      dpsv(j)=dpsv(j) -                                                 &!hr03
-     &((((((crabamp*crabfreq)*2d0)*pi)/clight)*xv(xory,j))*             &!hr03
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix)))*c1m3   !hr03
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call thin6d_map_crab_cavity_2(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
           goto 470

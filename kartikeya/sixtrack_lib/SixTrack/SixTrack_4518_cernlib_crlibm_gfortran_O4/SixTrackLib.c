@@ -469,82 +469,14 @@ make_map_multipole_ver_zapprox(purever_zapprox);
     coord[12] = RatioBetaToBetaj;                                                                                      \
                                                                                                                        \
    if( cntcrabcavity##I++ == 0 ) printf("crab_cavity"#I" called %d times\n",cntcrabcavity##I);                         \
+   printf("ithick in crab cavity = %d\n",(int)argf[7]);                                                                \
                                                                                                                        \
    return 1;                                                                                                           \
 }
 
 make_map_crab_cavity(1,x);
 make_map_crab_cavity(2,y);
-/*
-extern int thin6d_modify_coords_for_hirata_(double *coord, double *argf, double *argi) {
-  double x = coord[0], y = coord[1];
-  double xp = coord[2], yp = coord[3];
-  double RatioPtoPj = coord[4];
-  double PathLengthDiff = coord[5];
-  double RatioDeltaPtoPj = coord[8];
-  double ModifiedX = coord[25], ModifiedXp = coord[26], ModifiedY = coord[27], ModifiedYp = coord[28], ModifiedSigma = coord[29], ModifiedDelta = coord[30];
 
-  double HorBeamBeamSeparation = argf[0], VerBeamBeamSeparation = argf[1];
-  double ClosedOrbitBeamX = argf[5], ClosedOrbitBeamY = argf[6], ClosedOrbitBeamSigma = argf[7], ClosedOrbitBeamPx = argf[8], ClosedOrbitBeamPy = argf[9], ClosedOrbitBeamDelta = argf[10];
-
-  ModifiedX = ( x + HorBeamBeamSeparation - ClosedOrbitBeamX ) * OnePoweredToMinus3;
-  ModifiedXp = ( xp / RatioPtoPj - ClosedOrbitBeamPx ) * OnePoweredToMinus3;
-  ModifiedY = ( y + VerBeamBeamSeparation - ClosedOrbitBeamY ) * OnePoweredToMinus3;
-  ModifiedYp = ( yp / RatioPtoPj  - ClosedOrbitBeamPy ) * OnePoweredToMinus3;
-  ModifiedSigma = ( PathLengthDiff - ClosedOrbitBeamSigma ) * OnePoweredToMinus3;
-  ModifiedDelta = RatioDeltaPtoPj - ClosedOrbitBeamDelta;
-
-  coord[25] = ModifiedX;
-  coord[26] = ModifiedXp;
-  coord[27] = ModifiedY;
-  coord[28] = ModifiedYp;
-  coord[29] = ModifiedSigma;
-  coord[30] = ModifiedDelta;
-
-  return 1;
-}
-
-int cnthirata = 0;
-extern int thin6d_map_hirata_beambeam1_(double *coord, double *argf, double *argi) {
-  double x = coord[0], y = coord[1];
-  double xp = coord[2], yp = coord[3];
-  double RatioPtoPj = coord[4];
-  double PathLengthDiff = coord[5];
-  double EnergyOfParticle = coord[6], MomentumOfParticle = coord[7];
-  double RatioDeltaPtoPj = coord[8];
-  double RatioBetaToBetaj = coord[12];
-  double ModifiedX = coord[25], ModifiedXp = coord[26], ModifiedY = coord[27], ModifiedYp = coord[28], ModifiedSigma = coord[29], ModifiedDelta = coord[30];
-
-  double HorBeamBeamSeparation = argf[0], VerBeamBeamSeparation = argf[1];
-  double EnergyOfReferenceParticle = argf[2], MomentumOfReferenceParticle = argf[3];
-  double RestMassOfParticle = argf[4];
-  double ClosedOrbitBeamX = argf[5], ClosedOrbitBeamY = argf[6], ClosedOrbitBeamSigma = argf[7], ClosedOrbitBeamPx = argf[8], ClosedOrbitBeamPy = argf[9], ClosedOrbitBeamDelta = argf[10];
-  double BeamOffsetX = argf[11], BeamOffsetY = argf[12], BeamOffsetSigma = argf[13], BeamOffsetPx = argf[14], BeamOffsetPy = argf[15], BeamOffsetDelta = argf[16];
-
-  x = ( ModifiedX * OnePoweredTo3 + ClosedOrbitBeamX ) - BeamOffsetX;
-  coord[0] = x;
-  y = ( ModifiedY * OnePoweredTo3 + ClosedOrbitBeamY ) - BeamOffsetY;
-  coord[1] = y;
-  RatioDeltaPtoPj = ( ModifiedDelta + ClosedOrbitBeamDelta ) - BeamOffsetDelta;
-  coord[8] = RatioDeltaPtoPj;
-  RatioPtoPj = One / ( One + RatioDeltaPtoPj );
-  coord[4] = RatioPtoPj;
-  xp = (( ModifiedXp * OnePoweredTo3 + ClosedOrbitBeamPx ) - BeamOffsetPx ) * RatioPtoPj;
-  coord[2] = xp;
-  yp = (( ModifiedYp * OnePoweredTo3 + ClosedOrbitBeamPy ) - BeamOffsetPy ) * RatioPtoPj;
-  coord[3] = yp;
-  MomentumOfParticle = RatioDeltaPtoPj * MomentumOfReferenceParticle + MomentumOfReferenceParticle;
-  coord[7] = MomentumOfParticle;
-  EnergyOfParticle = sqrt( MomentumOfParticle*MomentumOfParticle + RestMassOfParticle*RestMassOfParticle );
-  coord[6] = EnergyOfParticle;
-  RatioBetaToBetaj = ( EnergyOfParticle * MomentumOfReferenceParticle ) / ( EnergyOfReferenceParticle * MomentumOfParticle );
-  coord[12] = RatioBetaToBetaj;
-
-  if( cnthirata++ == 0 ) printf("Hirata called\n");
-
-  return 1;
-}
-*/
 int cntacccavity = 0;
 extern int thin6d_map_accelerating_cavity2_(double *coord, double *argf, double *argi)
 {
@@ -688,7 +620,6 @@ extern int thin6d_map_ac_dipole_(double *coord, double *argf, double *argi)
         xp = xp + ( ACDipoleAmplitudeHorComp * sin_rn((( 2.0 * Pi ) * Qd ) * (double)nac + ACPhase )  ) / MomentumOfParticle;
         yp = yp + ( ACDipoleAmplitudeVerComp * sin_rn((( 2.0 * Pi ) * Qd ) * (double)nac + ACPhase )  ) / MomentumOfParticle;
     }
-<<<<<<< HEAD
 
     if( nac >= ( nramp1 + nplato ) && ( nramp2 + nramp1 + nplato ) > nac )
     {
@@ -699,18 +630,6 @@ extern int thin6d_map_ac_dipole_(double *coord, double *argf, double *argi)
     coord[2] = xp;
     coord[3] = yp;
 
-=======
-
-    if( nac >= ( nramp1 + nplato ) && ( nramp2 + nramp1 + nplato ) > nac )
-    {
-        xp = xp + (( ACDipoleAmplitudeHorComp * sin_rn((( 2.0 * Pi ) * Qd ) * (double)nac + ACPhase )  ) * (( -1.0 * (double)nac - nramp1 - nramp2 - nplato ) / (double)nramp2 )) / MomentumOfParticle;
-        yp = yp + (( ACDipoleAmplitudeVerComp * sin_rn((( 2.0 * Pi ) * Qd ) * (double)nac + ACPhase )  ) * (( -1.0 * (double)nac - nramp1 - nramp2 - nplato ) / (double)nramp2 )) / MomentumOfParticle;
-    }
-
-    coord[2] = xp;
-    coord[3] = yp;
-
->>>>>>> acbcfac986e4397887e6e742459f772f1a46aec4
     if( cntacdipole++ == 0 ) printf("AC Dipole called \n");
 
     return 1;
@@ -1020,17 +939,10 @@ extern int thin6d_map_beambeam_type1_( double *coord, double *argf, double argi 
     else
     {
         cccc = ((( PhysicalLengthOfBlock * crkvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPx ) * bbcu11 - ((( PhysicalLengthOfBlock * cikvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPy ) * bbcu12;
-<<<<<<< HEAD
 
         coord[2] = xp + RatioPtoPj * cccc;
         cccc = ((( PhysicalLengthOfBlock * crkvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPx ) * bbcu12 + ((( PhysicalLengthOfBlock * cikvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPy ) * bbcu11;
 
-=======
-
-        coord[2] = xp + RatioPtoPj * cccc;
-        cccc = ((( PhysicalLengthOfBlock * crkvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPx ) * bbcu12 + ((( PhysicalLengthOfBlock * cikvebj ) / rho2bj ) * ( 1.0 - exp_rn( -1.0 * tkbj )) - BeamOffsetPy ) * bbcu11;
-
->>>>>>> acbcfac986e4397887e6e742459f772f1a46aec4
         coord[3] = yp + RatioPtoPj * cccc;
     }
     if( cntbb1++ == 0 ) printf("beam beam 1\n");
@@ -1158,7 +1070,6 @@ extern int thin6d_map_beambeam_type2_( double *coord, double *argf, double *argi
 
     return 1;
 }
-<<<<<<< HEAD
 
 int cntbb3_0 = 0, cntbb31 = 0;
 extern int thin6d_map_beambeam_type3_( double *coord, double *argf, double *argi )
@@ -1228,77 +1139,6 @@ extern int thin6d_map_beambeam_type3_( double *coord, double *argf, double *argi
 
         if( cntbb3_0++ == 0 ) printf(" Beam Beam type 3 0 \n");
 
-=======
-
-int cntbb3_0 = 0, cntbb31 = 0;
-extern int thin6d_map_beambeam_type3_( double *coord, double *argf, double *argi )
-{
-    double x = coord[0], y = coord[1];
-    double xp = coord[2], yp = coord[3];
-    double RatioPtoPj = coord[4];
-    double crxbj = coord[14], crzbj = coord[15];
-    double cbxbj = coord[16], cbzbj = coord[17];
-
-    double HorBeamBeamSeparation = argf[0], VerBeamBeamSeparation = argf[1];
-    double PhysicalLengthOfBlock = argf[2];
-    int SwitchToLinearCoupling = (int)argf[3];
-    double ClosedOrbitBeamX = argf[4], ClosedOrbitBeamY = argf[5], ClosedOrbitBeamSigma = argf[6], ClosedOrbitBeamPx = argf[7], ClosedOrbitBeamPy = argf[8], ClosedOrbitBeamDelta = argf[9];
-    double SquareOfSigmaNX = argf[20], SquareOfSigmaNY = argf[21];
-    double BeamOffsetX = argf[10], BeamOffsetY = argf[11], BeamOffsetSigma = argf[12], BeamOffsetPx = argf[13], BeamOffsetPy = argf[14], BeamOffsetDelta = argf[15];
-    double bbcu11 = argf[16], bbcu12 = argf[17];
-    double SigmaNqX = argf[18], SigmaNqY = argf[19];
-    double NoOfParticles = (int)argf[20], SwitchToFastBeamBeamAlgo = (int)argf[21];
-
-    double crkvebj, cikvebj, rho2bj, tkbj, cccc, r2bj, rbj, rkbj, xbbj, zbbj, xrbj, zrbj;
-    double SquareRootOfPi = sqrt(Pi);
-
-    if( SwitchToFastBeamBeamAlgo == 0 )
-    {
-        r2bj = 2.0 * ( SquareOfSigmaNY - SquareOfSigmaNX );
-        rbj = sqrt(r2bj);
-
-        rkbj = ( PhysicalLengthOfBlock * SquareRootOfPi ) / rbj;
-
-        if( SwitchToLinearCoupling == 0 )
-        {
-            crkvebj = ( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation;
-            cikvebj = ( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation;
-        }
-        else
-        {
-            crkvebj = (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu11 + (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu12;
-            cikvebj = (( y - ClosedOrbitBeamY ) + VerBeamBeamSeparation ) * bbcu11 + (( x - ClosedOrbitBeamX ) + HorBeamBeamSeparation ) * bbcu12;
-        }
-
-        xrbj = abs(crkvebj) / rbj;
-        zrbj = abs(cikvebj) / rbj;
-
-        errf_( &zrbj, &xrbj, &crzbj, &crxbj );
-
-        tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
-
-        xbbj = SigmaNqY * xrbj;
-        zbbj = SigmaNqX * zrbj;
-
-        errf_( &zbbj, &xbbj, &cbzbj, &cbxbj );
-
-        if( SwitchToLinearCoupling == 0 )
-        {
-            coord[2] = xp + RatioPtoPj * (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) *sign( 1.0, crkvebj ) - BeamOffsetPx );
-            coord[3] = yp + RatioPtoPj * (( rkbj * ( crxbj - exp_rn( -1.0 * tkbj ) * cbxbj )) *sign( 1.0, cikvebj ) - BeamOffsetPy );
-        }
-        else
-        {
-            cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu11 - (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu12;
-            coord[2] = xp + RatioPtoPj * cccc;
-
-            cccc = (( rkbj * ( crzbj - exp_rn( -1.0 * tkbj ) * cbzbj )) * sign( 1.0, crkvebj ) - BeamOffsetPx ) * bbcu12 + (( rkbj * ( crxbj - exp_rn(-1.0 * tkbj ) * cbxbj )) * sign( 1.0, cikvebj ) - BeamOffsetPy ) * bbcu11;
-            coord[3] = yp + RatioPtoPj * cccc;
-        }
-
-        if( cntbb3_0++ == 0 ) printf(" Beam Beam type 3 0 \n");
-
->>>>>>> acbcfac986e4397887e6e742459f772f1a46aec4
     }
     else if(  SwitchToFastBeamBeamAlgo == 1 )
     {
@@ -1593,6 +1433,7 @@ extern int thck4d_map_goto_index20_( double *coord, double *argf, double *argi )
     double xp = coord[2], yp = coord[3];
     double RatioDeltaPtoPj = coord[8];
     double bl1v_1_1_j_ix = coord[18], bl1v_2_1_j_ix = coord[19], bl1v_3_1_j_ix = coord[20], bl1v_4_1_j_ix = coord[21], bl1v_5_1_j_ix = coord[22], bl1v_6_1_j_ix = coord[23];
+    double bl1v_1_2_j_ix = coord[48], bl1v_2_2_j_ix = coord[49], bl1v_3_2_j_ix = coord[50], bl1v_4_2_j_ix = coord[51], bl1v_5_2_j_ix = coord[52], bl1v_6_2_j_ix = coord[53];
 
     double TriggerDispContribTransverseCoord1 = (int)argf[0], TriggerDispContribTransverseCoord2 = (int)argf[1];
     double puxve, puzve;
@@ -1601,19 +1442,20 @@ extern int thck4d_map_goto_index20_( double *coord, double *argf, double *argi )
     puzve = xp;
 
     x = bl1v_1_1_j_ix * puxve + bl1v_2_1_j_ix * puzve + (( (double)TriggerDispContribTransverseCoord1 * bl1v_5_1_j_ix ) * RatioDeltaPtoPj ) * OnePoweredTo3;
-    y = bl1v_3_1_j_ix * puxve + bl1v_4_1_j_ix * puzve + (( (double)TriggerDispContribTransverseCoord1 * bl1v_6_1_j_ix ) * RatioDeltaPtoPj ) * OnePoweredTo3;
+    xp = bl1v_3_1_j_ix * puxve + bl1v_4_1_j_ix * puzve + (( (double)TriggerDispContribTransverseCoord1 * bl1v_6_1_j_ix ) * RatioDeltaPtoPj ) * OnePoweredTo3;
 
     puxve = y;
     puzve = yp;
 
-    xp = bl1v_1_1_j_ix * puxve + bl1v_2_1_j_ix * puzve + (( (double)TriggerDispContribTransverseCoord2 * bl1v_5_1_j_ix ) * RatioDeltaPtoPj ) * OnePoweredTo3;
-    yp = bl1v_3_1_j_ix * puxve + bl1v_4_1_j_ix * puzve + (( (double)TriggerDispContribTransverseCoord2 * bl1v_6_1_j_ix ) * RatioDeltaPtoPj ) * OnePoweredTo3;
+    y = bl1v_1_2_j_ix * puxve + bl1v_2_2_j_ix * puzve + (( (double)TriggerDispContribTransverseCoord2 * bl1v_5_2_j_ix ) * RatioDeltaPtoPj ) * OnePoweredTo3;
+    yp = bl1v_3_2_j_ix * puxve + bl1v_4_2_j_ix * puzve + (( (double)TriggerDispContribTransverseCoord2 * bl1v_6_2_j_ix ) * RatioDeltaPtoPj ) * OnePoweredTo3;
 
     coord[0] = x;
     coord[1] = y;
     coord[2] = xp;
     coord[3] = yp;
 
+    
     if( cnt_thck4d_goto_index20++ == 0 ) printf(" Thick 4d goto 20 called\n");
 
     return 1;
@@ -1652,30 +1494,6 @@ extern int thck6d_map_goto_index20_( double *coord, double *argf, double *argi )
 
     return 1;
 }
-/*
-extern int stsld_c_(double StrongBeamCoord[3][99],double *CrossingAngleCosComponent2,double *CrossingAngleSinComponent2,double *RMSBunchLengthS,int *NumberOfSlices,double *CrossingPlaneAngleCosComponent,double *CrossingPlaneAngleSinComponent) {
-
-<<<<<<< HEAD
-double RMSBunchLength,LongitudinalBorder,Border=8.0,LongitudinalBorder1,yy;
-int i;
-    RMSBunchLength = *RMSBunchLengthS / *CrossingAngleCosComponent2;
- LongitudinalBorder = Border;
-
-    for( i = (*NumberOfSlices) ; i>=1 ; i-- )
-    {
-        yy = ( 1.0 / (double)(*NumberOfSlices )) * (double)(i-1);
-        if( i != 1 ) LongitudinalBorder1 = gauinv_( &yy );
-        if( i == 1 ) LongitudinalBorder1 = -1.0 * Border;
-        StrongBeamCoord[2][i-1] = ((( exp_rn(( -1.0 * LongitudinalBorder * LongitudinalBorder ) * Half ) - exp_rn(( -1.0 * LongitudinalBorder1 * LongitudinalBorder1 ) * Half )) / sqrt( 2.0 * Pi )) * ( double )(*NumberOfSlices )) * RMSBunchLength;
-        LongitudinalBorder = LongitudinalBorder1;
-        StrongBeamCoord[0][i-1] = ( StrongBeamCoord[2][i-1] * (*CrossingAngleSinComponent2 )) * (*CrossingPlaneAngleCosComponent);
-        StrongBeamCoord[1][i-1] = ( StrongBeamCoord[2][i-1] * (*CrossingAngleSinComponent2 )) * (*CrossingPlaneAngleSinComponent);
-    }
-
-printf("STSLD Called\n");
-return 1;
-}
-*/
 
 int cnt_hirata = 0;
 extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi)
@@ -1759,89 +1577,6 @@ extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi
 
     WeakBeamCoordDelta = (( WeakBeamCoordDelta - ( CrossingPlaneAngleCosComponent * CrossingAngleTanComponent ) * WeakBeamCoordXp ) - ( WeakBeamCoordYp * CrossingPlaneAngleSinComponent ) * CrossingAngleTanComponent ) + H * CrossingAngleTanComponent * CrossingAngleTanComponent;
 
-=======
-
-//----------------------HIRATA SPACE------------------------------------------------------------------------//
-
-int cnt_hirata = 0;
-extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi)
-{
-    double x = coord[0], y = coord[1];
-    double xp = coord[2], yp = coord[3];
-    double RatioPtoPj = coord[4];
-    double PathLengthDiff = coord[5];
-    double EnergyOfParticle = coord[6];
-    double MomentumOfParticle = coord[7];
-    double RatioDeltaPtoPj = coord[8];
-    double RatioBetaToBetaj = coord[12];
-
-    double HorBeamBeamSeparation = argf[0], VerBeamBeamSeparation = argf[1];
-    double EnergyOfReferenceParticle = argf[2], MomentumOfReferenceParticle = argf[3];
-    double RestMassOfParticle = argf[4];
-    double ClosedOrbitBeamX = argf[5], ClosedOrbitBeamY = argf[6], ClosedOrbitBeamSigma = argf[7], ClosedOrbitBeamPx = argf[8], ClosedOrbitBeamPy = argf[9], ClosedOrbitBeamDelta = argf[10];
-    double BeamOffsetX = argf[11], BeamOffsetY = argf[12], BeamOffsetSigma = argf[13], BeamOffsetPx = argf[14], BeamOffsetPy = argf[15], BeamOffsetDelta = argf[16];
-    double SwitchToFastBeamBeamAlgo = argf[22];
-    double SwitchToLinearCoupling = argf[23], SwitchToLinearCoupling1;
-
-    double StrongBeamCoord[3][100], Dum[14], bcu_ibb[10];
-    double CrossingAngle, CrossingAngle2, CrossingAngleCosComponent, CrossingAngleSinComponent, CrossingAngleTanComponent, CrossingAngleCosComponent2, CrossingAngleSinComponent2, CrossingAngleTanComponent2;
-    double CrossingPlaneAngle, CrossingPlaneAngle2, CrossingPlaneAngleCosComponent, CrossingPlaneAngleSinComponent, CrossingPlaneAngleTanComponent, CrossingPlaneAngleCosComponent2, CrossingPlaneAngleSinComponent2, CrossingPlaneAngleTanComponent2;
-    double StrengthOfSlice;
-    double RMSBunchLength, RMSBunchLengthS, LongitudinalBorder, Border, LongitudinalBorder1;
-    double WeakBeamCoordX, WeakBeamCoordXp, WeakBeamCoordY, WeakBeamCoordYp, WeakBeamCoordSigma, WeakBeamCoordDelta;
-    double BeamBeamTransKickX, BeamBeamTransKickY, BeamBeamLongKickX, BeamBeamLongKickY, BeamBeamTransKick0;
-
-    double CosTh, SinTh, CosThP, SinThP, Det;
-    double SepX, SepY, SepX0, SepY0, Sx, Sy, SFac;
-    double yy, H, H1, H1X, H1Y, H1Z, HD1, X1, Y1, Z1, S, SP, H1D;
-
-    int i, Slice;
-    int NumberOfSlices;
-
-    WeakBeamCoordX = ( x + HorBeamBeamSeparation - ClosedOrbitBeamX ) * OnePoweredToMinus3;
-    WeakBeamCoordXp = ( xp / RatioPtoPj - ClosedOrbitBeamPx ) * OnePoweredToMinus3;
-    WeakBeamCoordY = ( y + VerBeamBeamSeparation - ClosedOrbitBeamY ) * OnePoweredToMinus3;
-    WeakBeamCoordYp = ( yp / RatioPtoPj  - ClosedOrbitBeamPy ) * OnePoweredToMinus3;
-    WeakBeamCoordSigma = ( PathLengthDiff - ClosedOrbitBeamSigma ) * OnePoweredToMinus3;
-    WeakBeamCoordDelta = RatioDeltaPtoPj - ClosedOrbitBeamDelta;
-
-    CrossingAngle = argf[17];
-    NumberOfSlices = (int)argf[18];
-    CrossingPlaneAngle = argf[19];
-    CrossingAngle2 = argf[21];
-    StrengthOfSlice = argf[20] / (double) NumberOfSlices;
-    CrossingAngleSinComponent = sin_rn( CrossingAngle );
-    CrossingAngleSinComponent2 = sin_rn( CrossingAngle2 );
-    CrossingAngleCosComponent = cos_rn( CrossingAngle );
-    CrossingAngleCosComponent2 = cos_rn( CrossingAngle2 );
-    CrossingAngleTanComponent = tan_rn( CrossingAngle );
-    CrossingAngleTanComponent2 = tan_rn( CrossingAngle2 );
-    CrossingPlaneAngleCosComponent = cos_rn( CrossingPlaneAngle );
-    CrossingPlaneAngleSinComponent = sin_rn( CrossingPlaneAngle );
-
-// --------------------------       STSLD stuff ----------------------------------------------//
-    RMSBunchLength = RMSBunchLengthS / CrossingAngleCosComponent2;
-    LongitudinalBorder = Border;
-
-    for( i = NumberOfSlices ; i>=1 ; i-- )
-    {
-        yy = ( 1.0 / (double)NumberOfSlices ) * (double)(i-1);
-        if( i != 1 ) LongitudinalBorder1 = gauinv_( yy );
-        if( i == 1 ) LongitudinalBorder1 = -1.0 * Border;
-        StrongBeamCoord[2][i] = ((( exp_rn(( -1.0 * LongitudinalBorder * LongitudinalBorder ) * Half ) - exp_rn(( -1.0 * LongitudinalBorder1 * LongitudinalBorder1 ) * Half )) / sqrt( 2.0 * Pi )) * ( double )NumberOfSlices ) * RMSBunchLength;
-        LongitudinalBorder = LongitudinalBorder1;
-        StrongBeamCoord[0][i] = ( StrongBeamCoord[2][i] * CrossingAngleSinComponent2 ) * CrossingPlaneAngleCosComponent;
-        StrongBeamCoord[1][i] = ( StrongBeamCoord[2][i] * CrossingAngleSinComponent2 ) * CrossingPlaneAngleSinComponent;
-    }
-
-// ----------------------------------     BOOST STuff i=1 to np loop---------------------------------------//
-
-
-    H = ( WeakBeamCoordDelta + One ) - sqrt((( One + WeakBeamCoordDelta ) * ( One + WeakBeamCoordDelta ) - WeakBeamCoordXp * WeakBeamCoordXp ) - WeakBeamCoordYp * WeakBeamCoordYp );
-
-    WeakBeamCoordDelta = (( WeakBeamCoordDelta - ( CrossingPlaneAngleCosComponent * CrossingAngleTanComponent ) * WeakBeamCoordXp ) - ( WeakBeamCoordYp * CrossingPlaneAngleSinComponent ) * CrossingAngleTanComponent ) + H * CrossingAngleTanComponent * CrossingAngleTanComponent;
-
->>>>>>> acbcfac986e4397887e6e742459f772f1a46aec4
     WeakBeamCoordXp = ( WeakBeamCoordXp - ( CrossingAngleTanComponent * H ) * CrossingPlaneAngleCosComponent ) / CrossingAngleCosComponent;
     WeakBeamCoordYp = ( WeakBeamCoordYp - ( CrossingAngleTanComponent * H ) * CrossingPlaneAngleSinComponent ) / CrossingAngleCosComponent;
 
@@ -1858,7 +1593,6 @@ extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi
     WeakBeamCoordX = X1;
     WeakBeamCoordY = Y1;
 
-<<<<<<< HEAD
 //---------------------------------------SBC Stuff--------------------------------
 
     for( Slice = 1; Slice <= NumberOfSlices; Slice++ )
@@ -1875,30 +1609,12 @@ extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi
         {
             SwitchToLinearCoupling1 = 1;
             Dum[4] = sqrt( Dum[4] );
-=======
-
-
-    for( Slice = 1; Slice <= NumberOfSlices; Slice++ )
-    {
-        S = ( WeakBeamCoordSigma - StrongBeamCoord[2][Slice] ) * Half;
-        SP = S / CrossingAngleCosComponent2;
-        Dum[1] = ( bcu_ibb[1] + ( Two * bcu_ibb[4] ) * SP ) + bcu_ibb[6] * SP * SP;
-        Dum[2] = ( bcu_ibb[2] + ( Two * bcu_ibb[9] ) * SP ) + bcu_ibb[6] * SP * SP;
-        Dum[3] = ( bcu_ibb[3] + ( Two * bcu_ibb[4] ) * SP ) + bcu_ibb[6] * SP * SP;
-        Dum[4] = Dum[1] - Dum[2];
-        Dum[5] = Dum[4] * Dum[4] + Four * Dum[3] * Dum[3];
-        if( SwitchToLinearCoupling == 1 && ( abs( Dum[4] ) > OnePoweredToMinus38 && abs( Dum[5] ) > OnePoweredToMinus38 ))
-        {
-            SwitchToLinearCoupling1 = 1;
-            Dum[5] = sqrt( Dum[5] );
->>>>>>> acbcfac986e4397887e6e742459f772f1a46aec4
         }
         else
         {
             SwitchToLinearCoupling1 = 0;
         }
 
-<<<<<<< HEAD
         SepX0 = ( WeakBeamCoordX + WeakBeamCoordXp * S ) - StrongBeamCoord[0][Slice-1];
         SepY0 = ( WeakBeamCoordY + WeakBeamCoordYp * S ) - StrongBeamCoord[1][Slice-1];
         if( SwitchToLinearCoupling1 == 1 )
@@ -1921,52 +1637,19 @@ extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi
             Sy = SFac * Dum[4];
             Sx = ( Dum[6] + Sy ) * Half;
             Sy = ( Dum[6] - Sy ) * Half;
-=======
-        SepX0 = ( WeakBeamCoordX + WeakBeamCoordXp * S ) - StrongBeamCoord[0][Slice];
-        SepY0 = ( WeakBeamCoordY + WeakBeamCoordYp * S ) - StrongBeamCoord[1][Slice];
-        if( SwitchToLinearCoupling1 == 1 )
-        {
-            SFac = One;
-            if( Dum[4] < Zero ) SFac = -1.0 * One;
-
-            Dum[6] = ( SFac * Dum[4] ) / Dum[5];
-            Dum[7] = Dum[1] + Dum[2];
-
-            CosTh = Half * ( One + Dum[6] );
-            if( abs( CosTh ) > OnePoweredToMinus38 ) CosTh = sqrt( CosTh );
-            else CosTh = Zero;
-
-            SinTh = Half * ( One - Dum[6]  );
-            if( abs( SinTh ) > OnePoweredToMinus38 ) SinTh = ( -1.0 * SFac ) * sqrt( SinTh );
-            else SinTh = Zero;
-
-
-            if( Dum[3] < Zero ) SinTh = -1.0 * SinTh;
-            Sy = SFac * Dum[5];
-            Sx = ( Dum[7] + Sy ) * Half;
-            Sy = ( Dum[7] - Sy ) * Half;
->>>>>>> acbcfac986e4397887e6e742459f772f1a46aec4
             SepX = SepX0 * CosTh + SepY0 * SinTh;
             SepY = SepY0 * CosTh - SepX0 * SinTh;
 
         }
         else
         {
-<<<<<<< HEAD
             Sx = Dum[0];
             Sy = Dum[1];
-=======
-            Sx = Dum[1];
-            Sy = Dum[2];
->>>>>>> acbcfac986e4397887e6e742459f772f1a46aec4
             SepX = SepX0;
             SepY = SepY0;
         }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> acbcfac986e4397887e6e742459f772f1a46aec4
         if( Sx > Sy ) bbf_( &SepX, &SepY, &Sx, &Sy, &BeamBeamTransKickX, &BeamBeamTransKickY, &BeamBeamLongKickX, &BeamBeamLongKickY, &SwitchToFastBeamBeamAlgo );
         else          bbf_( &SepY, &SepX, &Sy, &Sx, &BeamBeamTransKickY, &BeamBeamTransKickX, &BeamBeamLongKickY, &BeamBeamLongKickX, &SwitchToFastBeamBeamAlgo );
 
@@ -1978,7 +1661,6 @@ extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi
 
         if( SwitchToLinearCoupling1 == 1 )
         {
-<<<<<<< HEAD
             Dum[7] = Two * (( bcu[ibb-1][3] - bcu[ibb-1][8] ) + (bcu[ibb-1][5] - bcu[ibb-1][9] ) * SP );
             Dum[8] = ( bcu[ibb-1][4] + bcu[ibb-1][6] ) + ( Two * bcu[ibb-1][7] ) * SP;
             Dum[9] = ((( Dum[3] * Dum[7] + ( Four * Dum[2] ) * Dum[8] ) / Dum[4] ) / Dum[4] ) / Dum[4];
@@ -1994,23 +1676,6 @@ extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi
 
 
             WeakBeamCoordDelta = WeakBeamCoordDelta - (((( BeamBeamTransKickX * ( CosThP * SepX0 + SinThP * SepY0 ) + BeamBeamTransKickY * ( CosThP * SepY0 - SinThP * SepX0 )) + BeamBeamLongKickX * ( Dum[11] + Dum[12] )) + BeamBeamLongKickY * ( Dum[11] - Dum[12] )) / CrossingAngleCosComponent ) * Half;
-=======
-            Dum[8] = Two * (( bcu_ibb[4] - bcu_ibb[9] ) + (bcu_ibb[6] - bcu_ibb[10] ) * SP );
-            Dum[9] = ( bcu_ibb[5] + bcu_ibb[7] ) + ( Two * bcu_ibb[8] ) * SP;
-            Dum[10] = ((( Dum[4] * Dum[8] + ( Four * Dum[3] ) * Dum[9] ) / Dum[5] ) / Dum[5] ) / Dum[5];
-            Dum[11] = SFac * ( Dum[8] / Dum[5] - Dum[4] * Dum[10] );
-            Dum[12] = ( bcu_ibb[4] + bcu_ibb[9] ) + ( bcu_ibb[6] + bcu_ibb[10] ) * SP;
-            Dum[13] = ( SFac * (( Dum[4] * Dum[8] ) * Half + ( Two * Dum[3] ) * Dum[9] )) / Dum[5];
-
-            if( abs( CosTh ) > OnePoweredToMinus38 ) CosThP = ( Dum[11] / Four ) / CosTh;
-            else   CosThP = Zero;
-
-            if( abs( SinTh ) > OnePoweredToMinus38 ) SinThP = ( Dum[11] / Four ) / SinTh;
-            else   SinThP = Zero;
-
-
-            WeakBeamCoordDelta = WeakBeamCoordDelta - (((( BeamBeamTransKickX * ( CosThP * SepX0 + SinThP * SepY0 ) + BeamBeamTransKickY * ( CosThP * SepY0 + SinThP * SepX0 )) + BeamBeamLongKickX * ( Dum[12] + Dum[13] )) + BeamBeamLongKickY * ( Dum[12] - Dum[13] )) / CrossingAngleCosComponent ) * Half;
->>>>>>> acbcfac986e4397887e6e742459f772f1a46aec4
 
             BeamBeamTransKick0 = BeamBeamTransKickX;
             BeamBeamTransKickX = BeamBeamTransKick0 * CosTh - BeamBeamTransKickY * SinTh;
@@ -2019,11 +1684,7 @@ extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi
         }
         else
         {
-<<<<<<< HEAD
             WeakBeamCoordDelta = WeakBeamCoordDelta - ( BeamBeamLongKickX * ( bcu[ibb-1][3] + bcu[ibb-1][5] * SP ) + BeamBeamLongKickY * ( bcu[ibb-1][8] + bcu[ibb-1][9] * SP )) / CrossingAngleCosComponent;
-=======
-            WeakBeamCoordDelta = WeakBeamCoordDelta - ( BeamBeamLongKickX * ( bcu_ibb[4] + bcu_ibb[6] * SP ) + BeamBeamLongKickY * ( bcu_ibb[9] + bcu_ibb[10] * SP )) / CrossingAngleCosComponent;
->>>>>>> acbcfac986e4397887e6e742459f772f1a46aec4
         }
 
         WeakBeamCoordDelta = WeakBeamCoordDelta - ( BeamBeamTransKickX * ( WeakBeamCoordXp - BeamBeamTransKickX * Half ) + BeamBeamTransKickY * ( WeakBeamCoordYp - BeamBeamTransKickY * Half )) * Half;
@@ -2032,17 +1693,10 @@ extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi
         WeakBeamCoordXp = WeakBeamCoordXp - BeamBeamTransKickX;
         WeakBeamCoordY = WeakBeamCoordY + S * BeamBeamTransKickY;
         WeakBeamCoordYp = WeakBeamCoordYp - BeamBeamTransKickY;
-<<<<<<< HEAD
     }
 
 //------------------------------------------------BOOSTI STUFF----------------------
 
-=======
-
-    }
-
-//--------------------------------------- BOOSTI STUFF ----------------------------------------//
->>>>>>> acbcfac986e4397887e6e742459f772f1a46aec4
 
     H1D = sqrt((( One + WeakBeamCoordDelta ) * ( One + WeakBeamCoordDelta ) - WeakBeamCoordXp * WeakBeamCoordXp ) - WeakBeamCoordYp * WeakBeamCoordYp );
     H1X = WeakBeamCoordXp / H1D;
@@ -2067,11 +1721,8 @@ extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi
     WeakBeamCoordXp = ( WeakBeamCoordXp + ( CrossingPlaneAngleCosComponent * CrossingAngleSinComponent ) * H1 ) * CrossingAngleCosComponent;
     WeakBeamCoordYp = ( WeakBeamCoordYp + ( CrossingPlaneAngleSinComponent * CrossingAngleSinComponent ) * H1 ) * CrossingAngleCosComponent;
 
-<<<<<<< HEAD
 //------------------------------------------------FINAL Tracking-----------------------
 
-=======
->>>>>>> acbcfac986e4397887e6e742459f772f1a46aec4
     x = ( WeakBeamCoordX * OnePoweredTo3 + ClosedOrbitBeamX ) - BeamOffsetX;
     coord[0] = x;
     y = ( WeakBeamCoordY * OnePoweredTo3 + ClosedOrbitBeamY ) - BeamOffsetY;
@@ -2092,9 +1743,9 @@ extern int thin6d_map_hirata_beambeam_(double *coord, double *argf, double *argi
     coord[12] = RatioBetaToBetaj;
 
     if( cnt_hirata++ == 0 ) printf("Hirata called\n");
+    printf("ithick = %d\n",(int)argf[26]);
 
     return 1;
-<<<<<<< HEAD
 }
 
 extern int stsld_c_(double StrongBeamCoord[3][99],double *para)
@@ -2328,7 +1979,4 @@ extern int sbc_c_(double StrongBeamCoord[3][99], double bcu[350][12], double *Tr
     return 1;
 }
 
-=======
-}
 
->>>>>>> acbcfac986e4397887e6e742459f772f1a46aec4

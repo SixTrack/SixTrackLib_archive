@@ -28158,7 +28158,6 @@ C Should get me a NaN
       para(6)=ibbc
       para(7)=nsli
       do 1000 i=1,np
-        do 2000 jsli=1,nsli
           trackc(1)=track(1,i)
           trackc(2)=track(2,i)
           trackc(3)=track(3,i)
@@ -28172,7 +28171,6 @@ C Should get me a NaN
           track(4,i)=trackc(4)
           track(5,i)=trackc(5)
           track(6,i)=trackc(6)
- 2000   continue
  1000 continue
       return
       end

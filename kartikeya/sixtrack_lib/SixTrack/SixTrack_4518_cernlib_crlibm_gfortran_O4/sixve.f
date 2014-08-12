@@ -28024,7 +28024,7 @@ C Should get me a NaN
       salpha=sin_rn(alpha)
       calpha=cos_rn(alpha)
 !     define slices
-      call stsld_c(star,cphi2,sphi2,sigzs,nsli,calpha,salpha)
+      call stsld(star,cphi2,sphi2,sigzs,nsli,calpha,salpha)
       call boost(np,sphi,cphi,tphi,salpha,calpha,track)
       call sbc(np,star,cphi,cphi2,nsli,f,ibtyp,ibb,bcu,track,ibbc)
       call boosti(np,sphi,cphi,tphi,salpha,calpha,track)
@@ -28045,7 +28045,7 @@ C Should get me a NaN
      &acos_rn,atan_rn,atan2_rn,exp_rn,log_rn,log10_rn
       integer i,np
       double precision calpha,cphi,h,h1x,h1y,h1z,hd1,salpha,sphi,tphi,  &
-     &track,x1,y1,trackc(6)
+     &track,x1,y1
       integer mbea,mcor,mcop,mmul,mpa,mran,nbb,nblo,nblz,ncom,ncor1,    &
      &nelb,nele,nema,ninv,nlya,nmac,nmon1,npart,nper,nplo,npos,nran,    &
      &nrco,ntr,nzfz
@@ -28081,19 +28081,37 @@ C Should get me a NaN
       save
 !-----------------------------------------------------------------------
       do 1000 i=1,np
-        trackc(1)=track(1,i)
-        trackc(2)=track(2,i)
-        trackc(3)=track(3,i)
-        trackc(4)=track(4,i)
-        trackc(5)=track(5,i)
-        trackc(6)=track(6,i)
-        call boost_c(sphi,cphi,tphi,salpha,calpha,trackc)
-        track(1,i)=trackc(1)
-        track(2,i)=trackc(2)
-        track(3,i)=trackc(3)
-        track(4,i)=trackc(4)
-        track(5,i)=trackc(5)
-        track(6,i)=trackc(6)
+!hr06   h=track(6,i)+one-sqrt((one+track(6,i))**2-                      &
+!hr06&track(2,i)**2-track(4,i)**2)
+        h=(track(6,i)+one)-sqrt(((one+track(6,i))**2-                   &!hr06
+     &track(2,i)**2)-track(4,i)**2)                                      !hr06
+!hr06   track(6,i)=track(6,i)-calpha*tphi*track(2,i)                    &
+!hr06&-track(4,i)*salpha*tphi+h*tphi*tphi
+        track(6,i)=((track(6,i)-(calpha*tphi)*track(2,i))               &!hr06
+     &-(track(4,i)*salpha)*tphi)+h*tphi**2                               !hr06
+!hr06   track(2,i)=(track(2,i)-tphi*h*calpha)/cphi
+        track(2,i)=(track(2,i)-(tphi*h)*calpha)/cphi                     !hr06
+!hr06   track(4,i)=(track(4,i)-tphi*h*salpha)/cphi
+        track(4,i)=(track(4,i)-(tphi*h)*salpha)/cphi                     !hr06
+!hr06   hd1=sqrt((one+track(6,i))**2-track(2,i)**2-track(4,i)**2)
+        hd1=sqrt(((one+track(6,i))**2-track(2,i)**2)-track(4,i)**2)      !hr06
+        h1x=track(2,i)/hd1
+        h1y=track(4,i)/hd1
+        h1z=one-(one+track(6,i))/hd1
+!hr06   x1=calpha*tphi*track(5,i)+(one+calpha*sphi*h1x)*track(1,i)      &
+!hr06&+track(3,i)*salpha*sphi*h1x
+        x1=((calpha*tphi)*track(5,i)+(one+(calpha*sphi)*h1x)*track(1,i))&!hr06
+     &+((track(3,i)*salpha)*sphi)*h1x                                    !hr06
+!hr06   y1=salpha*tphi*track(5,i)+(one+salpha*sphi*h1y)*track(3,i)      &
+!hr06&+track(1,i)*calpha*sphi*h1y
+        y1=((salpha*tphi)*track(5,i)+(one+(salpha*sphi)*h1y)*track(3,i))&!hr06
+     &+((track(1,i)*calpha)*sphi)*h1y                                    !hr06
+!hr06   track(5,i)=track(5,i)/cphi+h1z*(sphi*calpha*track(1,i)          &
+!hr06&+sphi*salpha*track(3,i))
+        track(5,i)=track(5,i)/cphi+h1z*((sphi*calpha)*track(1,i)        &!hr06
+     &+(sphi*salpha)*track(3,i))                                         !hr06
+        track(1,i)=x1
+        track(3,i)=y1
  1000 continue
       return
       end
@@ -28114,7 +28132,7 @@ C Should get me a NaN
       integer i,ibb,ibbc,ibbc1,ibtyp,jsli,np,nsli
       double precision bbf0,bbfx,bbfy,bbgx,bbgy,bcu,costh,costhp,cphi,  &
      &dum,f,s,sepx,sepx0,sepy,sepy0,sfac,sinth,sinthp,sp,star,sx,       &
-     &sy,track,cphi2,trackc(6),para(10)
+     &sy,track,cphi2
       integer mbea,mcor,mcop,mmul,mpa,mran,nbb,nblo,nblz,ncom,ncor1,    &
      &nelb,nele,nema,ninv,nlya,nmac,nmon1,npart,nper,nplo,npos,nran,    &
      &nrco,ntr,nzfz
@@ -28150,28 +28168,130 @@ C Should get me a NaN
       dimension star(3,mbea),dum(13)
       save
 !-----------------------------------------------------------------------
-      para(1)=cphi
-      para(2)=cphi2
-      para(3)=f
-      para(4)=ibtyp
-      para(5)=ibb
-      para(6)=ibbc
-      para(7)=nsli
-      do 1000 i=1,np
-          trackc(1)=track(1,i)
-          trackc(2)=track(2,i)
-          trackc(3)=track(3,i)
-          trackc(4)=track(4,i)
-          trackc(5)=track(5,i)
-          trackc(6)=track(6,i)
-          call sbc_c(star,bcu,trackc,dum,para)
-          track(1,i)=trackc(1)
-          track(2,i)=trackc(2)
-          track(3,i)=trackc(3)
-          track(4,i)=trackc(4)
-          track(5,i)=trackc(5)
-          track(6,i)=trackc(6)
- 1000 continue
+      do 2000 jsli=1,nsli
+        do 1000 i=1,np
+          s=(track(5,i)-star(3,jsli))*half
+          !write(*,*)'JBG - cphi2',cphi2
+          sp=s/cphi2
+!hr06     dum(1)=bcu(ibb,1)+two*bcu(ibb,4)*sp+bcu(ibb,6)*sp*sp
+          dum(1)=(bcu(ibb,1)+(two*bcu(ibb,4))*sp)+bcu(ibb,6)*sp**2       !hr06
+!hr06     dum(2)=bcu(ibb,2)+two*bcu(ibb,9)*sp+bcu(ibb,10)*sp*sp
+          dum(2)=(bcu(ibb,2)+(two*bcu(ibb,9))*sp)+bcu(ibb,10)*sp**2      !hr06
+!hr06     dum(3)=bcu(ibb,3)+(bcu(ibb,5)+bcu(ibb,7))*sp+                 &
+!hr06&bcu(ibb,8)*sp*sp
+          dum(3)=(bcu(ibb,3)+(bcu(ibb,5)+bcu(ibb,7))*sp)+               &!hr06
+     &bcu(ibb,8)*sp**2                                                   !hr06
+          dum(4)=dum(1)-dum(2)
+!hr06     dum(5)=dum(4)*dum(4)+four*dum(3)*dum(3)
+          dum(5)=dum(4)**2+four*dum(3)**2                                !hr06
+          if(ibbc.eq.1.and.(abs(dum(4)).gt.pieni.and.                   &
+     &abs(dum(5)).gt.pieni)) then
+            ibbc1=1
+            dum(5)=sqrt(dum(5))
+         else
+            ibbc1=0
+          endif
+        !JBG New set of canonical set of variables at the Col point (CP)
+!hr06     sepx0=track(1,i)+track(2,i)*s-star(1,jsli)
+          sepx0=(track(1,i)+track(2,i)*s)-star(1,jsli)                   !hr06
+!hr06     sepy0=track(3,i)+track(4,i)*s-star(2,jsli)
+          sepy0=(track(3,i)+track(4,i)*s)-star(2,jsli)                   !hr06
+          if(ibbc1.eq.1) then
+            sfac=one
+!hr06       if(dum(4).lt.zero) sfac=-one
+            if(dum(4).lt.zero) sfac=-1d0*one                             !hr06
+!hr06       dum(6)=sfac*dum(4)/dum(5)
+            dum(6)=(sfac*dum(4))/dum(5)                                  !hr06
+            dum(7)=dum(1)+dum(2)
+            costh=half*(one+dum(6))
+            if(abs(costh).gt.pieni) then
+              costh=sqrt(costh)
+            else
+              costh=zero
+            endif
+            sinth=half*(one-dum(6))
+            if(abs(sinth).gt.pieni) then
+!hr06         sinth=-sfac*sqrt(sinth)
+              sinth=(-1d0*sfac)*sqrt(sinth)                              !hr06
+            else
+              sinth=zero
+            endif
+!hr06       if(dum(3).lt.zero) sinth=-sinth
+            if(dum(3).lt.zero) sinth=-1d0*sinth                          !hr06
+            sy=sfac*dum(5)
+            sx=(dum(7)+sy)*half
+            sy=(dum(7)-sy)*half
+            sepx=sepx0*costh+sepy0*sinth
+!hr06       sepy=-sepx0*sinth+sepy0*costh
+            sepy=sepy0*costh-sepx0*sinth                                 !hr06
+          else
+            sx=dum(1)
+            sy=dum(2)
+            sepx=sepx0
+            sepy=sepy0
+          endif
+          if(sx.gt.sy) then
+            call bbf(sepx,sepy,sx,sy,bbfx,bbfy,bbgx,bbgy,ibtyp)
+          else
+            call bbf(sepy,sepx,sy,sx,bbfy,bbfx,bbgy,bbgx,ibtyp)
+          endif
+          bbfx=f*bbfx
+          bbfy=f*bbfy
+          bbgx=f*bbgx
+          bbgy=f*bbgy
+          if(ibbc1.eq.1) then
+!hr06       dum(8)=two*(bcu(ibb,4)-bcu(ibb,9)+                          &
+!hr06&(bcu(ibb,6)-bcu(ibb,10))*sp)
+            dum(8)=two*((bcu(ibb,4)-bcu(ibb,9))+                        &!hr06
+     &(bcu(ibb,6)-bcu(ibb,10))*sp)                                       !hr06
+!hr06       dum(9)=bcu(ibb,5)+bcu(ibb,7)+two*bcu(ibb,8)*sp
+            dum(9)=(bcu(ibb,5)+bcu(ibb,7))+(two*bcu(ibb,8))*sp           !hr06
+!hr06       dum(10)=(dum(4)*dum(8)+four*dum(3)*dum(9))/                 &
+!hr06&dum(5)/dum(5)/dum(5)
+            dum(10)=(((dum(4)*dum(8)+(four*dum(3))*dum(9))/             &!hr06
+     &dum(5))/dum(5))/dum(5)                                             !hr06
+            dum(11)=sfac*(dum(8)/dum(5)-dum(4)*dum(10))
+!hr06       dum(12)=bcu(ibb,4)+bcu(ibb,9)+(bcu(ibb,6)+bcu(ibb,10))*sp
+            dum(12)=(bcu(ibb,4)+bcu(ibb,9))+(bcu(ibb,6)+bcu(ibb,10))*sp  !hr06
+!hr06       dum(13)=sfac*(dum(4)*dum(8)*half+two*dum(3)*dum(9))/dum(5)
+      dum(13)=(sfac*((dum(4)*dum(8))*half+(two*dum(3))*dum(9)))/dum(5)   !hr06
+            if(abs(costh).gt.pieni) then
+!hr06         costhp=dum(11)/four/costh
+              costhp=(dum(11)/four)/costh                                !hr06
+            else
+              costhp=zero
+            endif
+            if(abs(sinth).gt.pieni) then
+              sinthp=((-1d0*dum(11))/four)/sinth                         !hr06
+            else
+              sinthp=zero
+            endif
+!hr06       track(6,i)=track(6,i)-                                      &
+!hr06&(bbfx*(costhp*sepx0+sinthp*sepy0)+                                &
+!hr06&bbfy*(-sinthp*sepx0+costhp*sepy0)+                                &
+!hr06&bbgx*(dum(12)+dum(13))+bbgy*(dum(12)-dum(13)))/                   &
+!hr06&cphi*half
+            track(6,i)=track(6,i)-                                      &!hr06
+     &((((bbfx*(costhp*sepx0+sinthp*sepy0)+                             &!hr06
+     &bbfy*(costhp*sepy0-sinthp*sepx0))+                                &!hr06
+     &bbgx*(dum(12)+dum(13)))+bbgy*(dum(12)-dum(13)))/                  &!hr06
+     &cphi)*half                                                         !hr06
+            bbf0=bbfx
+            bbfx=bbf0*costh-bbfy*sinth
+            bbfy=bbf0*sinth+bbfy*costh
+          else
+            track(6,i)=track(6,i)-                                      &
+     &(bbgx*(bcu(ibb,4)+bcu(ibb,6)*sp)+                                 &
+     &bbgy*(bcu(ibb,9)+bcu(ibb,10)*sp))/cphi
+          endif
+          track(6,i)=track(6,i)-(bbfx*(track(2,i)-bbfx*half)+           &
+     &bbfy*(track(4,i)-bbfy*half))*half
+          track(1,i)=track(1,i)+s*bbfx
+          track(2,i)=track(2,i)-bbfx
+          track(3,i)=track(3,i)+s*bbfy
+          track(4,i)=track(4,i)-bbfy
+ 1000   continue
+ 2000 continue
       return
       end
       subroutine boosti(np,sphi,cphi,tphi,salpha,calpha,track)
@@ -28188,7 +28308,7 @@ C Should get me a NaN
      &acos_rn,atan_rn,atan2_rn,exp_rn,log_rn,log10_rn
       integer i,np
       double precision calpha,cphi,det,h1,h1d,h1x,h1y,h1z,salpha,sphi,  &
-     &tphi,track,x1,y1,z1,trackc(6)
+     &tphi,track,x1,y1,z1
       integer mbea,mcor,mcop,mmul,mpa,mran,nbb,nblo,nblz,ncom,ncor1,    &
      &nelb,nele,nema,ninv,nlya,nmac,nmon1,npart,nper,nplo,npos,nran,    &
      &nrco,ntr,nzfz
@@ -28224,19 +28344,48 @@ C Should get me a NaN
       save
 !-----------------------------------------------------------------------
       do 1000 i=1,np
-        trackc(1)=track(1,i)
-        trackc(2)=track(2,i)
-        trackc(3)=track(3,i)
-        trackc(4)=track(4,i)
-        trackc(5)=track(5,i)
-        trackc(6)=track(6,i)
-        call boosti_c(sphi,cphi,tphi,salpha,calpha,trackc)
-        track(1,i)=trackc(1)
-        track(2,i)=trackc(2)
-        track(3,i)=trackc(3)
-        track(4,i)=trackc(4)
-        track(5,i)=trackc(5)
-        track(6,i)=trackc(6)
+!hr06   h1d=sqrt((one+track(6,i))**2-track(2,i)**2-track(4,i)**2)
+        h1d=sqrt(((one+track(6,i))**2-track(2,i)**2)-track(4,i)**2)      !hr06
+        h1x=track(2,i)/h1d
+        h1y=track(4,i)/h1d
+        h1z=one-(one+track(6,i))/h1d
+!hr06   h1=(track(6,i)+one-sqrt((one+track(6,i))**2-                    &
+!hr06&track(2,i)**2-track(4,i)**2))*cphi*cphi
+        h1=((track(6,i)+one)-sqrt(((one+track(6,i))**2-                 &!hr06
+     &track(2,i)**2)-track(4,i)**2))*cphi**2                             !hr06
+!hr06   det=one/cphi+tphi*(h1x*calpha+h1y*salpha-h1z*sphi)
+        det=one/cphi+tphi*((h1x*calpha+h1y*salpha)-h1z*sphi)             !hr06
+!hr06   x1= track(1,i)*(one/cphi+salpha*(h1y-h1z*salpha*sphi)*tphi)     &
+!hr06&+track(3,i)*salpha*tphi*(-h1x+h1z*calpha*sphi)                    &
+!hr06&-track(5,i)*(calpha+h1y*calpha*salpha*sphi                        &
+!hr06&-h1x*salpha*salpha*sphi)*tphi
+        x1= (track(1,i)*(one/cphi+(salpha*(h1y-(h1z*salpha)*sphi))*tphi)&!hr06
+     &+((track(3,i)*salpha)*tphi)*((h1z*calpha)*sphi-h1x))              &!hr06
+     &-(track(5,i)*((calpha+((h1y*calpha)*salpha)*sphi)                 &!hr06
+     &-(h1x*salpha**2)*sphi))*tphi                                       !hr06
+!hr06   y1= track(1,i)*calpha*tphi*(-h1y+h1z*salpha*sphi)               &
+!hr06&+track(3,i)*(one/cphi+calpha*(h1x-h1z*calpha*sphi)*tphi)          &
+!hr06&-track(5,i)*(salpha-h1y*calpha*calpha*sphi                        &
+!hr06&+h1x*calpha*salpha*sphi)*tphi
+        y1= (((track(1,i)*calpha)*tphi)*((h1z*salpha)*sphi-h1y)         &!hr06
+     &+track(3,i)*(one/cphi+(calpha*(h1x-(h1z*calpha)*sphi))*tphi))     &!hr06
+     &-(track(5,i)*(salpha-(h1y*calpha**2)*sphi                         &!hr06
+     &+((h1x*calpha)*salpha)*sphi))*tphi                                 !hr06
+!hr06   z1=-track(1,i)*h1z*calpha*sphi-track(3,i)*h1z*salpha*sphi       &
+!hr06&+track(5,i)*(one+h1x*calpha*sphi+h1y*salpha*sphi)
+        z1= (track(5,i)*((one+(h1x*calpha)*sphi)+(h1y*salpha)*sphi)     &!hr06
+     &-((track(1,i)*h1z)*calpha)*sphi)-((track(3,i)*h1z)*salpha)*sphi    !hr06
+        track(1,i)=x1/det
+        track(3,i)=y1/det
+        track(5,i)=z1/det
+!hr06   track(6,i)=track(6,i)+calpha*sphi*track(2,i)                    &
+!hr06&+salpha*sphi*track(4,i)
+        track(6,i)=(track(6,i)+(calpha*sphi)*track(2,i))                &!hr06
+     &+(salpha*sphi)*track(4,i)                                          !hr06
+!hr06   track(2,i)=(track(2,i)+calpha*sphi*h1)*cphi
+        track(2,i)=(track(2,i)+(calpha*sphi)*h1)*cphi                    !hr06
+!hr06   track(4,i)=(track(4,i)+salpha*sphi*h1)*cphi
+        track(4,i)=(track(4,i)+(salpha*sphi)*h1)*cphi                    !hr06
  1000 continue
       return
       end
