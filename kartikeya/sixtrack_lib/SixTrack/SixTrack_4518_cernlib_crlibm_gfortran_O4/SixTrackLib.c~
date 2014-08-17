@@ -136,6 +136,40 @@ extern int thin6d_map_exact_drift_(double *coord, double *argf, double *argi)
     return 1;
 }
 
+int cntexactdrift4d = 0;
+extern int thin4d_map_exact_drift_(double *coord, double *argf, double *argi)
+{
+    double x = coord[0], y = coord[1];
+    double xp = coord[2], yp = coord[3];
+
+    double PhysicalLengthOfBlock = argf[0];
+
+    double Pz;
+
+    x *= OnePoweredToMinus3;
+    y *= OnePoweredToMinus3;
+    xp *= OnePoweredToMinus3;
+    yp *= OnePoweredToMinus3;
+
+    Pz = sqrt( One - ( xp * xp + yp * yp ));
+    x += PhysicalLengthOfBlock * ( xp / Pz );
+    y += PhysicalLengthOfBlock * ( yp / Pz );
+
+    x *= OnePoweredTo3;
+    y *= OnePoweredTo3;
+    xp *= OnePoweredTo3;
+    yp *= OnePoweredTo3;
+
+    coord[0] = x;
+    coord[1] = y;
+    coord[2] = xp;
+    coord[3] = yp;
+
+    if( cntexactdrift4d++ == 0 ) printf("thin4d exact drift \n");
+
+    return 1;
+}
+
 int cntaccelaratingcavity = 0;
 extern int thin6d_map_accelarating_cavity_(double *coord, double *argf, double *argi)
 {
@@ -186,7 +220,7 @@ extern int thin6d_map_accelarating_cavity_(double *coord, double *argf, double *
 }
 
 int cnthordipole = 0;
-extern int thin6d_map_horizontal_dipole_(double *coord, double *argf, double *argi)
+extern int map_horizontal_dipole_(double *coord, double *argf, double *argi)
 {
     double xp = coord[2],yp = coord[3];
     double RatioPtoPj = coord[4];
@@ -204,7 +238,7 @@ extern int thin6d_map_horizontal_dipole_(double *coord, double *argf, double *ar
 
 #define make_map_normal_pole(NAME,i)                                                                                       \
   int cntnorm##NAME = 0;                                                                                                   \
-  extern int thin6d_map_normal_##NAME##_(double *coord, double *argf, double *argi) {                                      \
+  extern int map_normal_##NAME##_(double *coord, double *argf, double *argi) {                                      \
     double x = coord[0], y = coord[1];                                                                                     \
     double xp = coord[2],yp = coord[3];                                                                                    \
     double RatioPtoPj = coord[4];                                                                                          \
@@ -247,7 +281,7 @@ make_map_normal_pole( 20pole, 8 );
 
 
 int cntverdip = 0;
-extern int thin6d_map_vertical_dipole_(double *coord, double *argf, double *argi)
+extern int map_vertical_dipole_(double *coord, double *argf, double *argi)
 {
     double xp = coord[2],yp = coord[3];
     double RatioPtoPj = coord[4];
@@ -265,7 +299,7 @@ extern int thin6d_map_vertical_dipole_(double *coord, double *argf, double *argi
 
 #define make_map_skew_pole(NAME,i)                                                                                       \
   int cntskew##NAME = 0;                                                                                                   \
-  extern int thin6d_map_skew_##NAME##_(double *coord, double *argf, double *argi) {                                      \
+  extern int map_skew_##NAME##_(double *coord, double *argf, double *argi) {                                      \
     double x = coord[0], y = coord[1];                                                                                     \
     double xp = coord[2],yp = coord[3];                                                                                    \
     double RatioPtoPj = coord[4];                                                                                          \
@@ -434,7 +468,7 @@ make_map_multipole_ver_zapprox(purever_zapprox);
 
 #define make_map_crab_cavity( I, C )                                                                                   \
   int cntcrabcavity##I = 0;                                                                                            \
-  extern int thin6d_map_crab_cavity_##I##_(double *coord, double *argf, double *argi) {                                \
+  extern int map_crab_cavity_##I##_(double *coord, double *argf, double *argi) {                                \
     double x = coord[0], y = coord[1];                                                                                 \
     double xp = coord[2], yp = coord[3];                                                                               \
     double RatioPtoPj = coord[4];                                                                                      \
@@ -511,7 +545,7 @@ extern int thin6d_map_accelerating_cavity2_(double *coord, double *argf, double 
 }
 
 int cntdipedge = 0;
-extern int thin6d_map_dipedge_(double *coord, double *argf, double *argi)
+extern int map_dipedge_(double *coord, double *argf, double *argi)
 {
     double x = coord[0], y = coord[1];
     double xp = coord[2], yp = coord[3];
@@ -587,7 +621,7 @@ extern int thin6d_map_solenoid_(double *coord, double *argf, double *argi)
 }
 
 int cntacdipole = 0;
-extern int thin6d_map_ac_dipole_(double *coord, double *argf, double *argi)
+extern int map_ac_dipole_(double *coord, double *argf, double *argi)
 {
     double xp = coord[2], yp = coord[3];
     double MomentumOfParticle = coord[7];
@@ -623,8 +657,8 @@ extern int thin6d_map_ac_dipole_(double *coord, double *argf, double *argi)
 
     if( nac >= ( nramp1 + nplato ) && ( nramp2 + nramp1 + nplato ) > nac )
     {
-        xp = xp + (( ACDipoleAmplitudeHorComp * sin_rn((( 2.0 * Pi ) * Qd ) * (double)nac + ACPhase )  ) * (( -1.0 * (double)nac - nramp1 - nramp2 - nplato ) / (double)nramp2 )) / MomentumOfParticle;
-        yp = yp + (( ACDipoleAmplitudeVerComp * sin_rn((( 2.0 * Pi ) * Qd ) * (double)nac + ACPhase )  ) * (( -1.0 * (double)nac - nramp1 - nramp2 - nplato ) / (double)nramp2 )) / MomentumOfParticle;
+        xp = xp + (( ACDipoleAmplitudeHorComp * sin_rn((( 2.0 * Pi ) * Qd ) * (double)nac + ACPhase )  ) * (( -1.0 * (double)( nac - nramp1 - nramp2 - nplato )) / (double)nramp2 )) / MomentumOfParticle;
+        yp = yp + (( ACDipoleAmplitudeVerComp * sin_rn((( 2.0 * Pi ) * Qd ) * (double)nac + ACPhase )  ) * (( -1.0 * (double)( nac - nramp1 - nramp2 - nplato )) / (double)nramp2 )) / MomentumOfParticle;
     }
 
     coord[2] = xp;
@@ -636,7 +670,7 @@ extern int thin6d_map_ac_dipole_(double *coord, double *argf, double *argi)
 }
 
 int cntwire = 0;
-extern int thin6d_map_wire_(double *coord, double *argf, double *argi)
+extern int map_wire_(double *coord, double *argf, double *argi)
 {
     double x = coord[0], y = coord[1];
     double xp = coord[2], yp = coord[3];
@@ -898,7 +932,7 @@ void errf( double *var_xx, double *var_yy, double *var_wx, double *var_wy )
 }
 
 int cntbb1 = 0;
-extern int thin6d_map_beambeam_type1_( double *coord, double *argf, double argi )
+extern int map_beambeam_type1_( double *coord, double *argf, double argi )
 {
     double x = coord[0], y = coord[1];
     double xp = coord[2], yp = coord[3];
@@ -951,7 +985,7 @@ extern int thin6d_map_beambeam_type1_( double *coord, double *argf, double argi 
 }
 
 int cntbb2_0 = 0, cntbb21 = 0;
-extern int thin6d_map_beambeam_type2_( double *coord, double *argf, double *argi )
+extern int map_beambeam_type2_( double *coord, double *argf, double *argi )
 {
     double x = coord[0], y = coord[1];
     double xp = coord[2], yp = coord[3];
@@ -1072,7 +1106,7 @@ extern int thin6d_map_beambeam_type2_( double *coord, double *argf, double *argi
 }
 
 int cntbb3_0 = 0, cntbb31 = 0;
-extern int thin6d_map_beambeam_type3_( double *coord, double *argf, double *argi )
+extern int map_beambeam_type3_( double *coord, double *argf, double *argi )
 {
     double x = coord[0], y = coord[1];
     double xp = coord[2], yp = coord[3];
@@ -1492,7 +1526,7 @@ extern int thck6d_map_goto_index20_( double *coord, double *argf, double *argi )
 
     if( cnt_thck6d_goto_index20++ == 0 ) printf(" Thick 6d goto 20 called\n");
 
-    return 1;  //
+    return 1; 
 }
 
 int cnt_hirata = 0;

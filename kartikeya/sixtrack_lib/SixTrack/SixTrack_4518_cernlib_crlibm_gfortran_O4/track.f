@@ -1173,294 +1173,181 @@
             enddo
           else
             do j=1,napx
-              xv(1,j)=xv(1,j)*c1m3
-              xv(2,j)=xv(2,j)*c1m3
-              yv(1,j)=yv(1,j)*c1m3
-              yv(2,j)=yv(2,j)*c1m3
-              pz=sqrt(one-(yv(1,j)**2+yv(2,j)**2))
-              xv(1,j)=xv(1,j)+stracki*(yv(1,j)/pz)
-              xv(2,j)=xv(2,j)+stracki*(yv(2,j)/pz)
-              xv(1,j)=xv(1,j)*c1e3
-              xv(2,j)=xv(2,j)*c1e3
-              yv(1,j)=yv(1,j)*c1e3
-              yv(2,j)=yv(2,j)*c1e3
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              call thin4d_map_exact_drift(coord,argf,argi)  
+              xv(1,j)=coord(1)
+              xv(2,j)=coord(2)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4)
             enddo
           endif
           goto 630
 !--HORIZONTAL DIPOLE
-   30     do 40 j=1,napx
-            yv(1,j)=yv(1,j)+strackc(i)*oidpsv(j)
-            yv(2,j)=yv(2,j)+stracks(i)*oidpsv(j)
+   30     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          do 40 j=1,napx
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_horizontal_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
    40     continue
           goto 620
 !--NORMAL QUADRUPOLE
-   50     do 60 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+   50     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 60 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_quadrupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)               
    60     continue
           goto 620
 !--NORMAL SEXTUPOLE
-   70     do 80 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+   70     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 80 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_sextupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
    80     continue
           goto 620
 !--NORMAL OCTUPOLE
-   90     do 100 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+   90     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 100 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_octupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   100     continue
           goto 620
 !--NORMAL DECAPOLE
-  110     do 120 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  110     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 120 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_decapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   120     continue
           goto 620
 !--NORMAL DODECAPOLE
-  130     do 140 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  130     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 140 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_dodecapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   140     continue
           goto 620
 !--NORMAL 14-POLE
-  150     do 160 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  150     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 160 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_14pole(coord,argf,argi)
+            yv(1,j)=coord(3)                       
+            yv(2,j)=coord(4)
   160     continue
           goto 620
-!--NORMAL 16-POLE
-  170     do 180 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  170     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 180 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_16pole(coord,argf,argi)
+            yv(1,j)=coord(3)                       
+            yv(2,j)=coord(4)
   180     continue
           goto 620
 !--NORMAL 18-POLE
-  190     do 200 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  190     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 200 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_18pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   200     continue
           goto 620
 !--NORMAL 20-POLE
-  210     do 220 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  210     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 220 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_20pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   220     continue
           goto 620
   230     continue
@@ -1645,683 +1532,284 @@
           goto 620
 !--SKEW ELEMENTS
 !--VERTICAL DIPOLE
-  420     do 430 j=1,napx
-            yv(1,j)=yv(1,j)-stracks(i)*oidpsv(j)
-            yv(2,j)=yv(2,j)+strackc(i)*oidpsv(j)
+  420     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          do 430 j=1,napx
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_vertical_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   430     continue
           goto 620
 !--SKEW QUADRUPOLE
-  440     do 450 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  440     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 450 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_quadrupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4) 
   450     continue
           goto 620
 !--SKEW SEXTUPOLE
-  460     do 470 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  460     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 470 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_sextupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4) 
   470     continue
           goto 620
 !--SKEW OCTUPOLE
-  480     do 490 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  480     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 490 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_octupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   490     continue
           goto 620
 !--SKEW DECAPOLE
-  500     do 510 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  500     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 510 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_decapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   510     continue
           goto 620
 !--SKEW DODECAPOLE
-  520     do 530 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  520     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 530 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_dodecapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   530     continue
           goto 620
 !--SKEW 14-POLE
-  540     do 550 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  540     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 550 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_14pole(coord,argf,argi)
+            yv(1,j)=coord(3)                       
+            yv(2,j)=coord(4)
   550     continue
           goto 620
 !--SKEW 16-POLE
-  560     do 570 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  560     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 570 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_16pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   570     continue
           goto 620
 !--SKEW 18-POLE
-  580     do 590 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  580     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 590 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_18pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   590     continue
           goto 620
 !--SKEW 20-POLE
-  600     do 610 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  600     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 610 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_20pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   610     continue
           goto 620
   680     continue
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
           do 690 j=1,napx
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-!hr08       rho2b(j)=crkveb(j)*crkveb(j)+cikveb(j)*cikveb(j)
-            rho2b(j)=crkveb(j)**2+cikveb(j)**2                           !hr08
-            if(rho2b(j).le.pieni)                                       &
-     &goto 690
-            tkb(j)=rho2b(j)/(two*sigman2(1,imbb(i)))
-            if(ibbc.eq.0) then
-!hr03         yv(1,j)=yv(1,j)+oidpsv(j)*(strack(i)*crkveb(j)/rho2b(j)*  &
-!hr03         yv(1,j)=yv(1,j)+oidpsv(j)*(strack(i)*crkveb(j)/rho2b(j)*  &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))
-          yv(1,j)=yv(1,j)+oidpsv(j)*(((strack(i)*crkveb(j))/rho2b(j))*  &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))                      !hr03
-!hr03         yv(2,j)=yv(2,j)+oidpsv(j)*(strack(i)*cikveb(j)/rho2b(j)*  &
-!hr03         yv(2,j)=yv(2,j)+oidpsv(j)*(strack(i)*cikveb(j)/rho2b(j)*  &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))
-          yv(2,j)=yv(2,j)+oidpsv(j)*(((strack(i)*cikveb(j))/rho2b(j))*  &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))                      !hr03
-            else
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),11)-       &
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-              cccc=(((strack(i)*crkveb(j))/rho2b(j))*                   &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),11)-   &!hr03
-     &(((strack(i)*cikveb(j))/rho2b(j))*                                &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)     !hr03
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!+if crlibm
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-!+ei
-!+if .not.crlibm
-!hr03&(one-exp(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-!+ei
-              yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),12)+       &
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-              cccc=(((strack(i)*crkveb(j))/rho2b(j))*                   &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),12)+   &!hr03
-     &(((strack(i)*cikveb(j))/rho2b(j))*                                &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)     !hr03
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!+if crlibm
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-!+ei
-!+if .not.crlibm
-!hr03&(one-exp(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-!+ei
-              yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-            endif
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_beambeam_type1(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   690     continue
           goto 620
   700     continue
-          if(ibtyp.eq.0) then
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
+          argf(23)=napx
+          argf(24)=ibtyp
             do j=1,napx
-              r2b(j)=two*(sigman2(1,imbb(i))-sigman2(2,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-              call errf(xrb(j),zrb(j),crxb(j),crzb(j))
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-              call errf(xbb(j),zbb(j),cbxb(j),cbzb(j))
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              call map_beambeam_type2(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4) 
             enddo
-          else if(ibtyp.eq.1) then
-            do j=1,napx
-              r2b(j)=two*(sigman2(1,imbb(i))-sigman2(2,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-            enddo
-            call wzsubv(napx,xrb(1),zrb(1),crxb(1),crzb(1))
-            call wzsubv(napx,xbb(1),zbb(1),cbxb(1),cbzb(1))
-            do j=1,napx
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
-            enddo
-          endif
           goto 620
   720     continue
-          if(ibtyp.eq.0) then
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
+          argf(23)=napx
+          argf(24)=ibtyp
             do j=1,napx
-              r2b(j)=two*(sigman2(2,imbb(i))-sigman2(1,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-              call errf(zrb(j),xrb(j),crzb(j),crxb(j))
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-              call errf(zbb(j),xbb(j),cbzb(j),cbxb(j))
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              call map_beambeam_type3(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4) 
             enddo
-          else if(ibtyp.eq.1) then
-            do j=1,napx
-              r2b(j)=two*(sigman2(2,imbb(i))-sigman2(1,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-            enddo
-            call wzsubv(napx,zrb(1),xrb(1),crzb(1),crxb(1))
-            call wzsubv(napx,zbb(1),xbb(1),cbzb(1),cbxb(1))
-            do j=1,napx
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
-            enddo
-          endif
           goto 620
   740     continue
           irrtr=imtr(ix)
@@ -2386,55 +1874,26 @@
           nramp1=nturn2(ix)
           nplato=nturn3(ix)
           nramp2=nturn4(ix)
+
+          argf(1)=tiltc(i)
+          argf(2)=tilts(i)
+          argf(3)=xory
+          argf(4)=acdipamp
+          argf(5)=acdipamp1
+          argf(6)=acdipamp2
+          argf(7)=nramp1
+          argf(8)=nramp2
+          argf(9)=nac
+          argf(10)=nplato
+          argf(11)=qd
+          argf(12)=acphase
           do j=1,napx
-      if (xory.eq.1) then
-        acdipamp2=acdipamp*tilts(i)
-        acdipamp1=acdipamp*tiltc(i)
-      else
-        acdipamp2=acdipamp*tiltc(i)
-        acdipamp1=-acdipamp*tilts(i)
-      endif
-              if(nramp1.gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(1,j)=yv(1,j)+(((acdipamp1*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(2,j)=yv(2,j)+(((acdipamp2*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-              endif
-              if(nac.ge.nramp1.and.(nramp1+nplato).gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(1,j)=yv(1,j)+(acdipamp1*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(2,j)=yv(2,j)+(acdipamp2*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-              endif
-              if(nac.ge.(nramp1+nplato).and.(nramp2+nramp1+nplato).gt.  &
-     &nac)then
-!hr03         yv(1,j)=yv(1,j)+acdipamp1*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(1,j)=yv(1,j)+((acdipamp1*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-!hr03         yv(2,j)=yv(2,j)+acdipamp2*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(2,j)=yv(2,j)+((acdipamp2*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              endif
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(8)=ejfv(j)
+            call map_ac_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
       enddo
       endif
           goto 620
@@ -2455,55 +1914,26 @@
           nramp1=nturn2(ix)
           nplato=nturn3(ix)
           nramp2=nturn4(ix)
+
+          argf(1)=tiltc(i)
+          argf(2)=tilts(i)
+          argf(3)=xory
+          argf(4)=acdipamp
+          argf(5)=acdipamp1
+          argf(6)=acdipamp2
+          argf(7)=nramp1
+          argf(8)=nramp2
+          argf(9)=nac
+          argf(10)=nplato
+          argf(11)=qd
+          argf(12)=acphase
           do j=1,napx
-      if (xory.eq.1) then
-        acdipamp2=acdipamp*tilts(i)
-        acdipamp1=acdipamp*tiltc(i)
-      else
-        acdipamp2=acdipamp*tiltc(i)
-        acdipamp1=-acdipamp*tilts(i)
-      endif
-              if(nramp1.gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(1,j)=yv(1,j)+(((acdipamp1*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(2,j)=yv(2,j)+(((acdipamp2*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-              endif
-              if(nac.ge.nramp1.and.(nramp1+nplato).gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(1,j)=yv(1,j)+(acdipamp1*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(2,j)=yv(2,j)+(acdipamp2*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-              endif
-              if(nac.ge.(nramp1+nplato).and.(nramp2+nramp1+nplato).gt.  &
-     &nac)then
-!hr03         yv(1,j)=yv(1,j)+acdipamp1*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(1,j)=yv(1,j)+((acdipamp1*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-!hr03         yv(2,j)=yv(2,j)+acdipamp2*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(2,j)=yv(2,j)+((acdipamp2*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              endif
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(8)=ejfv(j)
+            call map_ac_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
       enddo
       endif
           goto 620
@@ -2517,29 +1947,35 @@
           pi=4d0*atan_rn(1d0)
         crabfreq=ek(ix)*c1e3
  
+          argf(1)=crabamp
+          argf(2)=crabfreq
+          argf(3)=crabph(ix)
+          argf(4)=ed(ix)
+          argf(5)=pma
+          argf(6)=e0
+          argf(7)=e0f
+          argf(8)=ithick
         do j=1,napx
-!hr03    crabamp=ed(ix)/(ejfv(j))*c1e3
-         crabamp=(ed(ix)/ejfv(j))*c1e3                                   !hr03
-!        write(*,*) crabamp, ejfv(j), clight, "HELLO"
- 
-!hr03   yv(xory,j)=yv(xory,j) - crabamp*                                &
-!hr03&sin_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))
-        yv(xory,j)=yv(xory,j) - crabamp*                                &!hr03
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))         !hr03
-!hr03 dpsv(j)=dpsv(j) - crabamp*crabfreq*2d0*pi/clight*xv(xory,j)*      &
-!hr03&cos_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))*c1m3
-      dpsv(j)=dpsv(j) -                                                 &!hr03
-     &((((((crabamp*crabfreq)*2d0)*pi)/clight)*xv(xory,j))*             &!hr03
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix)))*c1m3   !hr03
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call map_crab_cavity_1(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
           goto 620
@@ -2553,47 +1989,55 @@
           pi=4d0*atan_rn(1d0)
         crabfreq=ek(ix)*c1e3
  
+          argf(1)=crabamp
+          argf(2)=crabfreq
+          argf(3)=crabph(ix)
+          argf(4)=ed(ix)
+          argf(5)=pma
+          argf(6)=e0
+          argf(7)=e0f
         do j=1,napx
-!hr03    crabamp=ed(ix)/(ejfv(j))*c1e3
-         crabamp=(ed(ix)/ejfv(j))*c1e3                                   !hr03
-!        write(*,*) crabamp, ejfv(j), clight, "HELLO"
- 
-!hr03   yv(xory,j)=yv(xory,j) - crabamp*                                &
-!hr03&sin_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))
-        yv(xory,j)=yv(xory,j) - crabamp*                                &!hr03
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))         !hr03
-!hr03 dpsv(j)=dpsv(j) - crabamp*crabfreq*2d0*pi/clight*xv(xory,j)*      &
-!hr03&cos_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))*c1m3
-      dpsv(j)=dpsv(j) -                                                 &!hr03
-     &((((((crabamp*crabfreq)*2d0)*pi)/clight)*xv(xory,j))*             &!hr03
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix)))*c1m3   !hr03
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call map_crab_cavity_2(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
           goto 620
 !--DIPEDGE ELEMENT
   753      continue
-         do j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackx(i)*crkve-                &
-     &stracks(i)*cikve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackz(i)*cikve+                &
-     &strackc(i)*crkve)
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=strackx(i)
+          argf(7)=strackz(i)
+          do j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_dipedge(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
          enddo
           goto 620
 !--solenoid
@@ -2645,201 +2089,27 @@
       ry = dy *cos_rn(ty)-lin *sin_rn(ty)
       lin= lin*cos_rn(ty)+dy  *sin_rn(ty)
  
+      argf(1)=embl
+      argf(2)=tx
+      argf(3)=ty
+      argf(4)=lin
+      argf(5)=rx
+      argf(6)=ry
+      argf(7)=cur
+      argf(8)=chi
+      argf(9)=l
+      argf(10)=leff
       do 750 j=1, napx
- 
-      xv(1,j) = xv(1,j) * c1m3
-      xv(2,j) = xv(2,j) * c1m3
-      yv(1,j) = yv(1,j) * c1m3
-      yv(2,j) = yv(2,j) * c1m3
- 
-!      write(*,*) 'Start: ',j,xv(1,j),xv(2,j),yv(1,j),
-!     &yv(2,j)
- 
-!     call drift(-embl/2)
- 
-!hr03 xv(1,j) = xv(1,j) - embl/2*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) -                                               &!hr03
-     &((embl*0.5d0)*yv(1,j))/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2)                                                        !hr03
-!hr03 xv(2,j) = xv(2,j) - embl/2*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) -                                               &!hr03
-     &((embl*0.5d0)*yv(2,j))/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2)                                                        !hr03
- 
-!     call tilt(tx,ty)
- 
-!hr03 xv(2,j) = xv(2,j)-xv(1,j)*sin_rn(tx)*yv(2,j)/sqrt((1+dpsv(j))**2- &
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))-tx)
-      xv(2,j) = xv(2,j)-(((xv(1,j)*sin_rn(tx))*yv(2,j))/                &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(2,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(1,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))-tx)                                                   !hr03
-!+if crlibm
-!hhr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(2,j)**2)/cos(atan(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))-tx)
-!hr03 xv(1,j) = xv(1,j)*(cos_rn(tx)-sin_rn(tx)*tan_rn(atan_rn(yv(1,j)/  &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx))
-      xv(1,j) = xv(1,j)*(cos_rn(tx)-sin_rn(tx)*tan_rn(atan_rn(yv(1,j)/  &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-tx))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx))
-!hr03 yv(1,j) = sqrt((1+dpsv(j))**2-yv(2,j)**2)*sin_rn(atan_rn(yv(1,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx)
-      yv(1,j) = sqrt((1d0+dpsv(j))**2-yv(2,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(1,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-tx)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx)
-!hr03 xv(1,j) = xv(1,j)-xv(2,j)*sin_rn(ty)*yv(1,j)/sqrt((1+dpsv(j))**2- &
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))-ty)
-      xv(1,j) = xv(1,j)-(((xv(2,j)*sin_rn(ty))*yv(1,j))/                &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(1,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(2,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))-ty)                                                   !hr03
-!+if crlibm
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(1,j)**2)/cos(atan(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))-ty)
-!hr03 xv(2,j) = xv(2,j)*(cos_rn(ty)-sin_rn(ty)*tan_rn(atan_rn(yv(2,j)/  &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty))
-      xv(2,j) = xv(2,j)*(cos_rn(ty)-sin_rn(ty)*tan_rn(atan_rn(yv(2,j)/  &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-ty))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty))
-!hr03 yv(2,j) = sqrt((1+dpsv(j))**2-yv(1,j)**2)*sin_rn(atan_rn(yv(2,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty)
-      yv(2,j) = sqrt((1d0+dpsv(j))**2-yv(1,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(2,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-ty)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty)
- 
-!     call drift(lin)
- 
-!hr03 xv(1,j) = xv(1,j) + lin*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-   &
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) + (lin*yv(1,j))/                                &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
-!hr03 xv(2,j) = xv(2,j) + lin*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-   &
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) + (lin*yv(2,j))/                                &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
- 
-!      call kick(l,cur,lin,rx,ry,chi)
- 
-      xi = xv(1,j)-rx
-      yi = xv(2,j)-ry
-!hr03 yv(1,j) = yv(1,j)-c1m7*cur/chi*xi/(xi**2+yi**2)*                  &
-!hr03&(sqrt((lin+l)**2+xi**2+yi**2)-sqrt((lin-l)**2+                    &
-!hr03&xi**2+yi**2))
-      yv(1,j) = yv(1,j)-((((c1m7*cur)/chi)*xi)/(xi**2+yi**2))*          &!hr03
-     &(sqrt(((lin+l)**2+xi**2)+yi**2)-sqrt(((lin-l)**2+                 &!hr03
-     &xi**2)+yi**2))                                                     !hr03
-!GRD FOR CONSISTENSY
-!hr03 yv(2,j) = yv(2,j)-c1m7*cur/chi*yi/(xi**2+yi**2)*                  &
-!hr03&(sqrt((lin+l)**2+xi**2+yi**2)-sqrt((lin-l)**2+                    &
-!hr03&xi**2+yi**2))
-      yv(2,j) = yv(2,j)-((((c1m7*cur)/chi)*yi)/(xi**2+yi**2))*          &!hr03
-     &(sqrt(((lin+l)**2+xi**2)+yi**2)-sqrt(((lin-l)**2+                 &!hr03
-     &xi**2)+yi**2))                                                     !hr03
- 
-!     call drift(leff-lin)
- 
-!hr03 xv(1,j) = xv(1,j) + (leff-lin)*yv(1,j)/sqrt((1+dpsv(j))**2-       &
-!hr03&yv(1,j)**2-yv(2,j)**2)
-      xv(1,j) = xv(1,j) + ((leff-lin)*yv(1,j))/sqrt(((1d0+dpsv(j))**2-  &!hr03
-     &yv(1,j)**2)-yv(2,j)**2)                                            !hr03
-!hr03 xv(2,j) = xv(2,j) + (leff-lin)*yv(2,j)/sqrt((1+dpsv(j))**2-       &
-!hr03&yv(1,j)**2-yv(2,j)**2)
-      xv(2,j) = xv(2,j) + ((leff-lin)*yv(2,j))/sqrt(((1d0+dpsv(j))**2-  &!hr03
-     &yv(1,j)**2)-yv(2,j)**2)                                            !hr03
- 
-!     call invtilt(tx,ty)
- 
-!hr03 xv(1,j) = xv(1,j)-xv(2,j)*sin_rn(-ty)*yv(1,j)/sqrt((1+dpsv(j))**2-&
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))+ty)
-      xv(1,j) = xv(1,j)-(((xv(2,j)*sin_rn(-ty))*yv(1,j))/               &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(1,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(2,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))+ty)                                                   !hr03
-!+if crlibm
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(1,j)**2)/cos(atan(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))+ty)
-!hr03 xv(2,j) = xv(2,j)*(cos_rn(-ty)-sin_rn(-ty)*tan_rn(atan_rn(yv(2,j)/&
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty))
-      xv(2,j) = xv(2,j)*                                                &!hr03
-     &(cos_rn(-1d0*ty)-sin_rn(-1d0*ty)*tan_rn(atan_rn(yv(2,j)/          &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+ty))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty))
-!hr03 yv(2,j) = sqrt((1+dpsv(j))**2-yv(1,j)**2)*sin_rn(atan_rn(yv(2,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty)
-      yv(2,j) = sqrt((1d0+dpsv(j))**2-yv(1,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(2,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+ty)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty)
- 
-!hr03 xv(2,j) = xv(2,j)-xv(1,j)*sin_rn(-tx)*yv(2,j)/sqrt((1+dpsv(j))**2-&
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))+tx)
-      xv(2,j) = xv(2,j)-(((xv(1,j)*sin_rn(-1d0*tx))*yv(2,j))/           &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(2,j)**2))/cos_rn(atan_rn(yv(1,j)/        &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx)                !hr03
-!+if crlibm
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(2,j)**2)/cos(atan(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))+tx)
-!hr03 xv(1,j) = xv(1,j)*(cos_rn(-tx)-sin_rn(-tx)*tan_rn(atan_rn(yv(1,j)/
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx))
-      xv(1,j) = xv(1,j)*                                                &!hr03
-     &(cos_rn(-1d0*tx)-sin_rn(-1d0*tx)*tan_rn(atan_rn(yv(1,j)/          &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx))
-!hr03 yv(1,j) = sqrt((1+dpsv(j))**2-yv(2,j)**2)*sin_rn(atan_rn(yv(1,j)/
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx)
-      yv(1,j) = sqrt((1d0+dpsv(j))**2-yv(2,j)**2)*                       !hr03
-     &sin_rn(atan_rn(yv(1,j)/                                            !hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx)
- 
-!     call shift(-embl*tan(tx),-embl*tan(ty)/cos(tx))
- 
-      xv(1,j) = xv(1,j) + embl*tan_rn(tx)
-!hr03 xv(2,j) = xv(2,j) + embl*tan_rn(ty)/cos_rn(tx)
-      xv(2,j) = xv(2,j) + (embl*tan_rn(ty))/cos_rn(tx)                   !hr03
- 
-!     call drift(-embl/2)
- 
-!hr03 xv(1,j) = xv(1,j) - embl/2*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) - ((embl*0.5d0)*yv(1,j))/                       &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
-!hr03 xv(2,j) = xv(2,j) - embl/2*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) - ((embl*0.5d0)*yv(2,j))/                       &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
- 
-      xv(1,j) = xv(1,j) * c1e3
-      xv(2,j) = xv(2,j) * c1e3
-      yv(1,j) = yv(1,j) * c1e3
-      yv(2,j) = yv(2,j) * c1e3
- 
-!      write(*,*) 'End: ',j,xv(1,j),xv(2,j),yv(1,j),                       &
-!     &yv(2,j)
+        coord(1)=xv(1,j)
+        coord(2)=xv(2,j)
+        coord(3)=yv(1,j)
+        coord(4)=yv(2,j)
+        coord(9)=dpsv(j)
+        call map_wire(coord,argf,argi)
+        xv(1,j)=coord(1)
+        xv(2,j)=coord(2)
+        yv(1,j)=coord(3)
+        yv(2,j)=coord(4)
  
 !-----------------------------------------------------------------------
  
@@ -3141,7 +2411,6 @@
 !-----------------------------------------------------------------------
           argf(1)=strack(i)
             do j=1,napx
-              xv(1,j)=xv(1,j)*c1m3
               coord(1)=xv(1,j)
               coord(2)=xv(2,j)
               coord(3)=yv(1,j)
@@ -3199,7 +2468,7 @@
             coord(3)=yv(1,j)
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_horizontal_dipole(coord,argf,argi)
+            call map_horizontal_dipole(coord,argf,argi)
             yv(1,j)=coord(3)
             yv(2,j)=coord(4)
    60     continue
@@ -3216,9 +2485,9 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_normal_quadrupole(coord,argf,argi)
+            call map_normal_quadrupole(coord,argf,argi)
             yv(1,j)=coord(3)                          
-            yv(2,j)=coord(4)                                                  !hr02
+            yv(2,j)=coord(4)   
    80     continue
           goto 640
   755     continue
@@ -3340,7 +2609,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_normal_sextupole(coord,argf,argi)
+            call map_normal_sextupole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4)                                              
   100     continue
@@ -3463,7 +2732,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_normal_octupole(coord,argf,argi)
+            call map_normal_octupole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4)                                   
   120     continue
@@ -3588,7 +2857,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_normal_decapole(coord,argf,argi)
+            call map_normal_decapole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4)                                                 
   140     continue
@@ -3605,7 +2874,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_normal_dodecapole(coord,argf,argi)
+            call map_normal_dodecapole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4)                                                  
   160     continue
@@ -3622,7 +2891,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_normal_14pole(coord,argf,argi)
+            call map_normal_14pole(coord,argf,argi)
             yv(1,j)=coord(3)                       
             yv(2,j)=coord(4)                                                 
   180     continue
@@ -3639,7 +2908,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_normal_16pole(coord,argf,argi)
+            call map_normal_16pole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4)                                                 
   200     continue
@@ -3656,7 +2925,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_normal_18pole(coord,argf,argi)
+            call map_normal_18pole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4)                                                  
   220     continue
@@ -3673,7 +2942,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_normal_20pole(coord,argf,argi)
+            call map_normal_20pole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4)                                                 
   240     continue
@@ -3907,7 +3176,7 @@
             coord(3)=yv(1,j)
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_vertical_dipole(coord,argf,argi)
+            call map_vertical_dipole(coord,argf,argi)
             yv(1,j)=coord(3)
             yv(2,j)=coord(4)
   450     continue
@@ -3924,7 +3193,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_skew_quadrupole(coord,argf,argi)
+            call map_skew_quadrupole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4)  
   470     continue
@@ -3941,7 +3210,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_skew_sextupole(coord,argf,argi)
+            call map_skew_sextupole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4) 
   490     continue
@@ -3958,7 +3227,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_skew_octupole(coord,argf,argi)
+            call map_skew_octupole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4) 
   510     continue
@@ -3975,7 +3244,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_skew_decapole(coord,argf,argi)
+            call map_skew_decapole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4)
   530     continue
@@ -3992,7 +3261,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_skew_dodecapole(coord,argf,argi)
+            call map_skew_dodecapole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4)
   550     continue
@@ -4009,7 +3278,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_skew_14pole(coord,argf,argi)
+            call map_skew_14pole(coord,argf,argi)
             yv(1,j)=coord(3)                       
             yv(2,j)=coord(4)
   570     continue
@@ -4026,7 +3295,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_skew_16pole(coord,argf,argi)
+            call map_skew_16pole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4) 
   590     continue
@@ -4043,7 +3312,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_skew_18pole(coord,argf,argi)
+            call map_skew_18pole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4) 
   610     continue
@@ -4060,7 +3329,7 @@
             coord(3)=yv(1,j)        
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_skew_20pole(coord,argf,argi)
+            call map_skew_20pole(coord,argf,argi)
             yv(1,j)=coord(3)                          
             yv(2,j)=coord(4) 
   630     continue
@@ -4093,7 +3362,7 @@
             coord(3)=yv(1,j)
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_beambeam_type1(coord,argf,argi)
+            call map_beambeam_type1(coord,argf,argi)
             yv(1,j)=coord(3)
             yv(2,j)=coord(4) 
   690     continue
@@ -4133,7 +3402,7 @@
               coord(16)=crzb(j)
               coord(17)=cbxb(j)
               coord(18)=cbzb(j)
-              call thin6d_map_beambeam_type2(coord,argf,argi)
+              call map_beambeam_type2(coord,argf,argi)
               yv(1,j)=coord(3)
               yv(2,j)=coord(4) 
             enddo
@@ -4174,7 +3443,7 @@
               coord(16)=crzb(j)
               coord(17)=cbxb(j)
               coord(18)=cbzb(j)
-              call thin6d_map_beambeam_type3(coord,argf,argi)
+              call map_beambeam_type3(coord,argf,argi)
               yv(1,j)=coord(3)
               yv(2,j)=coord(4) 
             enddo
@@ -4316,7 +3585,7 @@
             coord(3)=yv(1,j)
             coord(4)=yv(2,j)
             coord(8)=ejfv(j)
-            call thin6d_map_ac_dipole(coord,argf,argi)
+            call map_ac_dipole(coord,argf,argi)
             yv(1,j)=coord(3)
             yv(2,j)=coord(4)
       enddo
@@ -4420,7 +3689,7 @@
             coord(8)=ejfv(j)
             coord(9)=dpsv(j)
             coord(10)=dpsv1(j)
-            call thin6d_map_crab_cavity_1(coord,argf,argi)
+            call map_crab_cavity_1(coord,argf,argi)
             yv(1,j)=coord(3)
             yv(2,j)=coord(4)
             oidpsv(j)=coord(5)
@@ -4461,7 +3730,7 @@
             coord(8)=ejfv(j)
             coord(9)=dpsv(j)
             coord(10)=dpsv1(j)
-            call thin6d_map_crab_cavity_2(coord,argf,argi)
+            call map_crab_cavity_2(coord,argf,argi)
             yv(1,j)=coord(3)
             yv(2,j)=coord(4)
             oidpsv(j)=coord(5)
@@ -4489,7 +3758,7 @@
             coord(3)=yv(1,j)
             coord(4)=yv(2,j)
             coord(5)=oidpsv(j)
-            call thin6d_map_dipedge(coord,argf,argi)
+            call map_dipedge(coord,argf,argi)
             yv(1,j)=coord(3)
             yv(2,j)=coord(4)
           enddo
@@ -4559,7 +3828,7 @@
         coord(3)=yv(1,j)
         coord(4)=yv(2,j)
         coord(9)=dpsv(j)
-        call thin6d_map_wire(coord,argf,argi)
+        call map_wire(coord,argf,argi)
         xv(1,j)=coord(1)
         xv(2,j)=coord(2)
         yv(1,j)=coord(3)
@@ -4875,21 +4144,20 @@
 !-----------------------------------------------------------------------
 !  EXACT DRIFT
 !-----------------------------------------------------------------------
+          argf(1)=strack(i)
             do j=1,napx
-              xv(1,j)=xv(1,j)*c1m3
-              xv(2,j)=xv(2,j)*c1m3
-              yv(1,j)=yv(1,j)*c1m3
-              yv(2,j)=yv(2,j)*c1m3
-              sigmv(j)=sigmv(j)*c1m3
-              pz=sqrt(one-(yv(1,j)**2+yv(2,j)**2))
-              xv(1,j)=xv(1,j)+stracki*(yv(1,j)/pz)
-              xv(2,j)=xv(2,j)+stracki*(yv(2,j)/pz)
-              sigmv(j)=sigmv(j)+stracki*(one-(rvv(j)/pz))
-              xv(1,j)=xv(1,j)*c1e3
-              xv(2,j)=xv(2,j)*c1e3
-              yv(1,j)=yv(1,j)*c1e3
-              yv(2,j)=yv(2,j)*c1e3
-              sigmv(j)=sigmv(j)*c1e3
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(6)=sigmv(j)
+              coord(13)=rvv(j)
+              call thin6d_map_exact_drift(coord,argf,argi)
+              xv(1,j)=coord(1)
+              xv(2,j)=coord(2)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4)
+              sigmv(j)=coord(6)
             enddo
           endif
           goto 650
@@ -4935,455 +4203,353 @@
      &(xv(1,j),yv(1,j),xv(2,j),yv(2,j),sigmv(j),dpsv(j),j=1,napx)
           goto 640
 !--HORIZONTAL DIPOLE
-   50     do 60 j=1,napx
-            yv(1,j)=yv(1,j)+strackc(i)*oidpsv(j)
-            yv(2,j)=yv(2,j)+stracks(i)*oidpsv(j)
+   50     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          do 60 j=1,napx
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_horizontal_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
    60     continue
           goto 640
 !--NORMAL QUADRUPOLE
-   70     do 80 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+   70     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 80 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_quadrupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
    80     continue
           goto 640
 !--NORMAL SEXTUPOLE
-   90     do 100 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+   90     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 100 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_sextupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   100     continue
           goto 640
 !--NORMAL OCTUPOLE
-  110     do 120 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  110     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 120 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_octupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   120     continue
           goto 640
 !--NORMAL DECAPOLE
-  130     do 140 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  130     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 140 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_decapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   140     continue
           goto 640
 !--NORMAL DODECAPOLE
-  150     do 160 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  150     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 160 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_dodecapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   160     continue
           goto 640
 !--NORMAL 14-POLE
-  170     do 180 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  170     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 180 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_14pole(coord,argf,argi)
+            yv(1,j)=coord(3)                       
+            yv(2,j)=coord(4)
   180     continue
           goto 640
 !--NORMAL 16-POLE
-  190     do 200 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  190     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 200 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_16pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   200     continue
           goto 640
 !--NORMAL 18-POLE
-  210     do 220 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  210     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 220 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_18pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   220     continue
           goto 640
 !--NORMAL 20-POLE
-  230     do 240 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  230     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 240 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_20pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   240     continue
           goto 640
   250     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,1)
           do 260 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tiltc(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tiltc(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purehor_nzapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   260     continue
           goto 640
   270     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,1)
           do 280 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tiltc(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tiltc(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_hor_nzapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   280     continue
           goto 410
   290     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
           do 300 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-strackc(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-strackc(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purehor_zapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   300     continue
           goto 640
   310     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
           do 320 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-strackc(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-strackc(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_hor_zapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   320     continue
           goto 410
   330     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
           do 340 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)+(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)+(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tiltc(i)                                     &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)-(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tiltc(i))                                   &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purever_nzapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   340     continue
           goto 640
   350     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
           do 360 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)+(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)+(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tiltc(i)                                     &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)-(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tiltc(i))                                   &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_ver_nzapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   360     continue
           goto 410
   370     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
           do 380 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)+strackc(i)*dpsv1(j)                         &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)+strackc(i)*dpsv1(j))                       &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purever_zapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   380     continue
           goto 640
   390     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
           do 400 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)+strackc(i)*dpsv1(j)                         &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)+strackc(i)*dpsv1(j))                       &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_ver_zapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   400     continue
   410     r0=ek(ix)
           nmz=nmu(ix)
@@ -5424,753 +4590,382 @@
           goto 640
 !--SKEW ELEMENTS
 !--VERTICAL DIPOLE
-  440     do 450 j=1,napx
-            yv(1,j)=yv(1,j)-stracks(i)*oidpsv(j)
-            yv(2,j)=yv(2,j)+strackc(i)*oidpsv(j)
+  440     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          do 450 j=1,napx
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_vertical_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   450     continue
           goto 640
 !--SKEW QUADRUPOLE
-  460     do 470 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  460     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 470 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_quadrupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)  
   470     continue
           goto 640
 !--SKEW SEXTUPOLE
-  480     do 490 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  480     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 490 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_sextupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4) 
   490     continue
           goto 640
 !--SKEW OCTUPOLE
-  500     do 510 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  500     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 510 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_octupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4) 
   510     continue
           goto 640
 !--SKEW DECAPOLE
-  520     do 530 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  520     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 530 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_decapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   530     continue
           goto 640
 !--SKEW DODECAPOLE
-  540     do 550 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  540     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 550 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_dodecapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   550     continue
           goto 640
 !--SKEW 14-POLE
-  560     do 570 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  560     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 570 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_14pole(coord,argf,argi)
+            yv(1,j)=coord(3)                       
+            yv(2,j)=coord(4)
   570     continue
           goto 640
 !--SKEW 16-POLE
-  580     do 590 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  580     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 590 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_16pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4) 
   590     continue
           goto 640
 !--SKEW 18-POLE
-  600     do 610 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  600     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 610 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_18pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4) 
   610     continue
           goto 640
 !--SKEW 20-POLE
-  620     do 630 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  620     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 630 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_20pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4) 
   630     continue
           goto 640
   680     continue
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
           do 690 j=1,napx
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-!hr08       rho2b(j)=crkveb(j)*crkveb(j)+cikveb(j)*cikveb(j)
-            rho2b(j)=crkveb(j)**2+cikveb(j)**2                           !hr08
-            if(rho2b(j).le.pieni)                                       &
-     &goto 690
-            tkb(j)=rho2b(j)/(two*sigman2(1,imbb(i)))
-            if(ibbc.eq.0) then
-!hr03         yv(1,j)=yv(1,j)+oidpsv(j)*(strack(i)*crkveb(j)/rho2b(j)*  &
-!hr03         yv(1,j)=yv(1,j)+oidpsv(j)*(strack(i)*crkveb(j)/rho2b(j)*  &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))
-          yv(1,j)=yv(1,j)+oidpsv(j)*(((strack(i)*crkveb(j))/rho2b(j))*  &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))                      !hr03
-!hr03         yv(2,j)=yv(2,j)+oidpsv(j)*(strack(i)*cikveb(j)/rho2b(j)*  &
-!hr03         yv(2,j)=yv(2,j)+oidpsv(j)*(strack(i)*cikveb(j)/rho2b(j)*  &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))
-          yv(2,j)=yv(2,j)+oidpsv(j)*(((strack(i)*cikveb(j))/rho2b(j))*  &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))                      !hr03
-            else
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),11)-       &
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-              cccc=(((strack(i)*crkveb(j))/rho2b(j))*                   &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),11)-   &!hr03
-     &(((strack(i)*cikveb(j))/rho2b(j))*                                &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)     !hr03
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!+if crlibm
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-!+ei
-!+if .not.crlibm
-!hr03&(one-exp(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-!+ei
-              yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),12)+       &
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-              cccc=(((strack(i)*crkveb(j))/rho2b(j))*                   &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),12)+   &!hr03
-     &(((strack(i)*cikveb(j))/rho2b(j))*                                &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)     !hr03
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!+if crlibm
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-!+ei
-!+if .not.crlibm
-!hr03&(one-exp(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-!+ei
-              yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-            endif
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_beambeam_type1(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4) 
   690     continue
           goto 640
   700     continue
-          if(ibtyp.eq.0) then
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
+          argf(23)=napx
+          argf(24)=ibtyp
             do j=1,napx
-              r2b(j)=two*(sigman2(1,imbb(i))-sigman2(2,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-              call errf(xrb(j),zrb(j),crxb(j),crzb(j))
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-              call errf(xbb(j),zbb(j),cbxb(j),cbzb(j))
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              call map_beambeam_type2(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4) 
             enddo
-          else if(ibtyp.eq.1) then
-            do j=1,napx
-              r2b(j)=two*(sigman2(1,imbb(i))-sigman2(2,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-            enddo
-            call wzsubv(napx,xrb(1),zrb(1),crxb(1),crzb(1))
-            call wzsubv(napx,xbb(1),zbb(1),cbxb(1),cbzb(1))
-            do j=1,napx
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
-            enddo
-          endif
           goto 640
   720     continue
-          if(ibtyp.eq.0) then
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
+          argf(23)=napx
+          argf(24)=ibtyp
             do j=1,napx
-              r2b(j)=two*(sigman2(2,imbb(i))-sigman2(1,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-              call errf(zrb(j),xrb(j),crzb(j),crxb(j))
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-              call errf(zbb(j),xbb(j),cbzb(j),cbxb(j))
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              call map_beambeam_type3(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4) 
             enddo
-          else if(ibtyp.eq.1) then
-            do j=1,napx
-              r2b(j)=two*(sigman2(2,imbb(i))-sigman2(1,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-            enddo
-            call wzsubv(napx,zrb(1),xrb(1),crzb(1),crxb(1))
-            call wzsubv(napx,zbb(1),xbb(1),cbzb(1),cbxb(1))
-            do j=1,napx
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
-            enddo
-          endif
           goto 640
   730     continue
 !--Hirata's 6D beam-beam kick
-            do j=1,napx
-!hr03         track6d(1,j)=(xv(1,j)+ed(ix)-clobeam(1,imbb(i)))*c1m3
-              track6d(1,j)=((xv(1,j)+ed(ix))-clobeam(1,imbb(i)))*c1m3    !hr03
-              track6d(2,j)=(yv(1,j)/oidpsv(j)-clobeam(4,imbb(i)))*c1m3
-!hr03         track6d(3,j)=(xv(2,j)+ek(ix)-clobeam(2,imbb(i)))*c1m3
-              track6d(3,j)=((xv(2,j)+ek(ix))-clobeam(2,imbb(i)))*c1m3    !hr03
-              track6d(4,j)=(yv(2,j)/oidpsv(j)-clobeam(5,imbb(i)))*c1m3
-              track6d(5,j)=(sigmv(j)-clobeam(3,imbb(i)))*c1m3
-              track6d(6,j)=dpsv(j)-clobeam(6,imbb(i))
+            argf(1)=ed(ix)
+            argf(2)=ek(ix)   
+            argf(3)=e0 
+            argf(4)=e0f
+            argf(5)=pma
+            argf(6)=clobeam(1,imbb(i))
+            argf(7)=clobeam(2,imbb(i))
+            argf(8)=clobeam(3,imbb(i))
+            argf(9)=clobeam(4,imbb(i))
+            argf(10)=clobeam(5,imbb(i))
+            argf(11)=clobeam(6,imbb(i))
+            argf(12)=beamoff(1,imbb(i))
+            argf(13)=beamoff(2,imbb(i))
+            argf(14)=beamoff(3,imbb(i))
+            argf(15)=beamoff(4,imbb(i))
+            argf(16)=beamoff(5,imbb(i))
+            argf(17)=beamoff(6,imbb(i))
+            argf(18)=parbe(ix,1)
+            argf(19)=parbe(ix,2)
+            argf(20)=parbe(ix,3)
+            argf(21)=parbe(ix,4)
+            argf(22)=parbe(ix,5)      
+            argf(23)=ibtyp
+            argf(24)=ibbc   
+            argf(25)=sigz
+            argf(26)=imbb(i)
+            argf(27)=ithick
+            do j=1,12
+              argf(26+j)=bbcu(imbb(i),j)
             enddo
-            call beamint(napx,track6d,parbe,sigz,bbcu,imbb(i),ix,ibtyp, &
-     &ibbc)
             do j=1,napx
-!hr03         xv(1,j)=track6d(1,j)*c1e3+clobeam(1,imbb(i))-             &
-              xv(1,j)=(track6d(1,j)*c1e3+clobeam(1,imbb(i)))-           &!hr03
-     &beamoff(1,imbb(i))
-!hr03         xv(2,j)=track6d(3,j)*c1e3+clobeam(2,imbb(i))-             &
-              xv(2,j)=(track6d(3,j)*c1e3+clobeam(2,imbb(i)))-           &!hr03
-     &beamoff(2,imbb(i))
-!hr03         dpsv(j)=track6d(6,j)+clobeam(6,imbb(i))-beamoff(6,imbb(i))
-              dpsv(j)=(track6d(6,j)+clobeam(6,imbb(i)))-                &!hr03
-     &beamoff(6,imbb(i))                                                 !hr03
-              oidpsv(j)=one/(one+dpsv(j))
-!hr03         yv(1,j)=(track6d(2,j)*c1e3+clobeam(4,imbb(i))-            &
-              yv(1,j)=((track6d(2,j)*c1e3+clobeam(4,imbb(i)))-          &!hr03
-     &beamoff(4,imbb(i)))*oidpsv(j)
-!hr03         yv(2,j)=(track6d(4,j)*c1e3+clobeam(5,imbb(i))-            &
-              yv(2,j)=((track6d(4,j)*c1e3+clobeam(5,imbb(i)))-          &!hr03
-     &beamoff(5,imbb(i)))*oidpsv(j)
-              ejfv(j)=dpsv(j)*e0f+e0f
-!hr03         ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-              ejv(j)=sqrt(ejfv(j)**2+pma**2)
-              rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(6)=sigmv(j)
+              coord(7)=ejv(j)
+              coord(8)=ejfv(j)
+              coord(9)=dpsv(j)
+              coord(13)=rvv(j)
+              call thin6d_map_hirata_beambeam(coord,argf,argi)
+              xv(1,j)=coord(1)
+              xv(2,j)=coord(2)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4)
+              oidpsv(j)=coord(5)
+              sigmv(j)=coord(6)
+              ejv(j)=coord(7)
+              ejfv(j)=coord(8)
+              dpsv(j)=coord(9)
+              rvv(j)=coord(13)
               if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
             enddo
           goto 640
   740     continue
           irrtr=imtr(ix)
+          argf(1)=idz(1)
+          argf(2)=idz(2)
+          argf(3)=cotr(irrtr,1)
+          argf(4)=cotr(irrtr,2)
+          argf(5)=cotr(irrtr,3)
+          argf(6)=cotr(irrtr,4)
+          argf(7)=cotr(irrtr,5)
+          argf(8)=cotr(irrtr,6)
+          argf(9)=rrtr(irrtr,5,1)
+          argf(10)=rrtr(irrtr,5,2)
+          argf(11)=rrtr(irrtr,5,3)
+          argf(12)=rrtr(irrtr,5,4)
+          argf(13)=rrtr(irrtr,5,6)
+          argf(14)=rrtr(irrtr,1,1)
+          argf(15)=rrtr(irrtr,1,2)
+          argf(16)=rrtr(irrtr,1,6)
+          argf(17)=rrtr(irrtr,2,1)
+          argf(18)=rrtr(irrtr,2,2)
+          argf(19)=rrtr(irrtr,2,6)
+          argf(20)=rrtr(irrtr,3,3)
+          argf(21)=rrtr(irrtr,3,4)
+          argf(22)=rrtr(irrtr,3,6)
+          argf(23)=rrtr(irrtr,4,3)
+          argf(24)=rrtr(irrtr,4,4)
+          argf(25)=rrtr(irrtr,4,6)          
           do j=1,napx
-!hr03       sigmv(j)=sigmv(j)+cotr(irrtr,5)+rrtr(irrtr,5,1)*xv(1,j)+    &
-!hr03&rrtr(irrtr,5,2)*yv(1,j)+rrtr(irrtr,5,3)*xv(2,j)+                  &
-!hr03&rrtr(irrtr,5,4)*yv(2,j)+rrtr(irrtr,5,6)*dpsv(j)*c1e3
-      sigmv(j)=(((((sigmv(j)+cotr(irrtr,5))+rrtr(irrtr,5,1)*xv(1,j))+   &!hr03
-     &rrtr(irrtr,5,2)*yv(1,j))+rrtr(irrtr,5,3)*xv(2,j))+                &!hr03
-!BNL-NOV08
-!     &rrtr(irrtr,5,4)*yv(2,j)
-     &rrtr(irrtr,5,4)*yv(2,j))+(rrtr(irrtr,5,6)*dpsv(j))*c1e3            !hr03
-!BNL-NOV08
-            pux=xv(1,j)
-            dpsv3(j)=dpsv(j)*c1e3
-!hr03       xv(1,j)=cotr(irrtr,1)+rrtr(irrtr,1,1)*pux+                  &
-!hr03&rrtr(irrtr,1,2)*yv(1,j)+idz(1)*dpsv3(j)*rrtr(irrtr,1,6)
-            xv(1,j)=((cotr(irrtr,1)+rrtr(irrtr,1,1)*pux)+               &!hr03
-     &rrtr(irrtr,1,2)*yv(1,j))+(dble(idz(1))*dpsv3(j))*rrtr(irrtr,1,6)   !hr03
-!hr03       yv(1,j)=cotr(irrtr,2)+rrtr(irrtr,2,1)*pux+                  &
-!hr03&rrtr(irrtr,2,2)*yv(1,j)+idz(1)*dpsv3(j)*rrtr(irrtr,2,6)
-            yv(1,j)=((cotr(irrtr,2)+rrtr(irrtr,2,1)*pux)+               &!hr03
-     &rrtr(irrtr,2,2)*yv(1,j))+(dble(idz(1))*dpsv3(j))*rrtr(irrtr,2,6)   !hr03
-            pux=xv(2,j)
-!hr03       xv(2,j)=cotr(irrtr,3)+rrtr(irrtr,3,3)*pux+                  &
-!hr03&rrtr(irrtr,3,4)*yv(2,j)+idz(2)*dpsv3(j)*rrtr(irrtr,3,6)
-            xv(2,j)=((cotr(irrtr,3)+rrtr(irrtr,3,3)*pux)+               &!hr03
-     &rrtr(irrtr,3,4)*yv(2,j))+(dble(idz(2))*dpsv3(j))*rrtr(irrtr,3,6)   !hr03
-!hr03       yv(2,j)=cotr(irrtr,4)+rrtr(irrtr,4,3)*pux+                  &
-!hr03&rrtr(irrtr,4,4)*yv(2,j)+idz(2)*dpsv3(j)*rrtr(irrtr,4,6)
-            yv(2,j)=((cotr(irrtr,4)+rrtr(irrtr,4,3)*pux)+               &!hr03
-     &rrtr(irrtr,4,4)*yv(2,j))+(dble(idz(2))*dpsv3(j))*rrtr(irrtr,4,6)   !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            call thin6d_map_accelerating_cavity2(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
           enddo
  
 !----------------------------------------------------------------------
@@ -6195,55 +4990,25 @@
           nramp1=nturn2(ix)
           nplato=nturn3(ix)
           nramp2=nturn4(ix)
+          argf(1)=tiltc(i)
+          argf(2)=tilts(i)
+          argf(3)=xory
+          argf(4)=acdipamp
+          argf(5)=acdipamp1
+          argf(6)=acdipamp2
+          argf(7)=nramp1
+          argf(8)=nramp2
+          argf(9)=nac
+          argf(10)=nplato
+          argf(11)=qd
+          argf(12)=acphase
           do j=1,napx
-      if (xory.eq.1) then
-        acdipamp2=acdipamp*tilts(i)
-        acdipamp1=acdipamp*tiltc(i)
-      else
-        acdipamp2=acdipamp*tiltc(i)
-        acdipamp1=-acdipamp*tilts(i)
-      endif
-              if(nramp1.gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(1,j)=yv(1,j)+(((acdipamp1*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(2,j)=yv(2,j)+(((acdipamp2*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-              endif
-              if(nac.ge.nramp1.and.(nramp1+nplato).gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(1,j)=yv(1,j)+(acdipamp1*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(2,j)=yv(2,j)+(acdipamp2*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-              endif
-              if(nac.ge.(nramp1+nplato).and.(nramp2+nramp1+nplato).gt.  &
-     &nac)then
-!hr03         yv(1,j)=yv(1,j)+acdipamp1*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(1,j)=yv(1,j)+((acdipamp1*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-!hr03         yv(2,j)=yv(2,j)+acdipamp2*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(2,j)=yv(2,j)+((acdipamp2*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              endif
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(8)=ejfv(j)
+            call map_ac_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
       enddo
       endif
           goto 640
@@ -6326,29 +5091,35 @@
           pi=4d0*atan_rn(1d0)
         crabfreq=ek(ix)*c1e3
  
+          argf(1)=crabamp
+          argf(2)=crabfreq
+          argf(3)=crabph(ix)
+          argf(4)=ed(ix)
+          argf(5)=pma
+          argf(6)=e0
+          argf(7)=e0f
+          argf(8)=ithick
         do j=1,napx
-!hr03    crabamp=ed(ix)/(ejfv(j))*c1e3
-         crabamp=(ed(ix)/ejfv(j))*c1e3                                   !hr03
-!        write(*,*) crabamp, ejfv(j), clight, "HELLO"
- 
-!hr03   yv(xory,j)=yv(xory,j) - crabamp*                                &
-!hr03&sin_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))
-        yv(xory,j)=yv(xory,j) - crabamp*                                &!hr03
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))         !hr03
-!hr03 dpsv(j)=dpsv(j) - crabamp*crabfreq*2d0*pi/clight*xv(xory,j)*      &
-!hr03&cos_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))*c1m3
-      dpsv(j)=dpsv(j) -                                                 &!hr03
-     &((((((crabamp*crabfreq)*2d0)*pi)/clight)*xv(xory,j))*             &!hr03
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix)))*c1m3   !hr03
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call map_crab_cavity_1(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
           goto 640
@@ -6361,95 +5132,80 @@
 !---------sigmv should be in mm --> sigmv*1e-3/clight*ek*1e6 in rad
           pi=4d0*atan_rn(1d0)
         crabfreq=ek(ix)*c1e3
- 
+
+          argf(1)=crabamp
+          argf(2)=crabfreq
+          argf(3)=crabph(ix)
+          argf(4)=ed(ix)
+          argf(5)=pma
+          argf(6)=e0
+          argf(7)=e0f
         do j=1,napx
-!hr03    crabamp=ed(ix)/(ejfv(j))*c1e3
-         crabamp=(ed(ix)/ejfv(j))*c1e3                                   !hr03
-!        write(*,*) crabamp, ejfv(j), clight, "HELLO"
- 
-!hr03   yv(xory,j)=yv(xory,j) - crabamp*                                &
-!hr03&sin_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))
-        yv(xory,j)=yv(xory,j) - crabamp*                                &!hr03
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))         !hr03
-!hr03 dpsv(j)=dpsv(j) - crabamp*crabfreq*2d0*pi/clight*xv(xory,j)*      &
-!hr03&cos_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))*c1m3
-      dpsv(j)=dpsv(j) -                                                 &!hr03
-     &((((((crabamp*crabfreq)*2d0)*pi)/clight)*xv(xory,j))*             &!hr03
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix)))*c1m3   !hr03
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call map_crab_cavity_2(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
           goto 640
 !--DIPEDGE ELEMENT
   753     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=strackx(i)
+          argf(7)=strackz(i)
           do j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackx(i)*crkve-                &
-     &stracks(i)*cikve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackz(i)*cikve+                &
-     &strackc(i)*crkve)
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_dipedge(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
           enddo
           goto 640
 !--solenoid
   754     continue
+          argf(1)=strackx(i)
+          argf(2)=strackz(i)
           do j=1,napx
-            yv(1,j)=yv(1,j)-xv(2,j)*strackx(i)
-            yv(2,j)=yv(2,j)+xv(1,j)*strackx(i)
-!hr02       crkve=yv(1,j)-xv(1,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      crkve=yv(1,j)-(((xv(1,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       cikve=yv(2,j)-xv(2,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      cikve=yv(2,j)-(((xv(2,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       yv(1,j)=crkve*cos(strackz(i)*ejf0v(j)/ejfv(j))+             &
-!hr02&cikve*sin(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       yv(2,j)=-crkve*sin(strackz(i)*ejf0v(j)/ejfv(j))+            &
-!hr02&cikve*cos(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       crkve=xv(1,j)*cos(strackz(i)*ejf0v(j)/ejfv(j))+             &
-!hr02&xv(2,j)*sin(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       cikve=-xv(1,j)*sin(strackz(i)*ejf0v(j)/ejfv(j))+            &
-!hr02&xv(2,j)*cos(strackz(i)*ejf0v(j)/ejfv(j))
-            yv(1,j)=crkve*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))+        &!hr02
-     &cikve*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                        !hr02
-            yv(2,j)=cikve*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))-        &!hr02
-     &crkve*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                        !hr02
-            crkve=xv(1,j)*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))+        &!hr02
-     &xv(2,j)*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                      !hr02
-            cikve=xv(2,j)*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))-        &!hr02
-     &xv(1,j)*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                      !hr02
-            xv(1,j)=crkve
-            xv(2,j)=cikve
-            yv(1,j)=yv(1,j)+xv(2,j)*strackx(i)
-            yv(2,j)=yv(2,j)-xv(1,j)*strackx(i)
-!hr02       crkve=sigmv(j)-0.5*(xv(1,j)*xv(1,j)+xv(2,j)*xv(2,j))*       &
-!hr02&strackx(i)*strackz(i)*rvv(j)*ejf0v(j)/ejfv(j)*ejf0v(j)/ejfv(j)
-        crkve=sigmv(j)-0.5d0*(((((((xv(1,j)**2+xv(2,j)**2)*strackx(i))* &!hr02
-     &strackz(i))*rvv(j))*ejf0v(j))/ejfv(j))*ejf0v(j))/ejfv(j)           !hr02
-            sigmv(j)=crkve
-!hr02       crkve=yv(1,j)-xv(1,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      crkve=yv(1,j)-(((xv(1,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       cikve=yv(2,j)-xv(2,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      cikve=yv(2,j)-(((xv(2,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       sigmv(j)=sigmv(j)+(xv(1,j)*cikve-xv(2,j)*crkve)*strackz(i)* &
-!hr02&rvv(j)*ejf0v(j)/ejfv(j)*ejf0v(j)/ejfv(j)
-      sigmv(j)=sigmv(j)+((((((xv(1,j)*cikve-xv(2,j)*crkve)*strackz(i))* &!hr02
-     &rvv(j))*ejf0v(j))/ejfv(j))*ejf0v(j))/ejfv(j)                       !hr02
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)
+            call thin6d_map_solenoid(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
           enddo
           goto 640
- 
 !----------------------------
  
 ! Wire.
@@ -6477,201 +5233,27 @@
       ry = dy *cos_rn(ty)-lin *sin_rn(ty)
       lin= lin*cos_rn(ty)+dy  *sin_rn(ty)
  
+      argf(1)=embl
+      argf(2)=tx
+      argf(3)=ty
+      argf(4)=lin
+      argf(5)=rx
+      argf(6)=ry
+      argf(7)=cur
+      argf(8)=chi
+      argf(9)=l
+      argf(10)=leff
       do 750 j=1, napx
- 
-      xv(1,j) = xv(1,j) * c1m3
-      xv(2,j) = xv(2,j) * c1m3
-      yv(1,j) = yv(1,j) * c1m3
-      yv(2,j) = yv(2,j) * c1m3
- 
-!      write(*,*) 'Start: ',j,xv(1,j),xv(2,j),yv(1,j),
-!     &yv(2,j)
- 
-!     call drift(-embl/2)
- 
-!hr03 xv(1,j) = xv(1,j) - embl/2*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) -                                               &!hr03
-     &((embl*0.5d0)*yv(1,j))/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2)                                                        !hr03
-!hr03 xv(2,j) = xv(2,j) - embl/2*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) -                                               &!hr03
-     &((embl*0.5d0)*yv(2,j))/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2)                                                        !hr03
- 
-!     call tilt(tx,ty)
- 
-!hr03 xv(2,j) = xv(2,j)-xv(1,j)*sin_rn(tx)*yv(2,j)/sqrt((1+dpsv(j))**2- &
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))-tx)
-      xv(2,j) = xv(2,j)-(((xv(1,j)*sin_rn(tx))*yv(2,j))/                &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(2,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(1,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))-tx)                                                   !hr03
-!+if crlibm
-!hhr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(2,j)**2)/cos(atan(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))-tx)
-!hr03 xv(1,j) = xv(1,j)*(cos_rn(tx)-sin_rn(tx)*tan_rn(atan_rn(yv(1,j)/  &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx))
-      xv(1,j) = xv(1,j)*(cos_rn(tx)-sin_rn(tx)*tan_rn(atan_rn(yv(1,j)/  &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-tx))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx))
-!hr03 yv(1,j) = sqrt((1+dpsv(j))**2-yv(2,j)**2)*sin_rn(atan_rn(yv(1,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx)
-      yv(1,j) = sqrt((1d0+dpsv(j))**2-yv(2,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(1,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-tx)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx)
-!hr03 xv(1,j) = xv(1,j)-xv(2,j)*sin_rn(ty)*yv(1,j)/sqrt((1+dpsv(j))**2- &
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))-ty)
-      xv(1,j) = xv(1,j)-(((xv(2,j)*sin_rn(ty))*yv(1,j))/                &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(1,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(2,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))-ty)                                                   !hr03
-!+if crlibm
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(1,j)**2)/cos(atan(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))-ty)
-!hr03 xv(2,j) = xv(2,j)*(cos_rn(ty)-sin_rn(ty)*tan_rn(atan_rn(yv(2,j)/  &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty))
-      xv(2,j) = xv(2,j)*(cos_rn(ty)-sin_rn(ty)*tan_rn(atan_rn(yv(2,j)/  &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-ty))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty))
-!hr03 yv(2,j) = sqrt((1+dpsv(j))**2-yv(1,j)**2)*sin_rn(atan_rn(yv(2,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty)
-      yv(2,j) = sqrt((1d0+dpsv(j))**2-yv(1,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(2,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-ty)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty)
- 
-!     call drift(lin)
- 
-!hr03 xv(1,j) = xv(1,j) + lin*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-   &
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) + (lin*yv(1,j))/                                &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
-!hr03 xv(2,j) = xv(2,j) + lin*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-   &
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) + (lin*yv(2,j))/                                &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
- 
-!      call kick(l,cur,lin,rx,ry,chi)
- 
-      xi = xv(1,j)-rx
-      yi = xv(2,j)-ry
-!hr03 yv(1,j) = yv(1,j)-c1m7*cur/chi*xi/(xi**2+yi**2)*                  &
-!hr03&(sqrt((lin+l)**2+xi**2+yi**2)-sqrt((lin-l)**2+                    &
-!hr03&xi**2+yi**2))
-      yv(1,j) = yv(1,j)-((((c1m7*cur)/chi)*xi)/(xi**2+yi**2))*          &!hr03
-     &(sqrt(((lin+l)**2+xi**2)+yi**2)-sqrt(((lin-l)**2+                 &!hr03
-     &xi**2)+yi**2))                                                     !hr03
-!GRD FOR CONSISTENSY
-!hr03 yv(2,j) = yv(2,j)-c1m7*cur/chi*yi/(xi**2+yi**2)*                  &
-!hr03&(sqrt((lin+l)**2+xi**2+yi**2)-sqrt((lin-l)**2+                    &
-!hr03&xi**2+yi**2))
-      yv(2,j) = yv(2,j)-((((c1m7*cur)/chi)*yi)/(xi**2+yi**2))*          &!hr03
-     &(sqrt(((lin+l)**2+xi**2)+yi**2)-sqrt(((lin-l)**2+                 &!hr03
-     &xi**2)+yi**2))                                                     !hr03
- 
-!     call drift(leff-lin)
- 
-!hr03 xv(1,j) = xv(1,j) + (leff-lin)*yv(1,j)/sqrt((1+dpsv(j))**2-       &
-!hr03&yv(1,j)**2-yv(2,j)**2)
-      xv(1,j) = xv(1,j) + ((leff-lin)*yv(1,j))/sqrt(((1d0+dpsv(j))**2-  &!hr03
-     &yv(1,j)**2)-yv(2,j)**2)                                            !hr03
-!hr03 xv(2,j) = xv(2,j) + (leff-lin)*yv(2,j)/sqrt((1+dpsv(j))**2-       &
-!hr03&yv(1,j)**2-yv(2,j)**2)
-      xv(2,j) = xv(2,j) + ((leff-lin)*yv(2,j))/sqrt(((1d0+dpsv(j))**2-  &!hr03
-     &yv(1,j)**2)-yv(2,j)**2)                                            !hr03
- 
-!     call invtilt(tx,ty)
- 
-!hr03 xv(1,j) = xv(1,j)-xv(2,j)*sin_rn(-ty)*yv(1,j)/sqrt((1+dpsv(j))**2-&
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))+ty)
-      xv(1,j) = xv(1,j)-(((xv(2,j)*sin_rn(-ty))*yv(1,j))/               &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(1,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(2,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))+ty)                                                   !hr03
-!+if crlibm
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(1,j)**2)/cos(atan(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))+ty)
-!hr03 xv(2,j) = xv(2,j)*(cos_rn(-ty)-sin_rn(-ty)*tan_rn(atan_rn(yv(2,j)/&
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty))
-      xv(2,j) = xv(2,j)*                                                &!hr03
-     &(cos_rn(-1d0*ty)-sin_rn(-1d0*ty)*tan_rn(atan_rn(yv(2,j)/          &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+ty))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty))
-!hr03 yv(2,j) = sqrt((1+dpsv(j))**2-yv(1,j)**2)*sin_rn(atan_rn(yv(2,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty)
-      yv(2,j) = sqrt((1d0+dpsv(j))**2-yv(1,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(2,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+ty)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty)
- 
-!hr03 xv(2,j) = xv(2,j)-xv(1,j)*sin_rn(-tx)*yv(2,j)/sqrt((1+dpsv(j))**2-&
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))+tx)
-      xv(2,j) = xv(2,j)-(((xv(1,j)*sin_rn(-1d0*tx))*yv(2,j))/           &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(2,j)**2))/cos_rn(atan_rn(yv(1,j)/        &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx)                !hr03
-!+if crlibm
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(2,j)**2)/cos(atan(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))+tx)
-!hr03 xv(1,j) = xv(1,j)*(cos_rn(-tx)-sin_rn(-tx)*tan_rn(atan_rn(yv(1,j)/
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx))
-      xv(1,j) = xv(1,j)*                                                &!hr03
-     &(cos_rn(-1d0*tx)-sin_rn(-1d0*tx)*tan_rn(atan_rn(yv(1,j)/          &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx))
-!hr03 yv(1,j) = sqrt((1+dpsv(j))**2-yv(2,j)**2)*sin_rn(atan_rn(yv(1,j)/
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx)
-      yv(1,j) = sqrt((1d0+dpsv(j))**2-yv(2,j)**2)*                       !hr03
-     &sin_rn(atan_rn(yv(1,j)/                                            !hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx)
- 
-!     call shift(-embl*tan(tx),-embl*tan(ty)/cos(tx))
- 
-      xv(1,j) = xv(1,j) + embl*tan_rn(tx)
-!hr03 xv(2,j) = xv(2,j) + embl*tan_rn(ty)/cos_rn(tx)
-      xv(2,j) = xv(2,j) + (embl*tan_rn(ty))/cos_rn(tx)                   !hr03
- 
-!     call drift(-embl/2)
- 
-!hr03 xv(1,j) = xv(1,j) - embl/2*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) - ((embl*0.5d0)*yv(1,j))/                       &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
-!hr03 xv(2,j) = xv(2,j) - embl/2*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) - ((embl*0.5d0)*yv(2,j))/                       &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
- 
-      xv(1,j) = xv(1,j) * c1e3
-      xv(2,j) = xv(2,j) * c1e3
-      yv(1,j) = yv(1,j) * c1e3
-      yv(2,j) = yv(2,j) * c1e3
- 
-!      write(*,*) 'End: ',j,xv(1,j),xv(2,j),yv(1,j),                       &
-!     &yv(2,j)
+        coord(1)=xv(1,j)
+        coord(2)=xv(2,j)
+        coord(3)=yv(1,j)
+        coord(4)=yv(2,j)
+        coord(9)=dpsv(j)
+        call map_wire(coord,argf,argi)
+        xv(1,j)=coord(1)
+        xv(2,j)=coord(2)
+        yv(1,j)=coord(3)
+        yv(2,j)=coord(4)
  
 !-----------------------------------------------------------------------
  
@@ -10254,415 +8836,313 @@
    30       continue
             goto 480
 !--HORIZONTAL DIPOLE
-   40       do 50 j=1,napx
-            yv(1,j)=yv(1,j)+strackc(i)*oidpsv(j)
-            yv(2,j)=yv(2,j)+stracks(i)*oidpsv(j)
+   40     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          do 50 j=1,napx
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_horizontal_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
    50       continue
             goto 470
 !--NORMAL QUADRUPOLE
-   60       do 70 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+   60     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 70 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_quadrupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
    70       continue
             goto 470
 !--NORMAL SEXTUPOLE
-   80       do 90 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+   80     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 90 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_sextupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
    90       continue
             goto 470
 !--NORMAL OCTUPOLE
-  100       do 110 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  100     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 110 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_octupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   110       continue
             goto 470
 !--NORMAL DECAPOLE
-  120       do 130 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  120     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 130 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_decapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   130       continue
             goto 470
 !--NORMAL DODECAPOLE
-  140       do 150 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  140     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 150 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_dodecapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   150       continue
             goto 470
 !--NORMAL 14-POLE
-  160       do 170 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  160     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 170 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_14pole(coord,argf,argi)
+            yv(1,j)=coord(3)                       
+            yv(2,j)=coord(4)
   170       continue
             goto 470
 !--NORMAL 16-POLE
-  180       do 190 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  180     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 190 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_16pole(coord,argf,argi)
+            yv(1,j)=coord(3)                       
+            yv(2,j)=coord(4)
   190       continue
             goto 470
 !--NORMAL 18-POLE
-  200       do 210 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  200     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 210 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_18pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   210       continue
             goto 470
 !--NORMAL 20-POLE
-  220       do 230 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  220     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 230 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_20pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   230       continue
             goto 470
   500     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,1)
           do 510 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tiltc(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tiltc(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call thin4d_map_multipole_purehor_nzapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   510     continue
           goto 470
   520     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,1)
           do 530 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tiltc(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tiltc(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call thin4d_map_multipole_hor_nzapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   530     continue
           goto 240
   540     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=dki(ix,2)
           do 550 j=1,napx
-!hr03       yv(1,j)=yv(1,j)-strackc(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-strackc(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(10)=dpsv1(j)
+            call thin4d_map_multipole_purehor_zapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   550     continue
           goto 470
   560     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=dki(ix,2)
           do 570 j=1,napx
-!hr03       yv(1,j)=yv(1,j)-strackc(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-strackc(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(10)=dpsv1(j)
+            call thin4d_map_multipole_hor_zapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   570     continue
           goto 240
   580     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
           do 590 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)+(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)+(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tiltc(i)                                     &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)-(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tiltc(i))                                   &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call thin4d_map_multipole_purever_nzapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   590     continue
           goto 470
   600     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
           do 610 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)+(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)+(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tiltc(i)                                     &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)-(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tiltc(i))                                   &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call thin4d_map_multipole_ver_nzapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   610     continue
           goto 240
   620     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=dki(ix,2)
           do 630 j=1,napx
-!hr03       yv(1,j)=yv(1,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)+strackc(i)*dpsv1(j)                         &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)+strackc(i)*dpsv1(j))                       &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call thin4d_map_multipole_purever_zapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   630     continue
           goto 470
   640     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=dki(ix,2)
           do 650 j=1,napx
-!hr03       yv(1,j)=yv(1,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)+strackc(i)*dpsv1(j)                         &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)+strackc(i)*dpsv1(j))                       &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call thin4d_map_multipole_ver_zapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   650     continue
   240       r0=ek(ix)
             nmz=nmu(ix)
@@ -10703,713 +9183,331 @@
             goto 470
 !--SKEW ELEMENTS
 !--VERTICAL DIPOLE
-  270       do 280 j=1,napx
-            yv(1,j)=yv(1,j)-stracks(i)*oidpsv(j)
-            yv(2,j)=yv(2,j)+strackc(i)*oidpsv(j)
+  270     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          do 280 j=1,napx
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_vertical_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   280       continue
             goto 470
 !--SKEW QUADRUPOLE
-  290       do 300 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  290     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 300 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_quadrupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   300       continue
             goto 470
 !--SKEW SEXTUPOLE
-  310       do 320 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  310     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 320 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_sextupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   320       continue
             goto 470
 !--SKEW OCTUPOLE
-  330       do 340 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  330     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 340 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_octupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   340       continue
             goto 470
 !--SKEW DECAPOLE
-  350       do 360 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  350     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 360 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_decapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   360       continue
             goto 470
 !--SKEW DODECAPOLE
-  370       do 380 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  370     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 380 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_dodecapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   380       continue
             goto 470
 !--SKEW 14-POLE
-  390       do 400 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  390    argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 400 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_14pole(coord,argf,argi)
+            yv(1,j)=coord(3)                       
+            yv(2,j)=coord(4)
   400       continue
             goto 470
 !--SKEW 16-POLE
-  410       do 420 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  410     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 420 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_16pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   420       continue
             goto 470
 !--SKEW 18-POLE
-  430       do 440 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  430     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 440 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_18pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   440       continue
             goto 470
 !--SKEW 20-POLE
-  450       do 460 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  450     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 460 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_20pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   460       continue
           goto 470
   680     continue
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
           do 690 j=1,napx
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-!hr08       rho2b(j)=crkveb(j)*crkveb(j)+cikveb(j)*cikveb(j)
-            rho2b(j)=crkveb(j)**2+cikveb(j)**2                           !hr08
-            if(rho2b(j).le.pieni)                                       &
-     &goto 690
-            tkb(j)=rho2b(j)/(two*sigman2(1,imbb(i)))
-            if(ibbc.eq.0) then
-!hr03         yv(1,j)=yv(1,j)+oidpsv(j)*(strack(i)*crkveb(j)/rho2b(j)*  &
-!hr03         yv(1,j)=yv(1,j)+oidpsv(j)*(strack(i)*crkveb(j)/rho2b(j)*  &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))
-          yv(1,j)=yv(1,j)+oidpsv(j)*(((strack(i)*crkveb(j))/rho2b(j))*  &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))                      !hr03
-!hr03         yv(2,j)=yv(2,j)+oidpsv(j)*(strack(i)*cikveb(j)/rho2b(j)*  &
-!hr03         yv(2,j)=yv(2,j)+oidpsv(j)*(strack(i)*cikveb(j)/rho2b(j)*  &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))
-          yv(2,j)=yv(2,j)+oidpsv(j)*(((strack(i)*cikveb(j))/rho2b(j))*  &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))                      !hr03
-            else
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),11)-       &
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-              cccc=(((strack(i)*crkveb(j))/rho2b(j))*                   &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),11)-   &!hr03
-     &(((strack(i)*cikveb(j))/rho2b(j))*                                &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)     !hr03
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!+if crlibm
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-!+ei
-!+if .not.crlibm
-!hr03&(one-exp(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-!+ei
-              yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),12)+       &
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-              cccc=(((strack(i)*crkveb(j))/rho2b(j))*                   &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),12)+   &!hr03
-     &(((strack(i)*cikveb(j))/rho2b(j))*                                &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)     !hr03
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!+if crlibm
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-!+ei
-!+if .not.crlibm
-!hr03&(one-exp(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-!+ei
-              yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-            endif
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_beambeam_type1(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   690     continue
-          goto 470
+          goto 620
   700     continue
-          if(ibtyp.eq.0) then
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
+          argf(23)=napx
+          argf(24)=ibtyp
             do j=1,napx
-              r2b(j)=two*(sigman2(1,imbb(i))-sigman2(2,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-              call errf(xrb(j),zrb(j),crxb(j),crzb(j))
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-              call errf(xbb(j),zbb(j),cbxb(j),cbzb(j))
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              call map_beambeam_type2(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4) 
             enddo
-          else if(ibtyp.eq.1) then
-            do j=1,napx
-              r2b(j)=two*(sigman2(1,imbb(i))-sigman2(2,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-            enddo
-            call wzsubv(napx,xrb(1),zrb(1),crxb(1),crzb(1))
-            call wzsubv(napx,xbb(1),zbb(1),cbxb(1),cbzb(1))
-            do j=1,napx
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
-            enddo
-          endif
-          goto 470
+          goto 620
   720     continue
-          if(ibtyp.eq.0) then
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
+          argf(23)=napx
+          argf(24)=ibtyp
             do j=1,napx
-              r2b(j)=two*(sigman2(2,imbb(i))-sigman2(1,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-              call errf(zrb(j),xrb(j),crzb(j),crxb(j))
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-              call errf(zbb(j),xbb(j),cbzb(j),cbxb(j))
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              call map_beambeam_type3(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4) 
             enddo
-          else if(ibtyp.eq.1) then
-            do j=1,napx
-              r2b(j)=two*(sigman2(2,imbb(i))-sigman2(1,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-            enddo
-            call wzsubv(napx,zrb(1),xrb(1),crzb(1),crxb(1))
-            call wzsubv(napx,zbb(1),xbb(1),cbzb(1),cbxb(1))
-            do j=1,napx
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
-            enddo
-          endif
-          goto 470
+          goto 620
   740     continue
           irrtr=imtr(ix)
+          irrtr=imtr(ix)
+          argf(1)=idz(1)
+          argf(2)=idz(2)
+          argf(3)=cotr(irrtr,1)
+          argf(4)=cotr(irrtr,2)
+          argf(5)=cotr(irrtr,3)
+          argf(6)=cotr(irrtr,4)
+          argf(7)=cotr(irrtr,5)
+          argf(8)=cotr(irrtr,6)
+          argf(9)=rrtr(irrtr,5,1)
+          argf(10)=rrtr(irrtr,5,2)
+          argf(11)=rrtr(irrtr,5,3)
+          argf(12)=rrtr(irrtr,5,4)
+          argf(13)=rrtr(irrtr,5,6)
+          argf(14)=rrtr(irrtr,1,1)
+          argf(15)=rrtr(irrtr,1,2)
+          argf(16)=rrtr(irrtr,1,6)
+          argf(17)=rrtr(irrtr,2,1)
+          argf(18)=rrtr(irrtr,2,2)
+          argf(19)=rrtr(irrtr,2,6)
+          argf(20)=rrtr(irrtr,3,3)
+          argf(21)=rrtr(irrtr,3,4)
+          argf(22)=rrtr(irrtr,3,6)
+          argf(23)=rrtr(irrtr,4,3)
+          argf(24)=rrtr(irrtr,4,4)
+          argf(25)=rrtr(irrtr,4,6)          
           do j=1,napx
-            pux=xv(1,j)
-            dpsv3(j)=dpsv(j)*c1e3
-!hr03       xv(1,j)=cotr(irrtr,1)+rrtr(irrtr,1,1)*pux+                  &
-!hr03&rrtr(irrtr,1,2)*yv(1,j)+idz(1)*dpsv3(j)*rrtr(irrtr,1,6)
-            xv(1,j)=((cotr(irrtr,1)+rrtr(irrtr,1,1)*pux)+               &!hr03
-     &rrtr(irrtr,1,2)*yv(1,j))+(dble(idz(1))*dpsv3(j))*rrtr(irrtr,1,6)   !hr03
-!hr03       yv(1,j)=cotr(irrtr,2)+rrtr(irrtr,2,1)*pux+                  &
-!hr03&rrtr(irrtr,2,2)*yv(1,j)+idz(1)*dpsv3(j)*rrtr(irrtr,2,6)
-            yv(1,j)=((cotr(irrtr,2)+rrtr(irrtr,2,1)*pux)+               &!hr03
-     &rrtr(irrtr,2,2)*yv(1,j))+(dble(idz(1))*dpsv3(j))*rrtr(irrtr,2,6)   !hr03
-            pux=xv(2,j)
-!hr03       xv(2,j)=cotr(irrtr,3)+rrtr(irrtr,3,3)*pux+                  &
-!hr03&rrtr(irrtr,3,4)*yv(2,j)+idz(2)*dpsv3(j)*rrtr(irrtr,3,6)
-            xv(2,j)=((cotr(irrtr,3)+rrtr(irrtr,3,3)*pux)+               &!hr03
-     &rrtr(irrtr,3,4)*yv(2,j))+(dble(idz(2))*dpsv3(j))*rrtr(irrtr,3,6)   !hr03
-!hr03       yv(2,j)=cotr(irrtr,4)+rrtr(irrtr,4,3)*pux+                  &
-!hr03&rrtr(irrtr,4,4)*yv(2,j)+idz(2)*dpsv3(j)*rrtr(irrtr,4,6)
-            yv(2,j)=((cotr(irrtr,4)+rrtr(irrtr,4,3)*pux)+               &!hr03
-     &rrtr(irrtr,4,4)*yv(2,j))+(dble(idz(2))*dpsv3(j))*rrtr(irrtr,4,6)   !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(9)=dpsv(j)
+            call thin4d_map_accelerating_cavity2(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
           enddo
  
 !----------------------------------------------------------------------
  
 ! Wire.
  
-          goto 470
+          goto 620
   745     continue
           xory=1
           nfree=nturn1(ix)
@@ -11427,58 +9525,29 @@
           nramp1=nturn2(ix)
           nplato=nturn3(ix)
           nramp2=nturn4(ix)
+
+          argf(1)=tiltc(i)
+          argf(2)=tilts(i)
+          argf(3)=xory
+          argf(4)=acdipamp
+          argf(5)=acdipamp1
+          argf(6)=acdipamp2
+          argf(7)=nramp1
+          argf(8)=nramp2
+          argf(9)=nac
+          argf(10)=nplato
+          argf(11)=qd
+          argf(12)=acphase
           do j=1,napx
-      if (xory.eq.1) then
-        acdipamp2=acdipamp*tilts(i)
-        acdipamp1=acdipamp*tiltc(i)
-      else
-        acdipamp2=acdipamp*tiltc(i)
-        acdipamp1=-acdipamp*tilts(i)
-      endif
-              if(nramp1.gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(1,j)=yv(1,j)+(((acdipamp1*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(2,j)=yv(2,j)+(((acdipamp2*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-              endif
-              if(nac.ge.nramp1.and.(nramp1+nplato).gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(1,j)=yv(1,j)+(acdipamp1*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(2,j)=yv(2,j)+(acdipamp2*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-              endif
-              if(nac.ge.(nramp1+nplato).and.(nramp2+nramp1+nplato).gt.  &
-     &nac)then
-!hr03         yv(1,j)=yv(1,j)+acdipamp1*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(1,j)=yv(1,j)+((acdipamp1*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-!hr03         yv(2,j)=yv(2,j)+acdipamp2*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(2,j)=yv(2,j)+((acdipamp2*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              endif
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(8)=ejfv(j)
+            call map_ac_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
       enddo
       endif
-          goto 470
+          goto 620
   746     continue
           xory=2
           nfree=nturn1(ix)
@@ -11496,58 +9565,29 @@
           nramp1=nturn2(ix)
           nplato=nturn3(ix)
           nramp2=nturn4(ix)
+
+          argf(1)=tiltc(i)
+          argf(2)=tilts(i)
+          argf(3)=xory
+          argf(4)=acdipamp
+          argf(5)=acdipamp1
+          argf(6)=acdipamp2
+          argf(7)=nramp1
+          argf(8)=nramp2
+          argf(9)=nac
+          argf(10)=nplato
+          argf(11)=qd
+          argf(12)=acphase
           do j=1,napx
-      if (xory.eq.1) then
-        acdipamp2=acdipamp*tilts(i)
-        acdipamp1=acdipamp*tiltc(i)
-      else
-        acdipamp2=acdipamp*tiltc(i)
-        acdipamp1=-acdipamp*tilts(i)
-      endif
-              if(nramp1.gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(1,j)=yv(1,j)+(((acdipamp1*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(2,j)=yv(2,j)+(((acdipamp2*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-              endif
-              if(nac.ge.nramp1.and.(nramp1+nplato).gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(1,j)=yv(1,j)+(acdipamp1*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(2,j)=yv(2,j)+(acdipamp2*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-              endif
-              if(nac.ge.(nramp1+nplato).and.(nramp2+nramp1+nplato).gt.  &
-     &nac)then
-!hr03         yv(1,j)=yv(1,j)+acdipamp1*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(1,j)=yv(1,j)+((acdipamp1*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-!hr03         yv(2,j)=yv(2,j)+acdipamp2*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(2,j)=yv(2,j)+((acdipamp2*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              endif
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(8)=ejfv(j)
+            call map_ac_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
       enddo
       endif
-          goto 470
+          goto 620
   751     continue
           xory=1
 !---------CrabAmp input in MV
@@ -11577,7 +9617,7 @@
             coord(8)=ejfv(j)
             coord(9)=dpsv(j)
             coord(10)=dpsv1(j)
-            call thin6d_map_crab_cavity_1(coord,argf,argi)
+            call map_crab_cavity_1(coord,argf,argi)
             yv(1,j)=coord(3)
             yv(2,j)=coord(4)
             oidpsv(j)=coord(5)
@@ -11589,7 +9629,7 @@
             ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
-          goto 470
+          goto 620
   752     continue
           xory=2
 !---------CrabAmp input in MV
@@ -11607,7 +9647,6 @@
           argf(5)=pma
           argf(6)=e0
           argf(7)=e0f
-          argf(8)=ithick
         do j=1,napx
             coord(1)=xv(1,j)
             coord(2)=xv(2,j)
@@ -11619,7 +9658,7 @@
             coord(8)=ejfv(j)
             coord(9)=dpsv(j)
             coord(10)=dpsv1(j)
-            call thin6d_map_crab_cavity_2(coord,argf,argi)
+            call map_crab_cavity_2(coord,argf,argi)
             yv(1,j)=coord(3)
             yv(2,j)=coord(4)
             oidpsv(j)=coord(5)
@@ -11631,55 +9670,48 @@
             ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
-          goto 470
+          goto 620
 !--DIPEDGE ELEMENT
-  753     continue
+  753      continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=strackx(i)
+          argf(7)=strackz(i)
           do j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackx(i)*crkve-                &
-     &stracks(i)*cikve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackz(i)*cikve+                &
-     &strackc(i)*crkve)
-          enddo
-          goto 470
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_dipedge(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+         enddo
+          goto 620
 !--solenoid
-  754     continue
+  754      continue
+          argf(1)=strackx(i)
+          argf(2)=strackz(i)
           do j=1,napx
-            yv(1,j)=yv(1,j)-xv(2,j)*strackx(i)
-            yv(2,j)=yv(2,j)+xv(1,j)*strackx(i)
-!hr02       crkve=yv(1,j)-xv(1,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      crkve=yv(1,j)-(((xv(1,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       cikve=yv(2,j)-xv(2,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      cikve=yv(2,j)-(((xv(2,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       yv(1,j)=crkve*cos(strackz(i)*ejf0v(j)/ejfv(j))+             &
-!hr02&cikve*sin(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       yv(2,j)=-crkve*sin(strackz(i)*ejf0v(j)/ejfv(j))+            &
-!hr02&cikve*cos(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       crkve=xv(1,j)*cos(strackz(i)*ejf0v(j)/ejfv(j))+             &
-!hr02&xv(2,j)*sin(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       cikve=-xv(1,j)*sin(strackz(i)*ejf0v(j)/ejfv(j))+            &
-!hr02&xv(2,j)*cos(strackz(i)*ejf0v(j)/ejfv(j))
-            yv(1,j)=crkve*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))+        &!hr02
-     &cikve*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                        !hr02
-            yv(2,j)=cikve*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))-        &!hr02
-     &crkve*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                        !hr02
-            crkve=xv(1,j)*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))+        &!hr02
-     &xv(2,j)*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                      !hr02
-            cikve=xv(2,j)*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))-        &!hr02
-     &xv(1,j)*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                      !hr02
-            xv(1,j)=crkve
-            xv(2,j)=cikve
-            yv(1,j)=yv(1,j)+xv(2,j)*strackx(i)
-            yv(2,j)=yv(2,j)-xv(1,j)*strackx(i)
-          enddo
-          goto 470
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)
+            call thin4d_map_solenoid(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+         enddo
+          goto 620
+ 
  
 !----------------------------
  
@@ -11708,198 +9740,27 @@
       ry = dy *cos_rn(ty)-lin *sin_rn(ty)
       lin= lin*cos_rn(ty)+dy  *sin_rn(ty)
  
+      argf(1)=embl
+      argf(2)=tx
+      argf(3)=ty
+      argf(4)=lin
+      argf(5)=rx
+      argf(6)=ry
+      argf(7)=cur
+      argf(8)=chi
+      argf(9)=l
+      argf(10)=leff
       do 750 j=1, napx
- 
-      xv(1,j) = xv(1,j) * c1m3
-      xv(2,j) = xv(2,j) * c1m3
-      yv(1,j) = yv(1,j) * c1m3
-      yv(2,j) = yv(2,j) * c1m3
- 
-!      write(*,*) 'Start: ',j,xv(1,j),xv(2,j),yv(1,j),
-!     &yv(2,j)
- 
-!     call drift(-embl/2)
- 
-!hr03 xv(1,j) = xv(1,j) - embl/2*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) -                                               &!hr03
-     &((embl*0.5d0)*yv(1,j))/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2)                                                        !hr03
-!hr03 xv(2,j) = xv(2,j) - embl/2*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) -                                               &!hr03
-     &((embl*0.5d0)*yv(2,j))/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2)                                                        !hr03
- 
-!     call tilt(tx,ty)
- 
-!hr03 xv(2,j) = xv(2,j)-xv(1,j)*sin_rn(tx)*yv(2,j)/sqrt((1+dpsv(j))**2- &
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))-tx)
-      xv(2,j) = xv(2,j)-(((xv(1,j)*sin_rn(tx))*yv(2,j))/                &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(2,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(1,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))-tx)                                                   !hr03
-!+if crlibm
-!hhr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(2,j)**2)/cos(atan(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))-tx)
-!hr03 xv(1,j) = xv(1,j)*(cos_rn(tx)-sin_rn(tx)*tan_rn(atan_rn(yv(1,j)/  &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx))
-      xv(1,j) = xv(1,j)*(cos_rn(tx)-sin_rn(tx)*tan_rn(atan_rn(yv(1,j)/  &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-tx))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx))
-!hr03 yv(1,j) = sqrt((1+dpsv(j))**2-yv(2,j)**2)*sin_rn(atan_rn(yv(1,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx)
-      yv(1,j) = sqrt((1d0+dpsv(j))**2-yv(2,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(1,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-tx)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx)
-!hr03 xv(1,j) = xv(1,j)-xv(2,j)*sin_rn(ty)*yv(1,j)/sqrt((1+dpsv(j))**2- &
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))-ty)
-      xv(1,j) = xv(1,j)-(((xv(2,j)*sin_rn(ty))*yv(1,j))/                &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(1,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(2,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))-ty)                                                   !hr03
-!+if crlibm
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(1,j)**2)/cos(atan(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))-ty)
-!hr03 xv(2,j) = xv(2,j)*(cos_rn(ty)-sin_rn(ty)*tan_rn(atan_rn(yv(2,j)/  &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty))
-      xv(2,j) = xv(2,j)*(cos_rn(ty)-sin_rn(ty)*tan_rn(atan_rn(yv(2,j)/  &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-ty))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty))
-!hr03 yv(2,j) = sqrt((1+dpsv(j))**2-yv(1,j)**2)*sin_rn(atan_rn(yv(2,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty)
-      yv(2,j) = sqrt((1d0+dpsv(j))**2-yv(1,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(2,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-ty)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty)
- 
-!     call drift(lin)
- 
-!hr03 xv(1,j) = xv(1,j) + lin*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-   &
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) + (lin*yv(1,j))/                                &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
-!hr03 xv(2,j) = xv(2,j) + lin*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-   &
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) + (lin*yv(2,j))/                                &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
- 
-!      call kick(l,cur,lin,rx,ry,chi)
- 
-      xi = xv(1,j)-rx
-      yi = xv(2,j)-ry
-!hr03 yv(1,j) = yv(1,j)-c1m7*cur/chi*xi/(xi**2+yi**2)*                  &
-!hr03&(sqrt((lin+l)**2+xi**2+yi**2)-sqrt((lin-l)**2+                    &
-!hr03&xi**2+yi**2))
-      yv(1,j) = yv(1,j)-((((c1m7*cur)/chi)*xi)/(xi**2+yi**2))*          &!hr03
-     &(sqrt(((lin+l)**2+xi**2)+yi**2)-sqrt(((lin-l)**2+                 &!hr03
-     &xi**2)+yi**2))                                                     !hr03
-!GRD FOR CONSISTENSY
-!hr03 yv(2,j) = yv(2,j)-c1m7*cur/chi*yi/(xi**2+yi**2)*                  &
-!hr03&(sqrt((lin+l)**2+xi**2+yi**2)-sqrt((lin-l)**2+                    &
-!hr03&xi**2+yi**2))
-      yv(2,j) = yv(2,j)-((((c1m7*cur)/chi)*yi)/(xi**2+yi**2))*          &!hr03
-     &(sqrt(((lin+l)**2+xi**2)+yi**2)-sqrt(((lin-l)**2+                 &!hr03
-     &xi**2)+yi**2))                                                     !hr03
- 
-!     call drift(leff-lin)
- 
-!hr03 xv(1,j) = xv(1,j) + (leff-lin)*yv(1,j)/sqrt((1+dpsv(j))**2-       &
-!hr03&yv(1,j)**2-yv(2,j)**2)
-      xv(1,j) = xv(1,j) + ((leff-lin)*yv(1,j))/sqrt(((1d0+dpsv(j))**2-  &!hr03
-     &yv(1,j)**2)-yv(2,j)**2)                                            !hr03
-!hr03 xv(2,j) = xv(2,j) + (leff-lin)*yv(2,j)/sqrt((1+dpsv(j))**2-       &
-!hr03&yv(1,j)**2-yv(2,j)**2)
-      xv(2,j) = xv(2,j) + ((leff-lin)*yv(2,j))/sqrt(((1d0+dpsv(j))**2-  &!hr03
-     &yv(1,j)**2)-yv(2,j)**2)                                            !hr03
- 
-!     call invtilt(tx,ty)
- 
-!hr03 xv(1,j) = xv(1,j)-xv(2,j)*sin_rn(-ty)*yv(1,j)/sqrt((1+dpsv(j))**2-&
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))+ty)
-      xv(1,j) = xv(1,j)-(((xv(2,j)*sin_rn(-ty))*yv(1,j))/               &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(1,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(2,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))+ty)                                                   !hr03
-!+if crlibm
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(1,j)**2)/cos(atan(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))+ty)
-!hr03 xv(2,j) = xv(2,j)*(cos_rn(-ty)-sin_rn(-ty)*tan_rn(atan_rn(yv(2,j)/&
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty))
-      xv(2,j) = xv(2,j)*                                                &!hr03
-     &(cos_rn(-1d0*ty)-sin_rn(-1d0*ty)*tan_rn(atan_rn(yv(2,j)/          &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+ty))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty))
-!hr03 yv(2,j) = sqrt((1+dpsv(j))**2-yv(1,j)**2)*sin_rn(atan_rn(yv(2,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty)
-      yv(2,j) = sqrt((1d0+dpsv(j))**2-yv(1,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(2,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+ty)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty)
- 
-!hr03 xv(2,j) = xv(2,j)-xv(1,j)*sin_rn(-tx)*yv(2,j)/sqrt((1+dpsv(j))**2-&
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))+tx)
-      xv(2,j) = xv(2,j)-(((xv(1,j)*sin_rn(-1d0*tx))*yv(2,j))/           &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(2,j)**2))/cos_rn(atan_rn(yv(1,j)/        &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx)                !hr03
-!+if crlibm
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(2,j)**2)/cos(atan(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))+tx)
-!hr03 xv(1,j) = xv(1,j)*(cos_rn(-tx)-sin_rn(-tx)*tan_rn(atan_rn(yv(1,j)/
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx))
-      xv(1,j) = xv(1,j)*                                                &!hr03
-     &(cos_rn(-1d0*tx)-sin_rn(-1d0*tx)*tan_rn(atan_rn(yv(1,j)/          &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx))
-!hr03 yv(1,j) = sqrt((1+dpsv(j))**2-yv(2,j)**2)*sin_rn(atan_rn(yv(1,j)/
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx)
-      yv(1,j) = sqrt((1d0+dpsv(j))**2-yv(2,j)**2)*                       !hr03
-     &sin_rn(atan_rn(yv(1,j)/                                            !hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx)
- 
-!     call shift(-embl*tan(tx),-embl*tan(ty)/cos(tx))
- 
-      xv(1,j) = xv(1,j) + embl*tan_rn(tx)
-!hr03 xv(2,j) = xv(2,j) + embl*tan_rn(ty)/cos_rn(tx)
-      xv(2,j) = xv(2,j) + (embl*tan_rn(ty))/cos_rn(tx)                   !hr03
- 
-!     call drift(-embl/2)
- 
-!hr03 xv(1,j) = xv(1,j) - embl/2*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) - ((embl*0.5d0)*yv(1,j))/                       &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
-!hr03 xv(2,j) = xv(2,j) - embl/2*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) - ((embl*0.5d0)*yv(2,j))/                       &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
- 
-      xv(1,j) = xv(1,j) * c1e3
-      xv(2,j) = xv(2,j) * c1e3
-      yv(1,j) = yv(1,j) * c1e3
-      yv(2,j) = yv(2,j) * c1e3
+        coord(1)=xv(1,j)
+        coord(2)=xv(2,j)
+        coord(3)=yv(1,j)
+        coord(4)=yv(2,j)
+        coord(9)=dpsv(j)
+        call map_wire(coord,argf,argi)
+        xv(1,j)=coord(1)
+        xv(2,j)=coord(2)
+        yv(1,j)=coord(3)
+        yv(2,j)=coord(4)
  
 !      write(*,*) 'End: ',j,xv(1,j),xv(2,j),yv(1,j),                       &
 !     &yv(2,j)
@@ -12220,481 +10081,390 @@
                 yv(2,j)=coord(4)
    30       continue
             goto 500
-   40       do 50 j=1,napx
-              ejf0v(j)=ejfv(j)
-              if(abs(dppoff).gt.pieni) sigmv(j)=sigmv(j)-sigmoff(i)
-              if(kz(ix).eq.12) then
-                ejv(j)=ejv(j)+ed(ix)*sin_rn(hsyc(ix)*sigmv(j)+
-     &phasc(ix))
-              else
-                ejv(j)=ejv(j)+hsy(1)*sin_rn(hsy(3)*sigmv(j))
-              endif
-!hr01         ejfv(j)=sqrt(ejv(j)*ejv(j)-pma*pma)
-              ejfv(j)=sqrt(ejv(j)**2-pma**2)                             !hr01
-              rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
-              dpsv(j)=(ejfv(j)-e0f)/e0f
-              oidpsv(j)=one/(one+dpsv(j))
-!hr01         dpsv1(j)=dpsv(j)*c1e3*oidpsv(j)
-              dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)                          !hr01
-!hr01         yv(1,j)=ejf0v(j)/ejfv(j)*yv(1,j)
-              yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)                         !hr01
-!hr01   50       yv(2,j)=ejf0v(j)/ejfv(j)*yv(2,j)
-   50       yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)                           !hr01
+   40     argf(1)=e0
+          argf(2)=e0f
+          argf(3)=pma
+          argf(4)=dppoff
+          argf(5)=kz(ix)
+          argf(6)=ed(ix)
+          argf(7)=hsyc(ix)
+          argf(8)=phasc(ix)
+          argf(9)=hsy(1)
+          argf(10)=hsy(3)
+          argf(11)=sigmoff(i)
+          do 50 j=1,napx
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)
+            call thin6d_map_accelarating_cavity(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+   50       continue
             if(n.eq.1) write(98,'(1p,6(2x,e25.18))')                    &
      &(xv(1,j),yv(1,j),xv(2,j),yv(2,j),sigmv(j),dpsv(j),                &
      &j=1,napx)
             call synuthck
             goto 490
 !--HORIZONTAL DIPOLE
-   60       do 70 j=1,napx
-            yv(1,j)=yv(1,j)+strackc(i)*oidpsv(j)
-            yv(2,j)=yv(2,j)+stracks(i)*oidpsv(j)
+   60     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          do 70 j=1,napx
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_horizontal_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
    70       continue
             goto 490
 !--NORMAL QUADRUPOLE
-   80       do 90 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+   80     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 90 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_quadrupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
    90       continue
             goto 490
 !--NORMAL SEXTUPOLE
-  100       do 110 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  100     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 110 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_sextupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   110       continue
             goto 490
 !--NORMAL OCTUPOLE
-  120       do 130 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  120     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 130 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_octupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4) 
   130       continue
             goto 490
 !--NORMAL DECAPOLE
-  140       do 150 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  140       argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 150 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_decapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   150       continue
             goto 490
 !--NORMAL DODECAPOLE
-  160       do 170 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  160     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 170 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_dodecapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   170       continue
             goto 490
 !--NORMAL 14-POLE
-  180       do 190 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  180     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 190 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_14pole(coord,argf,argi)
+            yv(1,j)=coord(3)                       
+            yv(2,j)=coord(4)
   190       continue
             goto 490
 !--NORMAL 16-POLE
-  200       do 210 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  200       argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 210 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_16pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   210       continue
             goto 490
 !--NORMAL 18-POLE
-  220       do 230 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  220     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 230 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_18pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   230       continue
             goto 490
 !--NORMAL 20-POLE
-  240       do 250 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  240     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 250 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_20pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   250       continue
             goto 490
   520       continue
-            do 530 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tiltc(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tiltc(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,1)
+          do 530 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purehor_nzapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   530       continue
             goto 490
   540       continue
-            do 550 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tiltc(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tiltc(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,1)
+          do 550 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_hor_nzapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   550       continue
             goto 260
   560       continue
-            do 570 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-strackc(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-strackc(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
+          do 570 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purehor_zapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   570       continue
             goto 490
   580       continue
-            do 590 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-strackc(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-strackc(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
+          do 590 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_hor_zapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   590       continue
             goto 260
   600       continue
-            do 610 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)+(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)+(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tiltc(i)                                     &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)-(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tiltc(i))                                   &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
+          do 610 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purever_nzapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   610       continue
             goto 490
   620       continue
-            do 630 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)+(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)+(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tiltc(i)                                     &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)-(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tiltc(i))                                   &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
+          do 630 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_ver_nzapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   630       continue
             goto 260
   640       continue
-            do 650 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)+strackc(i)*dpsv1(j)                         &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)+strackc(i)*dpsv1(j))                       &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
+          do 650 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purever_zapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   650       continue
             goto 490
   660       continue
-            do 670 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)+strackc(i)*dpsv1(j)                         &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)+strackc(i)*dpsv1(j))                       &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
+          do 670 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_ver_zapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   670       continue
   260       r0=ek(ix)
             nmz=nmu(ix)
@@ -12735,760 +10505,389 @@
             goto 490
 !--SKEW ELEMENTS
 !--VERTICAL DIPOLE
-  290       do 300 j=1,napx
-            yv(1,j)=yv(1,j)-stracks(i)*oidpsv(j)
-            yv(2,j)=yv(2,j)+strackc(i)*oidpsv(j)
+  290     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          do 300 j=1,napx
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_vertical_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   300       continue
             goto 490
 !--SKEW QUADRUPOLE
-  310       do 320 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  310     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 320 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_quadrupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   320       continue
             goto 490
 !--SKEW SEXTUPOLE
-  330       do 340 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  330     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 340 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_sextupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   340       continue
             goto 490
 !--SKEW OCTUPOLE
-  350       do 360 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  350     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 360 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_octupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   360       continue
             goto 490
 !--SKEW DECAPOLE
-  370       do 380 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  370     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 380 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_decapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   380       continue
             goto 490
 !--SKEW DODECAPOLE
-  390       do 400 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  390     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 400 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_dodecapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   400       continue
             goto 490
 !--SKEW 14-POLE
-  410       do 420 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  410     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 420 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_14pole(coord,argf,argi)
+            yv(1,j)=coord(3)                       
+            yv(2,j)=coord(4)
   420       continue
             goto 490
 !--SKEW 16-POLE
-  430       do 440 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  430     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 440 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_16pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   440       continue
             goto 490
 !--SKEW 18-POLE
-  450       do 460 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  450     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 460 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_18pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   460       continue
             goto 490
 !--SKEW 20-POLE
-  470       do 480 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  470     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 480 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_20pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   480       continue
           goto 490
   680     continue
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
           do 690 j=1,napx
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-!hr08       rho2b(j)=crkveb(j)*crkveb(j)+cikveb(j)*cikveb(j)
-            rho2b(j)=crkveb(j)**2+cikveb(j)**2                           !hr08
-            if(rho2b(j).le.pieni)                                       &
-     &goto 690
-            tkb(j)=rho2b(j)/(two*sigman2(1,imbb(i)))
-            if(ibbc.eq.0) then
-!hr03         yv(1,j)=yv(1,j)+oidpsv(j)*(strack(i)*crkveb(j)/rho2b(j)*  &
-!hr03         yv(1,j)=yv(1,j)+oidpsv(j)*(strack(i)*crkveb(j)/rho2b(j)*  &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))
-          yv(1,j)=yv(1,j)+oidpsv(j)*(((strack(i)*crkveb(j))/rho2b(j))*  &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))                      !hr03
-!hr03         yv(2,j)=yv(2,j)+oidpsv(j)*(strack(i)*cikveb(j)/rho2b(j)*  &
-!hr03         yv(2,j)=yv(2,j)+oidpsv(j)*(strack(i)*cikveb(j)/rho2b(j)*  &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))
-          yv(2,j)=yv(2,j)+oidpsv(j)*(((strack(i)*cikveb(j))/rho2b(j))*  &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))                      !hr03
-            else
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),11)-       &
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-              cccc=(((strack(i)*crkveb(j))/rho2b(j))*                   &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),11)-   &!hr03
-     &(((strack(i)*cikveb(j))/rho2b(j))*                                &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)     !hr03
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!+if crlibm
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-!+ei
-!+if .not.crlibm
-!hr03&(one-exp(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-!+ei
-              yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),12)+       &
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-              cccc=(((strack(i)*crkveb(j))/rho2b(j))*                   &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),12)+   &!hr03
-     &(((strack(i)*cikveb(j))/rho2b(j))*                                &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)     !hr03
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!+if crlibm
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-!+ei
-!+if .not.crlibm
-!hr03&(one-exp(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-!+ei
-              yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-            endif
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_beambeam_type1(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4) 
   690     continue
-          goto 490
+          goto 640
   700     continue
-          if(ibtyp.eq.0) then
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
+          argf(23)=napx
+          argf(24)=ibtyp
             do j=1,napx
-              r2b(j)=two*(sigman2(1,imbb(i))-sigman2(2,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-              call errf(xrb(j),zrb(j),crxb(j),crzb(j))
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-              call errf(xbb(j),zbb(j),cbxb(j),cbzb(j))
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              call map_beambeam_type2(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4) 
             enddo
-          else if(ibtyp.eq.1) then
-            do j=1,napx
-              r2b(j)=two*(sigman2(1,imbb(i))-sigman2(2,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-            enddo
-            call wzsubv(napx,xrb(1),zrb(1),crxb(1),crzb(1))
-            call wzsubv(napx,xbb(1),zbb(1),cbxb(1),cbzb(1))
-            do j=1,napx
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
-            enddo
-          endif
-          goto 490
+          goto 640
   720     continue
-          if(ibtyp.eq.0) then
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
+          argf(23)=napx
+          argf(24)=ibtyp
             do j=1,napx
-              r2b(j)=two*(sigman2(2,imbb(i))-sigman2(1,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-              call errf(zrb(j),xrb(j),crzb(j),crxb(j))
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-              call errf(zbb(j),xbb(j),cbzb(j),cbxb(j))
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              call map_beambeam_type3(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4) 
             enddo
-          else if(ibtyp.eq.1) then
-            do j=1,napx
-              r2b(j)=two*(sigman2(2,imbb(i))-sigman2(1,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-            enddo
-            call wzsubv(napx,zrb(1),xrb(1),crzb(1),crxb(1))
-            call wzsubv(napx,zbb(1),xbb(1),cbzb(1),cbxb(1))
-            do j=1,napx
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
-            enddo
-          endif
-          goto 490
+          goto 640
   730     continue
 !--Hirata's 6D beam-beam kick
-            do j=1,napx
-!hr03         track6d(1,j)=(xv(1,j)+ed(ix)-clobeam(1,imbb(i)))*c1m3
-              track6d(1,j)=((xv(1,j)+ed(ix))-clobeam(1,imbb(i)))*c1m3    !hr03
-              track6d(2,j)=(yv(1,j)/oidpsv(j)-clobeam(4,imbb(i)))*c1m3
-!hr03         track6d(3,j)=(xv(2,j)+ek(ix)-clobeam(2,imbb(i)))*c1m3
-              track6d(3,j)=((xv(2,j)+ek(ix))-clobeam(2,imbb(i)))*c1m3    !hr03
-              track6d(4,j)=(yv(2,j)/oidpsv(j)-clobeam(5,imbb(i)))*c1m3
-              track6d(5,j)=(sigmv(j)-clobeam(3,imbb(i)))*c1m3
-              track6d(6,j)=dpsv(j)-clobeam(6,imbb(i))
+            argf(1)=ed(ix)
+            argf(2)=ek(ix)   
+            argf(3)=e0 
+            argf(4)=e0f
+            argf(5)=pma
+            argf(6)=clobeam(1,imbb(i))
+            argf(7)=clobeam(2,imbb(i))
+            argf(8)=clobeam(3,imbb(i))
+            argf(9)=clobeam(4,imbb(i))
+            argf(10)=clobeam(5,imbb(i))
+            argf(11)=clobeam(6,imbb(i))
+            argf(12)=beamoff(1,imbb(i))
+            argf(13)=beamoff(2,imbb(i))
+            argf(14)=beamoff(3,imbb(i))
+            argf(15)=beamoff(4,imbb(i))
+            argf(16)=beamoff(5,imbb(i))
+            argf(17)=beamoff(6,imbb(i))
+            argf(18)=parbe(ix,1)
+            argf(19)=parbe(ix,2)
+            argf(20)=parbe(ix,3)
+            argf(21)=parbe(ix,4)
+            argf(22)=parbe(ix,5)      
+            argf(23)=ibtyp
+            argf(24)=ibbc   
+            argf(25)=sigz
+            argf(26)=imbb(i)
+            argf(27)=ithick
+            do j=1,12
+              argf(26+j)=bbcu(imbb(i),j)
             enddo
-            call beamint(napx,track6d,parbe,sigz,bbcu,imbb(i),ix,ibtyp, &
-     &ibbc)
             do j=1,napx
-!hr03         xv(1,j)=track6d(1,j)*c1e3+clobeam(1,imbb(i))-             &
-              xv(1,j)=(track6d(1,j)*c1e3+clobeam(1,imbb(i)))-           &!hr03
-     &beamoff(1,imbb(i))
-!hr03         xv(2,j)=track6d(3,j)*c1e3+clobeam(2,imbb(i))-             &
-              xv(2,j)=(track6d(3,j)*c1e3+clobeam(2,imbb(i)))-           &!hr03
-     &beamoff(2,imbb(i))
-!hr03         dpsv(j)=track6d(6,j)+clobeam(6,imbb(i))-beamoff(6,imbb(i))
-              dpsv(j)=(track6d(6,j)+clobeam(6,imbb(i)))-                &!hr03
-     &beamoff(6,imbb(i))                                                 !hr03
-              oidpsv(j)=one/(one+dpsv(j))
-!hr03         yv(1,j)=(track6d(2,j)*c1e3+clobeam(4,imbb(i))-            &
-              yv(1,j)=((track6d(2,j)*c1e3+clobeam(4,imbb(i)))-          &!hr03
-     &beamoff(4,imbb(i)))*oidpsv(j)
-!hr03         yv(2,j)=(track6d(4,j)*c1e3+clobeam(5,imbb(i))-            &
-              yv(2,j)=((track6d(4,j)*c1e3+clobeam(5,imbb(i)))-          &!hr03
-     &beamoff(5,imbb(i)))*oidpsv(j)
-              ejfv(j)=dpsv(j)*e0f+e0f
-!hr03         ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-              ejv(j)=sqrt(ejfv(j)**2+pma**2)
-              rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(6)=sigmv(j)
+              coord(7)=ejv(j)
+              coord(8)=ejfv(j)
+              coord(9)=dpsv(j)
+              coord(13)=rvv(j)
+              call thin6d_map_hirata_beambeam(coord,argf,argi)
+              xv(1,j)=coord(1)
+              xv(2,j)=coord(2)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4)
+              oidpsv(j)=coord(5)
+              sigmv(j)=coord(6)
+              ejv(j)=coord(7)
+              ejfv(j)=coord(8)
+              dpsv(j)=coord(9)
+              rvv(j)=coord(13)
               if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
             enddo
-          goto 490
+          goto 640
   740     continue
           irrtr=imtr(ix)
+          argf(1)=idz(1)
+          argf(2)=idz(2)
+          argf(3)=cotr(irrtr,1)
+          argf(4)=cotr(irrtr,2)
+          argf(5)=cotr(irrtr,3)
+          argf(6)=cotr(irrtr,4)
+          argf(7)=cotr(irrtr,5)
+          argf(8)=cotr(irrtr,6)
+          argf(9)=rrtr(irrtr,5,1)
+          argf(10)=rrtr(irrtr,5,2)
+          argf(11)=rrtr(irrtr,5,3)
+          argf(12)=rrtr(irrtr,5,4)
+          argf(13)=rrtr(irrtr,5,6)
+          argf(14)=rrtr(irrtr,1,1)
+          argf(15)=rrtr(irrtr,1,2)
+          argf(16)=rrtr(irrtr,1,6)
+          argf(17)=rrtr(irrtr,2,1)
+          argf(18)=rrtr(irrtr,2,2)
+          argf(19)=rrtr(irrtr,2,6)
+          argf(20)=rrtr(irrtr,3,3)
+          argf(21)=rrtr(irrtr,3,4)
+          argf(22)=rrtr(irrtr,3,6)
+          argf(23)=rrtr(irrtr,4,3)
+          argf(24)=rrtr(irrtr,4,4)
+          argf(25)=rrtr(irrtr,4,6)          
           do j=1,napx
-!hr03       sigmv(j)=sigmv(j)+cotr(irrtr,5)+rrtr(irrtr,5,1)*xv(1,j)+    &
-!hr03&rrtr(irrtr,5,2)*yv(1,j)+rrtr(irrtr,5,3)*xv(2,j)+                  &
-!hr03&rrtr(irrtr,5,4)*yv(2,j)+rrtr(irrtr,5,6)*dpsv(j)*c1e3
-      sigmv(j)=(((((sigmv(j)+cotr(irrtr,5))+rrtr(irrtr,5,1)*xv(1,j))+   &!hr03
-     &rrtr(irrtr,5,2)*yv(1,j))+rrtr(irrtr,5,3)*xv(2,j))+                &!hr03
-!BNL-NOV08
-!     &rrtr(irrtr,5,4)*yv(2,j)
-     &rrtr(irrtr,5,4)*yv(2,j))+(rrtr(irrtr,5,6)*dpsv(j))*c1e3            !hr03
-!BNL-NOV08
-            pux=xv(1,j)
-            dpsv3(j)=dpsv(j)*c1e3
-!hr03       xv(1,j)=cotr(irrtr,1)+rrtr(irrtr,1,1)*pux+                  &
-!hr03&rrtr(irrtr,1,2)*yv(1,j)+idz(1)*dpsv3(j)*rrtr(irrtr,1,6)
-            xv(1,j)=((cotr(irrtr,1)+rrtr(irrtr,1,1)*pux)+               &!hr03
-     &rrtr(irrtr,1,2)*yv(1,j))+(dble(idz(1))*dpsv3(j))*rrtr(irrtr,1,6)   !hr03
-!hr03       yv(1,j)=cotr(irrtr,2)+rrtr(irrtr,2,1)*pux+                  &
-!hr03&rrtr(irrtr,2,2)*yv(1,j)+idz(1)*dpsv3(j)*rrtr(irrtr,2,6)
-            yv(1,j)=((cotr(irrtr,2)+rrtr(irrtr,2,1)*pux)+               &!hr03
-     &rrtr(irrtr,2,2)*yv(1,j))+(dble(idz(1))*dpsv3(j))*rrtr(irrtr,2,6)   !hr03
-            pux=xv(2,j)
-!hr03       xv(2,j)=cotr(irrtr,3)+rrtr(irrtr,3,3)*pux+                  &
-!hr03&rrtr(irrtr,3,4)*yv(2,j)+idz(2)*dpsv3(j)*rrtr(irrtr,3,6)
-            xv(2,j)=((cotr(irrtr,3)+rrtr(irrtr,3,3)*pux)+               &!hr03
-     &rrtr(irrtr,3,4)*yv(2,j))+(dble(idz(2))*dpsv3(j))*rrtr(irrtr,3,6)   !hr03
-!hr03       yv(2,j)=cotr(irrtr,4)+rrtr(irrtr,4,3)*pux+                  &
-!hr03&rrtr(irrtr,4,4)*yv(2,j)+idz(2)*dpsv3(j)*rrtr(irrtr,4,6)
-            yv(2,j)=((cotr(irrtr,4)+rrtr(irrtr,4,3)*pux)+               &!hr03
-     &rrtr(irrtr,4,4)*yv(2,j))+(dble(idz(2))*dpsv3(j))*rrtr(irrtr,4,6)   !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            call thin6d_map_accelerating_cavity2(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
           enddo
  
 !----------------------------------------------------------------------
  
 ! Wire.
  
-          goto 490
+          goto 640
   745     continue
           xory=1
           nfree=nturn1(ix)
@@ -13506,58 +10905,29 @@
           nramp1=nturn2(ix)
           nplato=nturn3(ix)
           nramp2=nturn4(ix)
+
+          argf(1)=tiltc(i)
+          argf(2)=tilts(i)
+          argf(3)=xory
+          argf(4)=acdipamp
+          argf(5)=acdipamp1
+          argf(6)=acdipamp2
+          argf(7)=nramp1
+          argf(8)=nramp2
+          argf(9)=nac
+          argf(10)=nplato
+          argf(11)=qd
+          argf(12)=acphase
           do j=1,napx
-      if (xory.eq.1) then
-        acdipamp2=acdipamp*tilts(i)
-        acdipamp1=acdipamp*tiltc(i)
-      else
-        acdipamp2=acdipamp*tiltc(i)
-        acdipamp1=-acdipamp*tilts(i)
-      endif
-              if(nramp1.gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(1,j)=yv(1,j)+(((acdipamp1*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(2,j)=yv(2,j)+(((acdipamp2*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-              endif
-              if(nac.ge.nramp1.and.(nramp1+nplato).gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(1,j)=yv(1,j)+(acdipamp1*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(2,j)=yv(2,j)+(acdipamp2*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-              endif
-              if(nac.ge.(nramp1+nplato).and.(nramp2+nramp1+nplato).gt.  &
-     &nac)then
-!hr03         yv(1,j)=yv(1,j)+acdipamp1*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(1,j)=yv(1,j)+((acdipamp1*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-!hr03         yv(2,j)=yv(2,j)+acdipamp2*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(2,j)=yv(2,j)+((acdipamp2*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              endif
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(8)=ejfv(j)
+            call map_ac_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
       enddo
       endif
-          goto 490
+          goto 640
   746     continue
           xory=2
           nfree=nturn1(ix)
@@ -13575,58 +10945,29 @@
           nramp1=nturn2(ix)
           nplato=nturn3(ix)
           nramp2=nturn4(ix)
+
+          argf(1)=tiltc(i)
+          argf(2)=tilts(i)
+          argf(3)=xory
+          argf(4)=acdipamp
+          argf(5)=acdipamp1
+          argf(6)=acdipamp2
+          argf(7)=nramp1
+          argf(8)=nramp2
+          argf(9)=nac
+          argf(10)=nplato
+          argf(11)=qd
+          argf(12)=acphase
           do j=1,napx
-      if (xory.eq.1) then
-        acdipamp2=acdipamp*tilts(i)
-        acdipamp1=acdipamp*tiltc(i)
-      else
-        acdipamp2=acdipamp*tiltc(i)
-        acdipamp1=-acdipamp*tilts(i)
-      endif
-              if(nramp1.gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(1,j)=yv(1,j)+(((acdipamp1*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(2,j)=yv(2,j)+(((acdipamp2*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-              endif
-              if(nac.ge.nramp1.and.(nramp1+nplato).gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(1,j)=yv(1,j)+(acdipamp1*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(2,j)=yv(2,j)+(acdipamp2*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-              endif
-              if(nac.ge.(nramp1+nplato).and.(nramp2+nramp1+nplato).gt.  &
-     &nac)then
-!hr03         yv(1,j)=yv(1,j)+acdipamp1*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(1,j)=yv(1,j)+((acdipamp1*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-!hr03         yv(2,j)=yv(2,j)+acdipamp2*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(2,j)=yv(2,j)+((acdipamp2*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              endif
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(8)=ejfv(j)
+            call map_ac_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
       enddo
       endif
-          goto 490
+          goto 640
   751     continue
           xory=1
 !---------CrabAmp input in MV
@@ -13637,32 +10978,38 @@
           pi=4d0*atan_rn(1d0)
         crabfreq=ek(ix)*c1e3
  
+          argf(1)=crabamp
+          argf(2)=crabfreq
+          argf(3)=crabph(ix)
+          argf(4)=ed(ix)
+          argf(5)=pma
+          argf(6)=e0
+          argf(7)=e0f
+          argf(8)=ithick
         do j=1,napx
-!hr03    crabamp=ed(ix)/(ejfv(j))*c1e3
-         crabamp=(ed(ix)/ejfv(j))*c1e3                                   !hr03
-!        write(*,*) crabamp, ejfv(j), clight, "HELLO"
- 
-!hr03   yv(xory,j)=yv(xory,j) - crabamp*                                &
-!hr03&sin_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))
-        yv(xory,j)=yv(xory,j) - crabamp*                                &!hr03
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))         !hr03
-!hr03 dpsv(j)=dpsv(j) - crabamp*crabfreq*2d0*pi/clight*xv(xory,j)*      &
-!hr03&cos_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))*c1m3
-      dpsv(j)=dpsv(j) -                                                 &!hr03
-     &((((((crabamp*crabfreq)*2d0)*pi)/clight)*xv(xory,j))*             &!hr03
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix)))*c1m3   !hr03
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call map_crab_cavity_1(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
-          goto 490
+          goto 640
   752     continue
           xory=2
 !---------CrabAmp input in MV
@@ -13672,95 +11019,80 @@
 !---------sigmv should be in mm --> sigmv*1e-3/clight*ek*1e6 in rad
           pi=4d0*atan_rn(1d0)
         crabfreq=ek(ix)*c1e3
- 
+
+          argf(1)=crabamp
+          argf(2)=crabfreq
+          argf(3)=crabph(ix)
+          argf(4)=ed(ix)
+          argf(5)=pma
+          argf(6)=e0
+          argf(7)=e0f
         do j=1,napx
-!hr03    crabamp=ed(ix)/(ejfv(j))*c1e3
-         crabamp=(ed(ix)/ejfv(j))*c1e3                                   !hr03
-!        write(*,*) crabamp, ejfv(j), clight, "HELLO"
- 
-!hr03   yv(xory,j)=yv(xory,j) - crabamp*                                &
-!hr03&sin_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))
-        yv(xory,j)=yv(xory,j) - crabamp*                                &!hr03
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))         !hr03
-!hr03 dpsv(j)=dpsv(j) - crabamp*crabfreq*2d0*pi/clight*xv(xory,j)*      &
-!hr03&cos_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))*c1m3
-      dpsv(j)=dpsv(j) -                                                 &!hr03
-     &((((((crabamp*crabfreq)*2d0)*pi)/clight)*xv(xory,j))*             &!hr03
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix)))*c1m3   !hr03
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call map_crab_cavity_2(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
-          goto 490
+          goto 640
 !--DIPEDGE ELEMENT
   753     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=strackx(i)
+          argf(7)=strackz(i)
           do j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackx(i)*crkve-                &
-     &stracks(i)*cikve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackz(i)*cikve+                &
-     &strackc(i)*crkve)
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_dipedge(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
           enddo
-          goto 490
+          goto 640
 !--solenoid
   754     continue
+          argf(1)=strackx(i)
+          argf(2)=strackz(i)
           do j=1,napx
-            yv(1,j)=yv(1,j)-xv(2,j)*strackx(i)
-            yv(2,j)=yv(2,j)+xv(1,j)*strackx(i)
-!hr02       crkve=yv(1,j)-xv(1,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      crkve=yv(1,j)-(((xv(1,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       cikve=yv(2,j)-xv(2,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      cikve=yv(2,j)-(((xv(2,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       yv(1,j)=crkve*cos(strackz(i)*ejf0v(j)/ejfv(j))+             &
-!hr02&cikve*sin(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       yv(2,j)=-crkve*sin(strackz(i)*ejf0v(j)/ejfv(j))+            &
-!hr02&cikve*cos(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       crkve=xv(1,j)*cos(strackz(i)*ejf0v(j)/ejfv(j))+             &
-!hr02&xv(2,j)*sin(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       cikve=-xv(1,j)*sin(strackz(i)*ejf0v(j)/ejfv(j))+            &
-!hr02&xv(2,j)*cos(strackz(i)*ejf0v(j)/ejfv(j))
-            yv(1,j)=crkve*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))+        &!hr02
-     &cikve*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                        !hr02
-            yv(2,j)=cikve*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))-        &!hr02
-     &crkve*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                        !hr02
-            crkve=xv(1,j)*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))+        &!hr02
-     &xv(2,j)*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                      !hr02
-            cikve=xv(2,j)*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))-        &!hr02
-     &xv(1,j)*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                      !hr02
-            xv(1,j)=crkve
-            xv(2,j)=cikve
-            yv(1,j)=yv(1,j)+xv(2,j)*strackx(i)
-            yv(2,j)=yv(2,j)-xv(1,j)*strackx(i)
-!hr02       crkve=sigmv(j)-0.5*(xv(1,j)*xv(1,j)+xv(2,j)*xv(2,j))*       &
-!hr02&strackx(i)*strackz(i)*rvv(j)*ejf0v(j)/ejfv(j)*ejf0v(j)/ejfv(j)
-        crkve=sigmv(j)-0.5d0*(((((((xv(1,j)**2+xv(2,j)**2)*strackx(i))* &!hr02
-     &strackz(i))*rvv(j))*ejf0v(j))/ejfv(j))*ejf0v(j))/ejfv(j)           !hr02
-            sigmv(j)=crkve
-!hr02       crkve=yv(1,j)-xv(1,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      crkve=yv(1,j)-(((xv(1,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       cikve=yv(2,j)-xv(2,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      cikve=yv(2,j)-(((xv(2,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       sigmv(j)=sigmv(j)+(xv(1,j)*cikve-xv(2,j)*crkve)*strackz(i)* &
-!hr02&rvv(j)*ejf0v(j)/ejfv(j)*ejf0v(j)/ejfv(j)
-      sigmv(j)=sigmv(j)+((((((xv(1,j)*cikve-xv(2,j)*crkve)*strackz(i))* &!hr02
-     &rvv(j))*ejf0v(j))/ejfv(j))*ejf0v(j))/ejfv(j)                       !hr02
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)
+            call thin6d_map_solenoid(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
           enddo
-          goto 490
- 
+          goto 640
 !----------------------------
  
 ! Wire.
@@ -13788,201 +11120,27 @@
       ry = dy *cos_rn(ty)-lin *sin_rn(ty)
       lin= lin*cos_rn(ty)+dy  *sin_rn(ty)
  
+      argf(1)=embl
+      argf(2)=tx
+      argf(3)=ty
+      argf(4)=lin
+      argf(5)=rx
+      argf(6)=ry
+      argf(7)=cur
+      argf(8)=chi
+      argf(9)=l
+      argf(10)=leff
       do 750 j=1, napx
- 
-      xv(1,j) = xv(1,j) * c1m3
-      xv(2,j) = xv(2,j) * c1m3
-      yv(1,j) = yv(1,j) * c1m3
-      yv(2,j) = yv(2,j) * c1m3
- 
-!      write(*,*) 'Start: ',j,xv(1,j),xv(2,j),yv(1,j),
-!     &yv(2,j)
- 
-!     call drift(-embl/2)
- 
-!hr03 xv(1,j) = xv(1,j) - embl/2*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) -                                               &!hr03
-     &((embl*0.5d0)*yv(1,j))/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2)                                                        !hr03
-!hr03 xv(2,j) = xv(2,j) - embl/2*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) -                                               &!hr03
-     &((embl*0.5d0)*yv(2,j))/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2)                                                        !hr03
- 
-!     call tilt(tx,ty)
- 
-!hr03 xv(2,j) = xv(2,j)-xv(1,j)*sin_rn(tx)*yv(2,j)/sqrt((1+dpsv(j))**2- &
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))-tx)
-      xv(2,j) = xv(2,j)-(((xv(1,j)*sin_rn(tx))*yv(2,j))/                &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(2,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(1,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))-tx)                                                   !hr03
-!+if crlibm
-!hhr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(2,j)**2)/cos(atan(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))-tx)
-!hr03 xv(1,j) = xv(1,j)*(cos_rn(tx)-sin_rn(tx)*tan_rn(atan_rn(yv(1,j)/  &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx))
-      xv(1,j) = xv(1,j)*(cos_rn(tx)-sin_rn(tx)*tan_rn(atan_rn(yv(1,j)/  &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-tx))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx))
-!hr03 yv(1,j) = sqrt((1+dpsv(j))**2-yv(2,j)**2)*sin_rn(atan_rn(yv(1,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx)
-      yv(1,j) = sqrt((1d0+dpsv(j))**2-yv(2,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(1,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-tx)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx)
-!hr03 xv(1,j) = xv(1,j)-xv(2,j)*sin_rn(ty)*yv(1,j)/sqrt((1+dpsv(j))**2- &
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))-ty)
-      xv(1,j) = xv(1,j)-(((xv(2,j)*sin_rn(ty))*yv(1,j))/                &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(1,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(2,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))-ty)                                                   !hr03
-!+if crlibm
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(1,j)**2)/cos(atan(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))-ty)
-!hr03 xv(2,j) = xv(2,j)*(cos_rn(ty)-sin_rn(ty)*tan_rn(atan_rn(yv(2,j)/  &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty))
-      xv(2,j) = xv(2,j)*(cos_rn(ty)-sin_rn(ty)*tan_rn(atan_rn(yv(2,j)/  &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-ty))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty))
-!hr03 yv(2,j) = sqrt((1+dpsv(j))**2-yv(1,j)**2)*sin_rn(atan_rn(yv(2,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty)
-      yv(2,j) = sqrt((1d0+dpsv(j))**2-yv(1,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(2,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-ty)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty)
- 
-!     call drift(lin)
- 
-!hr03 xv(1,j) = xv(1,j) + lin*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-   &
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) + (lin*yv(1,j))/                                &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
-!hr03 xv(2,j) = xv(2,j) + lin*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-   &
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) + (lin*yv(2,j))/                                &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
- 
-!      call kick(l,cur,lin,rx,ry,chi)
- 
-      xi = xv(1,j)-rx
-      yi = xv(2,j)-ry
-!hr03 yv(1,j) = yv(1,j)-c1m7*cur/chi*xi/(xi**2+yi**2)*                  &
-!hr03&(sqrt((lin+l)**2+xi**2+yi**2)-sqrt((lin-l)**2+                    &
-!hr03&xi**2+yi**2))
-      yv(1,j) = yv(1,j)-((((c1m7*cur)/chi)*xi)/(xi**2+yi**2))*          &!hr03
-     &(sqrt(((lin+l)**2+xi**2)+yi**2)-sqrt(((lin-l)**2+                 &!hr03
-     &xi**2)+yi**2))                                                     !hr03
-!GRD FOR CONSISTENSY
-!hr03 yv(2,j) = yv(2,j)-c1m7*cur/chi*yi/(xi**2+yi**2)*                  &
-!hr03&(sqrt((lin+l)**2+xi**2+yi**2)-sqrt((lin-l)**2+                    &
-!hr03&xi**2+yi**2))
-      yv(2,j) = yv(2,j)-((((c1m7*cur)/chi)*yi)/(xi**2+yi**2))*          &!hr03
-     &(sqrt(((lin+l)**2+xi**2)+yi**2)-sqrt(((lin-l)**2+                 &!hr03
-     &xi**2)+yi**2))                                                     !hr03
- 
-!     call drift(leff-lin)
- 
-!hr03 xv(1,j) = xv(1,j) + (leff-lin)*yv(1,j)/sqrt((1+dpsv(j))**2-       &
-!hr03&yv(1,j)**2-yv(2,j)**2)
-      xv(1,j) = xv(1,j) + ((leff-lin)*yv(1,j))/sqrt(((1d0+dpsv(j))**2-  &!hr03
-     &yv(1,j)**2)-yv(2,j)**2)                                            !hr03
-!hr03 xv(2,j) = xv(2,j) + (leff-lin)*yv(2,j)/sqrt((1+dpsv(j))**2-       &
-!hr03&yv(1,j)**2-yv(2,j)**2)
-      xv(2,j) = xv(2,j) + ((leff-lin)*yv(2,j))/sqrt(((1d0+dpsv(j))**2-  &!hr03
-     &yv(1,j)**2)-yv(2,j)**2)                                            !hr03
- 
-!     call invtilt(tx,ty)
- 
-!hr03 xv(1,j) = xv(1,j)-xv(2,j)*sin_rn(-ty)*yv(1,j)/sqrt((1+dpsv(j))**2-&
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))+ty)
-      xv(1,j) = xv(1,j)-(((xv(2,j)*sin_rn(-ty))*yv(1,j))/               &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(1,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(2,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))+ty)                                                   !hr03
-!+if crlibm
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(1,j)**2)/cos(atan(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))+ty)
-!hr03 xv(2,j) = xv(2,j)*(cos_rn(-ty)-sin_rn(-ty)*tan_rn(atan_rn(yv(2,j)/&
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty))
-      xv(2,j) = xv(2,j)*                                                &!hr03
-     &(cos_rn(-1d0*ty)-sin_rn(-1d0*ty)*tan_rn(atan_rn(yv(2,j)/          &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+ty))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty))
-!hr03 yv(2,j) = sqrt((1+dpsv(j))**2-yv(1,j)**2)*sin_rn(atan_rn(yv(2,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty)
-      yv(2,j) = sqrt((1d0+dpsv(j))**2-yv(1,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(2,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+ty)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty)
- 
-!hr03 xv(2,j) = xv(2,j)-xv(1,j)*sin_rn(-tx)*yv(2,j)/sqrt((1+dpsv(j))**2-&
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))+tx)
-      xv(2,j) = xv(2,j)-(((xv(1,j)*sin_rn(-1d0*tx))*yv(2,j))/           &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(2,j)**2))/cos_rn(atan_rn(yv(1,j)/        &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx)                !hr03
-!+if crlibm
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(2,j)**2)/cos(atan(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))+tx)
-!hr03 xv(1,j) = xv(1,j)*(cos_rn(-tx)-sin_rn(-tx)*tan_rn(atan_rn(yv(1,j)/
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx))
-      xv(1,j) = xv(1,j)*                                                &!hr03
-     &(cos_rn(-1d0*tx)-sin_rn(-1d0*tx)*tan_rn(atan_rn(yv(1,j)/          &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx))
-!hr03 yv(1,j) = sqrt((1+dpsv(j))**2-yv(2,j)**2)*sin_rn(atan_rn(yv(1,j)/
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx)
-      yv(1,j) = sqrt((1d0+dpsv(j))**2-yv(2,j)**2)*                       !hr03
-     &sin_rn(atan_rn(yv(1,j)/                                            !hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx)
- 
-!     call shift(-embl*tan(tx),-embl*tan(ty)/cos(tx))
- 
-      xv(1,j) = xv(1,j) + embl*tan_rn(tx)
-!hr03 xv(2,j) = xv(2,j) + embl*tan_rn(ty)/cos_rn(tx)
-      xv(2,j) = xv(2,j) + (embl*tan_rn(ty))/cos_rn(tx)                   !hr03
- 
-!     call drift(-embl/2)
- 
-!hr03 xv(1,j) = xv(1,j) - embl/2*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) - ((embl*0.5d0)*yv(1,j))/                       &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
-!hr03 xv(2,j) = xv(2,j) - embl/2*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) - ((embl*0.5d0)*yv(2,j))/                       &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
- 
-      xv(1,j) = xv(1,j) * c1e3
-      xv(2,j) = xv(2,j) * c1e3
-      yv(1,j) = yv(1,j) * c1e3
-      yv(2,j) = yv(2,j) * c1e3
- 
-!      write(*,*) 'End: ',j,xv(1,j),xv(2,j),yv(1,j),                       &
-!     &yv(2,j)
+        coord(1)=xv(1,j)
+        coord(2)=xv(2,j)
+        coord(3)=yv(1,j)
+        coord(4)=yv(2,j)
+        coord(9)=dpsv(j)
+        call map_wire(coord,argf,argi)
+        xv(1,j)=coord(1)
+        xv(2,j)=coord(2)
+        yv(1,j)=coord(3)
+        yv(2,j)=coord(4)
  
 !-----------------------------------------------------------------------
  
@@ -14221,7 +11379,7 @@
      &di0zs(npart),dip0xs(npart),dip0zs(npart),xau(2,6),cloau(6),       &
      &di0au(4),tau(6,6),tasau(npart,6,6),wx(3),x1(6),x2(6),fake(2,20)
       integer numx
-      double precision e0f
+      double precision e0f,coord(1000),argf(1000),argi(1000)
       common/main4/ e0f,numx
       integer ktrack,nwri
       double precision dpsv1,strack,strackc,stracks,strackx,strackz
@@ -14266,514 +11424,426 @@
             do 30 jb=1,jmel
               jx=mtyp(ix,jb)
               do 30 j=1,napx
-                puxve1=xv(1,j)
-                puzve1=yv(1,j)
-                puxve2=xv(2,j)
-                puzve2=yv(2,j)
-
-         sigmv(j)=(((((sigmv(j)+as(1,1,j,jx))+puxve1*((as(2,1,j,jx)+ as &!hr03
-     &(4,1,j,jx)*puzve1)+as(5,1,j,jx)*puxve1))+ puzve1*(as              &!hr03
-     &(3,1,j,jx)+as(6,1,j,jx)*puzve1))                                  &!hr03
-     &+as(1,2,j,jx))+puxve2*(as(2,2,j,jx)+ as                           &!hr03
-     &(4,2,j,jx)*puzve2+as(5,2,j,jx)*puxve2))+ puzve2*(as               &!hr03
-     &(3,2,j,jx)+as(6,2,j,jx)*puzve2)                                    !hr03
-
-        xv(1,j)=(al(1,1,j,jx)*puxve1+ al(2,1,j,jx)*puzve1)+dble(idz1)*al&!hr03
-     &(5,1,j,jx)                                                         !hr03
-
-        xv(2,j)=(al(1,2,j,jx)*puxve2+ al(2,2,j,jx)*puzve2)+dble(idz2)*al&!hr03
-     &(5,2,j,jx)                                                         !hr03
-
-        yv(1,j)=(al(3,1,j,jx)*puxve1+ al(4,1,j,jx)*puzve1)+dble(idz1)*al&!hr03
-     &(6,1,j,jx)                                                         !hr03
-
-        yv(2,j)=(al(3,2,j,jx)*puxve2+ al(4,2,j,jx)*puzve2)+dble(idz2)*al&!hr03
-     &(6,2,j,jx)                                                         !hr03
+                coord(1)=xv(1,j)
+                coord(2)=xv(2,j)
+                coord(3)=yv(1,j)
+                coord(4)=yv(2,j)
+                coord(6)=sigmv(j)
+                coord(25)=as(1,1,j,jx)
+                coord(26)=as(2,1,j,jx)
+                coord(27)=as(3,1,j,jx)
+                coord(28)=as(4,1,j,jx)
+                coord(29)=as(5,1,j,jx)
+                coord(30)=as(6,1,j,jx)
+                coord(31)=as(1,2,j,jx)
+                coord(32)=as(2,2,j,jx)
+                coord(33)=as(3,2,j,jx)
+                coord(34)=as(4,2,j,jx)
+                coord(35)=as(5,2,j,jx)
+                coord(36)=as(6,2,j,jx)
+                coord(37)=al(1,1,j,jx)
+                coord(38)=al(2,1,j,jx)
+                coord(39)=al(3,1,j,jx)
+                coord(40)=al(4,1,j,jx)
+                coord(41)=al(5,1,j,jx)
+                coord(42)=al(6,1,j,jx)
+                coord(43)=al(1,2,j,jx)
+                coord(44)=al(2,2,j,jx)
+                coord(45)=al(3,2,j,jx)
+                coord(46)=al(4,2,j,jx)
+                coord(47)=al(5,2,j,jx)
+                coord(48)=al(6,2,j,jx)
+                call thck6d_map_goto_index20(coord,argf,argi)
+                xv(1,j)=coord(1)
+                xv(2,j)=coord(2)
+                yv(1,j)=coord(3)
+                yv(2,j)=coord(4)
    30       continue
             goto 500
-   40       e0o=e0
-            e0fo=e0f
-            call adia(n,e0f)
-            do 50 j=1,napx
-              ejf0v(j)=ejfv(j)
-              if(abs(dppoff).gt.pieni) sigmv(j)=sigmv(j)-sigmoff(i)
-!hr01         if(sigmv(j).lt.zero) sigmv(j)=e0f*e0o/(e0fo*e0)*sigmv(j)
-            if(sigmv(j).lt.zero) sigmv(j)=((e0f*e0o)/(e0fo*e0))*sigmv(j) !hr01
-              if(kz(ix).eq.12) then
-!hr01           ejv(j)=ejv(j)+ed(ix)*sin_rn(hsyc(ix)*sigmv(j)+phas+
-                ejv(j)=ejv(j)+ed(ix)*sin_rn((hsyc(ix)*sigmv(j)+phas)+   &!hr01
-     &phasc(ix))
-              else
-                ejv(j)=ejv(j)+hsy(1)*sin_rn(hsy(3)*sigmv(j)+phas)
-              endif
-!hr01         ejfv(j)=sqrt(ejv(j)*ejv(j)-pma*pma)
-              ejfv(j)=sqrt(ejv(j)**2-pma**2)                             !hr01
-              rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
-              dpsv(j)=(ejfv(j)-e0f)/e0f
-              oidpsv(j)=one/(one+dpsv(j))
-!hr01         dpsv1(j)=dpsv(j)*c1e3*oidpsv(j)
-              dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)                          !hr01
-!hr01         if(sigmv(j).gt.zero) sigmv(j)=e0f*e0o/(e0fo*e0)*sigmv(j)
-            if(sigmv(j).gt.zero) sigmv(j)=((e0f*e0o)/(e0fo*e0))*sigmv(j) !hr01
-!hr01         yv(1,j)=ejf0v(j)/ejfv(j)*yv(1,j)
-              yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)                         !hr01
-!hr01   50       yv(2,j)=ejf0v(j)/ejfv(j)*yv(2,j)
-   50       yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)                           !hr01
+   40     argf(1)=e0
+          argf(2)=e0f
+          argf(3)=pma
+          argf(4)=dppoff
+          argf(5)=kz(ix)
+          argf(6)=ed(ix)
+          argf(7)=hsyc(ix)
+          argf(8)=phasc(ix)
+          argf(9)=hsy(1)
+          argf(10)=hsy(3)
+          argf(11)=sigmoff(i)
+          do 50 j=1,napx
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)
+            call thin6d_map_accelarating_cavity(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+   50       continue
             if(n.eq.1) write(98,'(1p,6(2x,e25.18))')                    &
      &(xv(1,j),yv(1,j),xv(2,j),yv(2,j),sigmv(j),dpsv(j),                &
      &j=1,napx)
             call synuthck
             goto 490
 !--HORIZONTAL DIPOLE
-   60       do 70 j=1,napx
-            yv(1,j)=yv(1,j)+strackc(i)*oidpsv(j)
-            yv(2,j)=yv(2,j)+stracks(i)*oidpsv(j)
+   60     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          do 70 j=1,napx
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_horizontal_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
    70       continue
             goto 490
 !--NORMAL QUADRUPOLE
-   80       do 90 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+   80     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 90 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_quadrupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
    90       continue
             goto 490
 !--NORMAL SEXTUPOLE
-  100       do 110 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  100     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 110 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_sextupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   110       continue
             goto 490
 !--NORMAL OCTUPOLE
-  120       do 130 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  120     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 130 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_octupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4) 
   130       continue
             goto 490
 !--NORMAL DECAPOLE
-  140       do 150 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  140       argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 150 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_decapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   150       continue
             goto 490
 !--NORMAL DODECAPOLE
-  160       do 170 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  160     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 170 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_dodecapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   170       continue
             goto 490
 !--NORMAL 14-POLE
-  180       do 190 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  180     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 190 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_14pole(coord,argf,argi)
+            yv(1,j)=coord(3)                       
+            yv(2,j)=coord(4)
   190       continue
             goto 490
 !--NORMAL 16-POLE
-  200       do 210 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  200       argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 210 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_16pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   210       continue
             goto 490
 !--NORMAL 18-POLE
-  220       do 230 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  220     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 230 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_18pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   230       continue
             goto 490
 !--NORMAL 20-POLE
-  240       do 250 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
-!hr02       yv(2,j)=yv(2,j)+oidpsv(j)*(-strackc(i)*cikve+               &
-!hr02&stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(stracks(i)*crkve-                &!hr02
-     &strackc(i)*cikve)                                                  !hr02
+  240     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 250 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_normal_20pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   250       continue
             goto 490
   520       continue
-            do 530 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tiltc(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tiltc(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,1)
+          do 530 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purehor_nzapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   530       continue
             goto 490
   540       continue
-            do 550 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tiltc(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tiltc(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*xlvj*oidpsv(j)                   &
-!hr03&+dpsv1(j))*dki(ix,1)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-(((strack(i)*xlvj)*oidpsv(j)               &!hr03
-     &+dpsv1(j))*dki(ix,1))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,1)
+          do 550 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_hor_nzapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   550       continue
             goto 260
   560       continue
-            do 570 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-strackc(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-strackc(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
+          do 570 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purehor_zapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   570       continue
             goto 490
   580       continue
-            do 590 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-strackc(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*(one-tiltc(i))
-            yv(1,j)=(yv(1,j)-strackc(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       yv(2,j)=yv(2,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,1)*oidpsv(j)*tilts(i)
-            yv(2,j)=(yv(2,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,1))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       sigmv(j)=sigmv(j)+rvv(j)*dki(ix,1)*xlvj
-            sigmv(j)=sigmv(j)+(rvv(j)*dki(ix,1))*xlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
+          do 590 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_hor_zapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   590       continue
             goto 260
   600       continue
-            do 610 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)+(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)+(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tiltc(i)                                     &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)-(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tiltc(i))                                   &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
+          do 610 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purever_nzapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   610       continue
             goto 490
   620       continue
-            do 630 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)+(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tilts(i)                                     &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)+(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tilts(i))                                   &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)-(strack(i)*zlvj*oidpsv(j)                   &
-!hr03&-dpsv1(j))*dki(ix,2)*tiltc(i)                                     &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)-(((strack(i)*zlvj)*oidpsv(j)               &!hr03
-     &-dpsv1(j))*dki(ix,2))*tiltc(i))                                   &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
+          do 630 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_ver_nzapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   630       continue
             goto 260
   640       continue
-            do 650 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)+strackc(i)*dpsv1(j)                         &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)+strackc(i)*dpsv1(j))                       &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
+          do 650 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_purever_zapprox(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   650       continue
             goto 490
   660       continue
-            do 670 j=1,napx
-            xlvj=(xv(1,j)-xsiv(1,i))*tiltc(i)+                          &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlvj=-(xv(1,j)-xsiv(1,i))*tilts(i)+                         &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlvj=(xv(2,j)-zsiv(1,i))*tiltc(i)-                          &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-!hr03       yv(1,j)=yv(1,j)-stracks(i)*dpsv1(j)                         &
-!hr03&+c1e3*dki(ix,2)*oidpsv(j)*tilts(i)
-            yv(1,j)=(yv(1,j)-stracks(i)*dpsv1(j))                       &!hr03
-     &+((c1e3*dki(ix,2))*oidpsv(j))*tilts(i)                             !hr03
-!hr03       yv(2,j)=yv(2,j)+strackc(i)*dpsv1(j)                         &
-!hr03&-c1e3*dki(ix,2)*oidpsv(j)*(one-tiltc(i))
-            yv(2,j)=(yv(2,j)+strackc(i)*dpsv1(j))                       &!hr03
-     &-((c1e3*dki(ix,2))*oidpsv(j))*(one-tiltc(i))                       !hr03
-!hr03       sigmv(j)=sigmv(j)-rvv(j)*dki(ix,2)*zlvj
-            sigmv(j)=sigmv(j)-(rvv(j)*dki(ix,2))*zlvj                    !hr03
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=dki(ix,2)
+          do 670 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            coord(13)=rvv(j)
+            call thin6d_map_multipole_ver_zapprox_ho(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
   670       continue
   260       r0=ek(ix)
             nmz=nmu(ix)
@@ -14814,760 +11884,389 @@
             goto 490
 !--SKEW ELEMENTS
 !--VERTICAL DIPOLE
-  290       do 300 j=1,napx
-            yv(1,j)=yv(1,j)-stracks(i)*oidpsv(j)
-            yv(2,j)=yv(2,j)+strackc(i)*oidpsv(j)
+  290     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          do 300 j=1,napx
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_vertical_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
   300       continue
             goto 490
 !--SKEW QUADRUPOLE
-  310       do 320 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  310     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 320 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_quadrupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   320       continue
             goto 490
 !--SKEW SEXTUPOLE
-  330       do 340 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  330     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 340 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_sextupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   340       continue
             goto 490
 !--SKEW OCTUPOLE
-  350       do 360 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  350     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 360 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_octupole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   360       continue
             goto 490
 !--SKEW DECAPOLE
-  370       do 380 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  370     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 380 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_decapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   380       continue
             goto 490
 !--SKEW DODECAPOLE
-  390       do 400 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  390     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 400 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_dodecapole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   400       continue
             goto 490
 !--SKEW 14-POLE
-  410       do 420 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  410     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 420 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_14pole(coord,argf,argi)
+            yv(1,j)=coord(3)                       
+            yv(2,j)=coord(4)
   420       continue
             goto 490
 !--SKEW 16-POLE
-  430       do 440 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  430     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 440 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_16pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   440       continue
             goto 490
 !--SKEW 18-POLE
-  450       do 460 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  450     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 460 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_18pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   460       continue
             goto 490
 !--SKEW 20-POLE
-  470       do 480 j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-           crkveuk=crkve*xlv(j)-cikve*zlv(j)
-           cikve=crkve*zlv(j)+cikve*xlv(j)
-           crkve=crkveuk
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackc(i)*cikve-                &
-     &stracks(i)*crkve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackc(i)*crkve+                &
-     &stracks(i)*cikve)
+  470     argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          do 480 j=1,napx
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)        
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_skew_20pole(coord,argf,argi)
+            yv(1,j)=coord(3)                          
+            yv(2,j)=coord(4)
   480       continue
           goto 490
   680     continue
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
           do 690 j=1,napx
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-!hr08       rho2b(j)=crkveb(j)*crkveb(j)+cikveb(j)*cikveb(j)
-            rho2b(j)=crkveb(j)**2+cikveb(j)**2                           !hr08
-            if(rho2b(j).le.pieni)                                       &
-     &goto 690
-            tkb(j)=rho2b(j)/(two*sigman2(1,imbb(i)))
-            if(ibbc.eq.0) then
-!hr03         yv(1,j)=yv(1,j)+oidpsv(j)*(strack(i)*crkveb(j)/rho2b(j)*  &
-!hr03         yv(1,j)=yv(1,j)+oidpsv(j)*(strack(i)*crkveb(j)/rho2b(j)*  &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))
-          yv(1,j)=yv(1,j)+oidpsv(j)*(((strack(i)*crkveb(j))/rho2b(j))*  &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))                      !hr03
-!hr03         yv(2,j)=yv(2,j)+oidpsv(j)*(strack(i)*cikveb(j)/rho2b(j)*  &
-!hr03         yv(2,j)=yv(2,j)+oidpsv(j)*(strack(i)*cikveb(j)/rho2b(j)*  &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))
-          yv(2,j)=yv(2,j)+oidpsv(j)*(((strack(i)*cikveb(j))/rho2b(j))*  &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))                      !hr03
-            else
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),11)-       &
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-              cccc=(((strack(i)*crkveb(j))/rho2b(j))*                   &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),11)-   &!hr03
-     &(((strack(i)*cikveb(j))/rho2b(j))*                                &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)     !hr03
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!+if crlibm
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-!+ei
-!+if .not.crlibm
-!hr03&(one-exp(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-!+ei
-              yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03         cccc=(strack(i)*crkveb(j)/rho2b(j)*                       &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),12)+       &
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-              cccc=(((strack(i)*crkveb(j))/rho2b(j))*                   &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(4,imbb(i)))*bbcu(imbb(i),12)+   &!hr03
-     &(((strack(i)*cikveb(j))/rho2b(j))*                                &!hr03
-     &(one-exp_rn(-1d0*tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)     !hr03
-!hr03&(strack(i)*cikveb(j)/rho2b(j)*                                    &
-!+if crlibm
-!hr03&(one-exp_rn(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-!+ei
-!+if .not.crlibm
-!hr03&(one-exp(-tkb(j)))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-!+ei
-              yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-            endif
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_beambeam_type1(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4) 
   690     continue
-          goto 490
+          goto 640
   700     continue
-          if(ibtyp.eq.0) then
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
+          argf(23)=napx
+          argf(24)=ibtyp
             do j=1,napx
-              r2b(j)=two*(sigman2(1,imbb(i))-sigman2(2,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-              call errf(xrb(j),zrb(j),crxb(j),crzb(j))
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-              call errf(xbb(j),zbb(j),cbxb(j),cbzb(j))
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              call map_beambeam_type2(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4) 
             enddo
-          else if(ibtyp.eq.1) then
-            do j=1,napx
-              r2b(j)=two*(sigman2(1,imbb(i))-sigman2(2,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-            enddo
-            call wzsubv(napx,xrb(1),zrb(1),crxb(1),crzb(1))
-            call wzsubv(napx,xbb(1),zbb(1),cbxb(1),cbzb(1))
-            do j=1,napx
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
-            enddo
-          endif
-          goto 490
+          goto 640
   720     continue
-          if(ibtyp.eq.0) then
+          argf(1)=ed(ix)
+          argf(2)=ek(ix)
+          argf(3)=strack(i)
+          argf(4)=ibbc
+          argf(5)=clobeam(1,imbb(i))
+          argf(6)=clobeam(2,imbb(i))
+          argf(7)=clobeam(3,imbb(i))
+          argf(8)=clobeam(4,imbb(i))
+          argf(9)=clobeam(5,imbb(i))
+          argf(10)=clobeam(6,imbb(i))
+          argf(11)=beamoff(1,imbb(i))
+          argf(12)=beamoff(2,imbb(i))
+          argf(13)=beamoff(3,imbb(i))
+          argf(14)=beamoff(4,imbb(i))
+          argf(15)=beamoff(5,imbb(i))
+          argf(16)=beamoff(6,imbb(i))
+          argf(17)=bbcu(imbb(i),11)
+          argf(18)=bbcu(imbb(i),12)
+          argf(19)=sigmanq(1,imbb(i))
+          argf(20)=sigmanq(2,imbb(i))
+          argf(21)=sigman2(1,imbb(i))
+          argf(22)=sigman2(2,imbb(i))
+          argf(23)=napx
+          argf(24)=ibtyp
             do j=1,napx
-              r2b(j)=two*(sigman2(2,imbb(i))-sigman2(1,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-              call errf(zrb(j),xrb(j),crzb(j),crxb(j))
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-              call errf(zbb(j),xbb(j),cbzb(j),cbxb(j))
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(15)=crxb(j)
+              coord(16)=crzb(j)
+              coord(17)=cbxb(j)
+              coord(18)=cbzb(j)
+              call map_beambeam_type3(coord,argf,argi)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4) 
             enddo
-          else if(ibtyp.eq.1) then
-            do j=1,napx
-              r2b(j)=two*(sigman2(2,imbb(i))-sigman2(1,imbb(i)))
-              rb(j)=sqrt(r2b(j))
-              if(j.eq.1) then
-              endif
-!hr03         rkb(j)=strack(i)*pisqrt/rb(j)
-              rkb(j)=(strack(i)*pisqrt)/rb(j)                            !hr03
-              if(ibbc.eq.0) then
-!hr03           crkveb(j)=xv(1,j)-clobeam(1,imbb(i))+ed(ix)
-                crkveb(j)=(xv(1,j)-clobeam(1,imbb(i)))+ed(ix)            !hr03
-!hr03           cikveb(j)=xv(2,j)-clobeam(2,imbb(i))+ek(ix)
-                cikveb(j)=(xv(2,j)-clobeam(2,imbb(i)))+ek(ix)            !hr03
-              else
-!hr03           crkveb(j)=                                              &
-!hr03&(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),11)+             &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),12)
-                crkveb(j)=                                              &!hr03
-     &((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),11)+           &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),12)             !hr03
-!hr03           cikveb(j)=                                              &
-!hr03&-(xv(1,j)-clobeam(1,imbb(i))+ed(ix))*bbcu(imbb(i),12)+            &
-!hr03&(xv(2,j)-clobeam(2,imbb(i))+ek(ix))*bbcu(imbb(i),11)
-                cikveb(j)=                                              &!hr03
-     &((xv(2,j)-clobeam(2,imbb(i)))+ek(ix))*bbcu(imbb(i),11)            &!hr03
-     &-((xv(1,j)-clobeam(1,imbb(i)))+ed(ix))*bbcu(imbb(i),12)            !hr03
-              endif
-              xrb(j)=abs(crkveb(j))/rb(j)
-              zrb(j)=abs(cikveb(j))/rb(j)
-!hr03         tkb(j)=(crkveb(j)*crkveb(j)/sigman2(1,imbb(i))+           &
-!hr03&cikveb(j)*cikveb(j)/sigman2(2,imbb(i)))*half
-              tkb(j)=(crkveb(j)**2/sigman2(1,imbb(i))+                  &!hr03
-     &cikveb(j)**2/sigman2(2,imbb(i)))*half                              !hr03
-              xbb(j)=sigmanq(2,imbb(i))*xrb(j)
-              zbb(j)=sigmanq(1,imbb(i))*zrb(j)
-            enddo
-            call wzsubv(napx,zrb(1),xrb(1),crzb(1),crxb(1))
-            call wzsubv(napx,zbb(1),xbb(1),cbzb(1),cbxb(1))
-            do j=1,napx
-              if(ibbc.eq.0) then
-!hr03           yv(1,j)=yv(1,j)+oidpsv(j)*(rkb(j)*(crzb(j)-             &
-!hr03&exp_rn(-1tkb(j))*                                                 &
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-                yv(1,j)=yv(1,j)+oidpsv(j)*((rkb(j)*(crzb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbzb(j)))*sign(one,crkveb(j))-beamoff(4,imbb(i)))                  !hr03
-!hr03&cbzb(j))*sign(one,crkveb(j))-beamoff(4,imbb(i)))
-!hr03           yv(2,j)=yv(2,j)+oidpsv(j)*(rkb(j)*(crxb(j)-             &
-!hr03&exp_rn(-tkb(j))*
-!hr03&cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-                yv(2,j)=yv(2,j)+oidpsv(j)*((rkb(j)*(crxb(j)-            &!hr03
-     &exp_rn(-1d0*tkb(j))*                                              &!hr03
-     &cbxb(j)))*sign(one,cikveb(j))-beamoff(5,imbb(i)))                  !hr03
-!hr03     &cbxb(j))*sign(one,cikveb(j))-beamoff(5,imbb(i)))
-              else
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-*tkb(j))*cbxb(j))*      &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),11)-((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),11)-(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),12)
-                yv(1,j)=yv(1,j)+oidpsv(j)*cccc
-!hr03           cccc=(rkb(j)*(crzb(j)-exp_rn(-tkb(j))*cbzb(j))*         &
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                cccc=((rkb(j)*(crzb(j)-exp_rn(-1d0*tkb(j))*cbzb(j)))*   &!hr03
-     &sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &!hr03
-     &bbcu(imbb(i),12)+((rkb(j)*(crxb(j)-exp_rn(-1d0*tkb(j))*cbxb(j)))* &!hr03
-     &sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)           !hr03
-!hr03&sign(one,crkveb(j))-beamoff(4,imbb(i)))*                          &
-!+if crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp_rn(-tkb(j))*cbxb(j))*       &
-!+ei
-!+if .not.crlibm
-!hr03&bbcu(imbb(i),12)+(rkb(j)*(crxb(j)-exp(-tkb(j))*cbxb(j))*          &
-!+ei
-!hr03&sign(one,cikveb(j))-beamoff(5,imbb(i)))*bbcu(imbb(i),11)
-                yv(2,j)=yv(2,j)+oidpsv(j)*cccc
-              endif
-            enddo
-          endif
-          goto 490
+          goto 640
   730     continue
 !--Hirata's 6D beam-beam kick
-            do j=1,napx
-!hr03         track6d(1,j)=(xv(1,j)+ed(ix)-clobeam(1,imbb(i)))*c1m3
-              track6d(1,j)=((xv(1,j)+ed(ix))-clobeam(1,imbb(i)))*c1m3    !hr03
-              track6d(2,j)=(yv(1,j)/oidpsv(j)-clobeam(4,imbb(i)))*c1m3
-!hr03         track6d(3,j)=(xv(2,j)+ek(ix)-clobeam(2,imbb(i)))*c1m3
-              track6d(3,j)=((xv(2,j)+ek(ix))-clobeam(2,imbb(i)))*c1m3    !hr03
-              track6d(4,j)=(yv(2,j)/oidpsv(j)-clobeam(5,imbb(i)))*c1m3
-              track6d(5,j)=(sigmv(j)-clobeam(3,imbb(i)))*c1m3
-              track6d(6,j)=dpsv(j)-clobeam(6,imbb(i))
+            argf(1)=ed(ix)
+            argf(2)=ek(ix)   
+            argf(3)=e0 
+            argf(4)=e0f
+            argf(5)=pma
+            argf(6)=clobeam(1,imbb(i))
+            argf(7)=clobeam(2,imbb(i))
+            argf(8)=clobeam(3,imbb(i))
+            argf(9)=clobeam(4,imbb(i))
+            argf(10)=clobeam(5,imbb(i))
+            argf(11)=clobeam(6,imbb(i))
+            argf(12)=beamoff(1,imbb(i))
+            argf(13)=beamoff(2,imbb(i))
+            argf(14)=beamoff(3,imbb(i))
+            argf(15)=beamoff(4,imbb(i))
+            argf(16)=beamoff(5,imbb(i))
+            argf(17)=beamoff(6,imbb(i))
+            argf(18)=parbe(ix,1)
+            argf(19)=parbe(ix,2)
+            argf(20)=parbe(ix,3)
+            argf(21)=parbe(ix,4)
+            argf(22)=parbe(ix,5)      
+            argf(23)=ibtyp
+            argf(24)=ibbc   
+            argf(25)=sigz
+            argf(26)=imbb(i)
+            argf(27)=ithick
+            do j=1,12
+              argf(26+j)=bbcu(imbb(i),j)
             enddo
-            call beamint(napx,track6d,parbe,sigz,bbcu,imbb(i),ix,ibtyp, &
-     &ibbc)
             do j=1,napx
-!hr03         xv(1,j)=track6d(1,j)*c1e3+clobeam(1,imbb(i))-             &
-              xv(1,j)=(track6d(1,j)*c1e3+clobeam(1,imbb(i)))-           &!hr03
-     &beamoff(1,imbb(i))
-!hr03         xv(2,j)=track6d(3,j)*c1e3+clobeam(2,imbb(i))-             &
-              xv(2,j)=(track6d(3,j)*c1e3+clobeam(2,imbb(i)))-           &!hr03
-     &beamoff(2,imbb(i))
-!hr03         dpsv(j)=track6d(6,j)+clobeam(6,imbb(i))-beamoff(6,imbb(i))
-              dpsv(j)=(track6d(6,j)+clobeam(6,imbb(i)))-                &!hr03
-     &beamoff(6,imbb(i))                                                 !hr03
-              oidpsv(j)=one/(one+dpsv(j))
-!hr03         yv(1,j)=(track6d(2,j)*c1e3+clobeam(4,imbb(i))-            &
-              yv(1,j)=((track6d(2,j)*c1e3+clobeam(4,imbb(i)))-          &!hr03
-     &beamoff(4,imbb(i)))*oidpsv(j)
-!hr03         yv(2,j)=(track6d(4,j)*c1e3+clobeam(5,imbb(i))-            &
-              yv(2,j)=((track6d(4,j)*c1e3+clobeam(5,imbb(i)))-          &!hr03
-     &beamoff(5,imbb(i)))*oidpsv(j)
-              ejfv(j)=dpsv(j)*e0f+e0f
-!hr03         ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-              ejv(j)=sqrt(ejfv(j)**2+pma**2)
-              rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+              coord(1)=xv(1,j)
+              coord(2)=xv(2,j)
+              coord(3)=yv(1,j)
+              coord(4)=yv(2,j)
+              coord(5)=oidpsv(j)
+              coord(6)=sigmv(j)
+              coord(7)=ejv(j)
+              coord(8)=ejfv(j)
+              coord(9)=dpsv(j)
+              coord(13)=rvv(j)
+              call thin6d_map_hirata_beambeam(coord,argf,argi)
+              xv(1,j)=coord(1)
+              xv(2,j)=coord(2)
+              yv(1,j)=coord(3)
+              yv(2,j)=coord(4)
+              oidpsv(j)=coord(5)
+              sigmv(j)=coord(6)
+              ejv(j)=coord(7)
+              ejfv(j)=coord(8)
+              dpsv(j)=coord(9)
+              rvv(j)=coord(13)
               if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
             enddo
-          goto 490
+          goto 640
   740     continue
           irrtr=imtr(ix)
+          argf(1)=idz(1)
+          argf(2)=idz(2)
+          argf(3)=cotr(irrtr,1)
+          argf(4)=cotr(irrtr,2)
+          argf(5)=cotr(irrtr,3)
+          argf(6)=cotr(irrtr,4)
+          argf(7)=cotr(irrtr,5)
+          argf(8)=cotr(irrtr,6)
+          argf(9)=rrtr(irrtr,5,1)
+          argf(10)=rrtr(irrtr,5,2)
+          argf(11)=rrtr(irrtr,5,3)
+          argf(12)=rrtr(irrtr,5,4)
+          argf(13)=rrtr(irrtr,5,6)
+          argf(14)=rrtr(irrtr,1,1)
+          argf(15)=rrtr(irrtr,1,2)
+          argf(16)=rrtr(irrtr,1,6)
+          argf(17)=rrtr(irrtr,2,1)
+          argf(18)=rrtr(irrtr,2,2)
+          argf(19)=rrtr(irrtr,2,6)
+          argf(20)=rrtr(irrtr,3,3)
+          argf(21)=rrtr(irrtr,3,4)
+          argf(22)=rrtr(irrtr,3,6)
+          argf(23)=rrtr(irrtr,4,3)
+          argf(24)=rrtr(irrtr,4,4)
+          argf(25)=rrtr(irrtr,4,6)          
           do j=1,napx
-!hr03       sigmv(j)=sigmv(j)+cotr(irrtr,5)+rrtr(irrtr,5,1)*xv(1,j)+    &
-!hr03&rrtr(irrtr,5,2)*yv(1,j)+rrtr(irrtr,5,3)*xv(2,j)+                  &
-!hr03&rrtr(irrtr,5,4)*yv(2,j)+rrtr(irrtr,5,6)*dpsv(j)*c1e3
-      sigmv(j)=(((((sigmv(j)+cotr(irrtr,5))+rrtr(irrtr,5,1)*xv(1,j))+   &!hr03
-     &rrtr(irrtr,5,2)*yv(1,j))+rrtr(irrtr,5,3)*xv(2,j))+                &!hr03
-!BNL-NOV08
-!     &rrtr(irrtr,5,4)*yv(2,j)
-     &rrtr(irrtr,5,4)*yv(2,j))+(rrtr(irrtr,5,6)*dpsv(j))*c1e3            !hr03
-!BNL-NOV08
-            pux=xv(1,j)
-            dpsv3(j)=dpsv(j)*c1e3
-!hr03       xv(1,j)=cotr(irrtr,1)+rrtr(irrtr,1,1)*pux+                  &
-!hr03&rrtr(irrtr,1,2)*yv(1,j)+idz(1)*dpsv3(j)*rrtr(irrtr,1,6)
-            xv(1,j)=((cotr(irrtr,1)+rrtr(irrtr,1,1)*pux)+               &!hr03
-     &rrtr(irrtr,1,2)*yv(1,j))+(dble(idz(1))*dpsv3(j))*rrtr(irrtr,1,6)   !hr03
-!hr03       yv(1,j)=cotr(irrtr,2)+rrtr(irrtr,2,1)*pux+                  &
-!hr03&rrtr(irrtr,2,2)*yv(1,j)+idz(1)*dpsv3(j)*rrtr(irrtr,2,6)
-            yv(1,j)=((cotr(irrtr,2)+rrtr(irrtr,2,1)*pux)+               &!hr03
-     &rrtr(irrtr,2,2)*yv(1,j))+(dble(idz(1))*dpsv3(j))*rrtr(irrtr,2,6)   !hr03
-            pux=xv(2,j)
-!hr03       xv(2,j)=cotr(irrtr,3)+rrtr(irrtr,3,3)*pux+                  &
-!hr03&rrtr(irrtr,3,4)*yv(2,j)+idz(2)*dpsv3(j)*rrtr(irrtr,3,6)
-            xv(2,j)=((cotr(irrtr,3)+rrtr(irrtr,3,3)*pux)+               &!hr03
-     &rrtr(irrtr,3,4)*yv(2,j))+(dble(idz(2))*dpsv3(j))*rrtr(irrtr,3,6)   !hr03
-!hr03       yv(2,j)=cotr(irrtr,4)+rrtr(irrtr,4,3)*pux+                  &
-!hr03&rrtr(irrtr,4,4)*yv(2,j)+idz(2)*dpsv3(j)*rrtr(irrtr,4,6)
-            yv(2,j)=((cotr(irrtr,4)+rrtr(irrtr,4,3)*pux)+               &!hr03
-     &rrtr(irrtr,4,4)*yv(2,j))+(dble(idz(2))*dpsv3(j))*rrtr(irrtr,4,6)   !hr03
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(6)=sigmv(j)
+            coord(9)=dpsv(j)
+            call thin6d_map_accelerating_cavity2(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
           enddo
  
 !----------------------------------------------------------------------
  
 ! Wire.
  
-          goto 490
+          goto 640
   745     continue
           xory=1
           nfree=nturn1(ix)
@@ -15585,58 +12284,29 @@
           nramp1=nturn2(ix)
           nplato=nturn3(ix)
           nramp2=nturn4(ix)
+
+          argf(1)=tiltc(i)
+          argf(2)=tilts(i)
+          argf(3)=xory
+          argf(4)=acdipamp
+          argf(5)=acdipamp1
+          argf(6)=acdipamp2
+          argf(7)=nramp1
+          argf(8)=nramp2
+          argf(9)=nac
+          argf(10)=nplato
+          argf(11)=qd
+          argf(12)=acphase
           do j=1,napx
-      if (xory.eq.1) then
-        acdipamp2=acdipamp*tilts(i)
-        acdipamp1=acdipamp*tiltc(i)
-      else
-        acdipamp2=acdipamp*tiltc(i)
-        acdipamp1=-acdipamp*tilts(i)
-      endif
-              if(nramp1.gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(1,j)=yv(1,j)+(((acdipamp1*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(2,j)=yv(2,j)+(((acdipamp2*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-              endif
-              if(nac.ge.nramp1.and.(nramp1+nplato).gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(1,j)=yv(1,j)+(acdipamp1*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(2,j)=yv(2,j)+(acdipamp2*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-              endif
-              if(nac.ge.(nramp1+nplato).and.(nramp2+nramp1+nplato).gt.  &
-     &nac)then
-!hr03         yv(1,j)=yv(1,j)+acdipamp1*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(1,j)=yv(1,j)+((acdipamp1*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-!hr03         yv(2,j)=yv(2,j)+acdipamp2*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(2,j)=yv(2,j)+((acdipamp2*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              endif
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(8)=ejfv(j)
+            call map_ac_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
       enddo
       endif
-          goto 490
+          goto 640
   746     continue
           xory=2
           nfree=nturn1(ix)
@@ -15654,58 +12324,29 @@
           nramp1=nturn2(ix)
           nplato=nturn3(ix)
           nramp2=nturn4(ix)
+
+          argf(1)=tiltc(i)
+          argf(2)=tilts(i)
+          argf(3)=xory
+          argf(4)=acdipamp
+          argf(5)=acdipamp1
+          argf(6)=acdipamp2
+          argf(7)=nramp1
+          argf(8)=nramp2
+          argf(9)=nac
+          argf(10)=nplato
+          argf(11)=qd
+          argf(12)=acphase
           do j=1,napx
-      if (xory.eq.1) then
-        acdipamp2=acdipamp*tilts(i)
-        acdipamp1=acdipamp*tiltc(i)
-      else
-        acdipamp2=acdipamp*tiltc(i)
-        acdipamp1=-acdipamp*tilts(i)
-      endif
-              if(nramp1.gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(1,j)=yv(1,j)+(((acdipamp1*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)*nac/dble(nramp1)/ejfv(j)
-                yv(2,j)=yv(2,j)+(((acdipamp2*                           &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &dble(nac))/dble(nramp1))/ejfv(j)                                   !hr03
-              endif
-              if(nac.ge.nramp1.and.(nramp1+nplato).gt.nac) then
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03           yv(1,j)=yv(1,j)+acdipamp1*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(1,j)=yv(1,j)+(acdipamp1*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03           yv(2,j)=yv(2,j)+acdipamp2*                              &
-!hr03&sin_rn(2d0*pi*qd*nac+acphase)/ejfv(j)
-                yv(2,j)=yv(2,j)+(acdipamp2*                             &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))/ejfv(j)                   !hr03
-              endif
-              if(nac.ge.(nramp1+nplato).and.(nramp2+nramp1+nplato).gt.  &
-     &nac)then
-!hr03         yv(1,j)=yv(1,j)+acdipamp1*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(1,j)=yv(1,j)+((acdipamp1*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-!hr03         yv(2,j)=yv(2,j)+acdipamp2*sin_rn(2d0*pi*qd*nac+acphase)*  &
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              yv(2,j)=yv(2,j)+((acdipamp2*                              &!hr03
-     &sin_rn(((2d0*pi)*qd)*dble(nac)+acphase))*                         &!hr03
-     &((-1d0*dble(nac-nramp1-nramp2-nplato))/dble(nramp2)))/ejfv(j)      !hr03
-!hr03&(-(nac-nramp1-nramp2-nplato)*1d0/dble(nramp2))/ejfv(j)
-              endif
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(8)=ejfv(j)
+            call map_ac_dipole(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
       enddo
       endif
-          goto 490
+          goto 640
   751     continue
           xory=1
 !---------CrabAmp input in MV
@@ -15716,32 +12357,38 @@
           pi=4d0*atan_rn(1d0)
         crabfreq=ek(ix)*c1e3
  
+          argf(1)=crabamp
+          argf(2)=crabfreq
+          argf(3)=crabph(ix)
+          argf(4)=ed(ix)
+          argf(5)=pma
+          argf(6)=e0
+          argf(7)=e0f
+          argf(8)=ithick
         do j=1,napx
-!hr03    crabamp=ed(ix)/(ejfv(j))*c1e3
-         crabamp=(ed(ix)/ejfv(j))*c1e3                                   !hr03
-!        write(*,*) crabamp, ejfv(j), clight, "HELLO"
- 
-!hr03   yv(xory,j)=yv(xory,j) - crabamp*                                &
-!hr03&sin_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))
-        yv(xory,j)=yv(xory,j) - crabamp*                                &!hr03
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))         !hr03
-!hr03 dpsv(j)=dpsv(j) - crabamp*crabfreq*2d0*pi/clight*xv(xory,j)*      &
-!hr03&cos_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))*c1m3
-      dpsv(j)=dpsv(j) -                                                 &!hr03
-     &((((((crabamp*crabfreq)*2d0)*pi)/clight)*xv(xory,j))*             &!hr03
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix)))*c1m3   !hr03
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call map_crab_cavity_1(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
-          goto 490
+          goto 640
   752     continue
           xory=2
 !---------CrabAmp input in MV
@@ -15751,95 +12398,80 @@
 !---------sigmv should be in mm --> sigmv*1e-3/clight*ek*1e6 in rad
           pi=4d0*atan_rn(1d0)
         crabfreq=ek(ix)*c1e3
- 
+
+          argf(1)=crabamp
+          argf(2)=crabfreq
+          argf(3)=crabph(ix)
+          argf(4)=ed(ix)
+          argf(5)=pma
+          argf(6)=e0
+          argf(7)=e0f
         do j=1,napx
-!hr03    crabamp=ed(ix)/(ejfv(j))*c1e3
-         crabamp=(ed(ix)/ejfv(j))*c1e3                                   !hr03
-!        write(*,*) crabamp, ejfv(j), clight, "HELLO"
- 
-!hr03   yv(xory,j)=yv(xory,j) - crabamp*                                &
-!hr03&sin_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))
-        yv(xory,j)=yv(xory,j) - crabamp*                                &!hr03
-     &sin_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix))         !hr03
-!hr03 dpsv(j)=dpsv(j) - crabamp*crabfreq*2d0*pi/clight*xv(xory,j)*      &
-!hr03&cos_rn(sigmv(j)/clight*crabfreq*2d0*pi + crabph(ix))*c1m3
-      dpsv(j)=dpsv(j) -                                                 &!hr03
-     &((((((crabamp*crabfreq)*2d0)*pi)/clight)*xv(xory,j))*             &!hr03
-     &cos_rn((((sigmv(j)/clight)*crabfreq)*2d0)*pi + crabph(ix)))*c1m3   !hr03
-      ejf0v(j)=ejfv(j)
-      ejfv(j)=dpsv(j)*e0f+e0f
-!hr03 ejv(j)=sqrt(ejfv(j)*ejfv(j)+pma*pma)
-      ejv(j)=sqrt(ejfv(j)**2+pma**2)                                     !hr03
-      oidpsv(j)=one/(one+dpsv(j))
-      dpsv1(j)=(dpsv(j)*c1e3)*oidpsv(j)
-      yv(1,j)=(ejf0v(j)/ejfv(j))*yv(1,j)
-      yv(2,j)=(ejf0v(j)/ejfv(j))*yv(2,j)
-      rvv(j)=(ejv(j)*e0f)/(e0*ejfv(j))
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(9)=dpsv(j)
+            coord(10)=dpsv1(j)
+            call map_crab_cavity_2(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            oidpsv(j)=coord(5)
+            ejv(j)=coord(7)
+            ejfv(j)=coord(8)
+            dpsv(j)=coord(9)
+            dpsv1(j)=coord(10)
+            rvv(j)=coord(13)
+            ejf0v(j)=coord(14)
       if(ithick.eq.1) call envarsv(dpsv,oidpsv,rvv,ekv)
       enddo
-          goto 490
+          goto 640
 !--DIPEDGE ELEMENT
   753     continue
+          argf(1)=strack(i)
+          argf(2)=tiltc(i)
+          argf(3)=tilts(i)
+          argf(4)=xsiv(1,i)
+          argf(5)=zsiv(1,i)
+          argf(6)=strackx(i)
+          argf(7)=strackz(i)
           do j=1,napx
-            xlv(j)=(xv(1,j)-xsiv(1,i))*tiltc(i)+                        &
-     &(xv(2,j)-zsiv(1,i))*tilts(i)
-!hr02       zlv(j)=-(xv(1,j)-xsiv(1,i))*tilts(i)+                       &
-!hr02&(xv(2,j)-zsiv(1,i))*tiltc(i)
-            zlv(j)=(xv(2,j)-zsiv(1,i))*tiltc(i)-                        &!hr02
-     &(xv(1,j)-xsiv(1,i))*tilts(i)                                       !hr02
-            crkve=xlv(j)
-            cikve=zlv(j)
-            yv(1,j)=yv(1,j)+oidpsv(j)*(strackx(i)*crkve-                &
-     &stracks(i)*cikve)
-            yv(2,j)=yv(2,j)+oidpsv(j)*(strackz(i)*cikve+                &
-     &strackc(i)*crkve)
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(5)=oidpsv(j)
+            call map_dipedge(coord,argf,argi)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
           enddo
-          goto 490
+          goto 640
 !--solenoid
   754     continue
+          argf(1)=strackx(i)
+          argf(2)=strackz(i)
           do j=1,napx
-            yv(1,j)=yv(1,j)-xv(2,j)*strackx(i)
-            yv(2,j)=yv(2,j)+xv(1,j)*strackx(i)
-!hr02       crkve=yv(1,j)-xv(1,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      crkve=yv(1,j)-(((xv(1,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       cikve=yv(2,j)-xv(2,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      cikve=yv(2,j)-(((xv(2,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       yv(1,j)=crkve*cos(strackz(i)*ejf0v(j)/ejfv(j))+             &
-!hr02&cikve*sin(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       yv(2,j)=-crkve*sin(strackz(i)*ejf0v(j)/ejfv(j))+            &
-!hr02&cikve*cos(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       crkve=xv(1,j)*cos(strackz(i)*ejf0v(j)/ejfv(j))+             &
-!hr02&xv(2,j)*sin(strackz(i)*ejf0v(j)/ejfv(j))
-!hr02       cikve=-xv(1,j)*sin(strackz(i)*ejf0v(j)/ejfv(j))+            &
-!hr02&xv(2,j)*cos(strackz(i)*ejf0v(j)/ejfv(j))
-            yv(1,j)=crkve*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))+        &!hr02
-     &cikve*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                        !hr02
-            yv(2,j)=cikve*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))-        &!hr02
-     &crkve*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                        !hr02
-            crkve=xv(1,j)*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))+        &!hr02
-     &xv(2,j)*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                      !hr02
-            cikve=xv(2,j)*cos_rn((strackz(i)*ejf0v(j))/ejfv(j))-        &!hr02
-     &xv(1,j)*sin_rn((strackz(i)*ejf0v(j))/ejfv(j))                      !hr02
-            xv(1,j)=crkve
-            xv(2,j)=cikve
-            yv(1,j)=yv(1,j)+xv(2,j)*strackx(i)
-            yv(2,j)=yv(2,j)-xv(1,j)*strackx(i)
-!hr02       crkve=sigmv(j)-0.5*(xv(1,j)*xv(1,j)+xv(2,j)*xv(2,j))*       &
-!hr02&strackx(i)*strackz(i)*rvv(j)*ejf0v(j)/ejfv(j)*ejf0v(j)/ejfv(j)
-        crkve=sigmv(j)-0.5d0*(((((((xv(1,j)**2+xv(2,j)**2)*strackx(i))* &!hr02
-     &strackz(i))*rvv(j))*ejf0v(j))/ejfv(j))*ejf0v(j))/ejfv(j)           !hr02
-            sigmv(j)=crkve
-!hr02       crkve=yv(1,j)-xv(1,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      crkve=yv(1,j)-(((xv(1,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       cikve=yv(2,j)-xv(2,j)*strackx(i)*strackz(i)*ejf0v(j)/ejfv(j)
-      cikve=yv(2,j)-(((xv(2,j)*strackx(i))*strackz(i))*ejf0v(j))/ejfv(j) !hr02
-!hr02       sigmv(j)=sigmv(j)+(xv(1,j)*cikve-xv(2,j)*crkve)*strackz(i)* &
-!hr02&rvv(j)*ejf0v(j)/ejfv(j)*ejf0v(j)/ejfv(j)
-      sigmv(j)=sigmv(j)+((((((xv(1,j)*cikve-xv(2,j)*crkve)*strackz(i))* &!hr02
-     &rvv(j))*ejf0v(j))/ejfv(j))*ejf0v(j))/ejfv(j)                       !hr02
+            coord(1)=xv(1,j)
+            coord(2)=xv(2,j)
+            coord(3)=yv(1,j)
+            coord(4)=yv(2,j)
+            coord(6)=sigmv(j)
+            coord(7)=ejv(j)
+            coord(8)=ejfv(j)
+            coord(13)=rvv(j)
+            coord(14)=ejf0v(j)
+            call thin6d_map_solenoid(coord,argf,argi)
+            xv(1,j)=coord(1)
+            xv(2,j)=coord(2)
+            yv(1,j)=coord(3)
+            yv(2,j)=coord(4)
+            sigmv(j)=coord(6)
           enddo
-          goto 490
- 
+          goto 640
 !----------------------------
  
 ! Wire.
@@ -15867,198 +12499,27 @@
       ry = dy *cos_rn(ty)-lin *sin_rn(ty)
       lin= lin*cos_rn(ty)+dy  *sin_rn(ty)
  
+      argf(1)=embl
+      argf(2)=tx
+      argf(3)=ty
+      argf(4)=lin
+      argf(5)=rx
+      argf(6)=ry
+      argf(7)=cur
+      argf(8)=chi
+      argf(9)=l
+      argf(10)=leff
       do 750 j=1, napx
- 
-      xv(1,j) = xv(1,j) * c1m3
-      xv(2,j) = xv(2,j) * c1m3
-      yv(1,j) = yv(1,j) * c1m3
-      yv(2,j) = yv(2,j) * c1m3
- 
-!      write(*,*) 'Start: ',j,xv(1,j),xv(2,j),yv(1,j),
-!     &yv(2,j)
- 
-!     call drift(-embl/2)
- 
-!hr03 xv(1,j) = xv(1,j) - embl/2*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) -                                               &!hr03
-     &((embl*0.5d0)*yv(1,j))/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2)                                                        !hr03
-!hr03 xv(2,j) = xv(2,j) - embl/2*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) -                                               &!hr03
-     &((embl*0.5d0)*yv(2,j))/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2)                                                        !hr03
- 
-!     call tilt(tx,ty)
- 
-!hr03 xv(2,j) = xv(2,j)-xv(1,j)*sin_rn(tx)*yv(2,j)/sqrt((1+dpsv(j))**2- &
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))-tx)
-      xv(2,j) = xv(2,j)-(((xv(1,j)*sin_rn(tx))*yv(2,j))/                &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(2,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(1,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))-tx)                                                   !hr03
-!+if crlibm
-!hhr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(2,j)**2)/cos(atan(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))-tx)
-!hr03 xv(1,j) = xv(1,j)*(cos_rn(tx)-sin_rn(tx)*tan_rn(atan_rn(yv(1,j)/  &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx))
-      xv(1,j) = xv(1,j)*(cos_rn(tx)-sin_rn(tx)*tan_rn(atan_rn(yv(1,j)/  &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-tx))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx))
-!hr03 yv(1,j) = sqrt((1+dpsv(j))**2-yv(2,j)**2)*sin_rn(atan_rn(yv(1,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx)
-      yv(1,j) = sqrt((1d0+dpsv(j))**2-yv(2,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(1,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-tx)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-tx)
-!hr03 xv(1,j) = xv(1,j)-xv(2,j)*sin_rn(ty)*yv(1,j)/sqrt((1+dpsv(j))**2- &
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))-ty)
-      xv(1,j) = xv(1,j)-(((xv(2,j)*sin_rn(ty))*yv(1,j))/                &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(1,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(2,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))-ty)                                                   !hr03
-!+if crlibm
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(1,j)**2)/cos(atan(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))-ty)
-!hr03 xv(2,j) = xv(2,j)*(cos_rn(ty)-sin_rn(ty)*tan_rn(atan_rn(yv(2,j)/  &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty))
-      xv(2,j) = xv(2,j)*(cos_rn(ty)-sin_rn(ty)*tan_rn(atan_rn(yv(2,j)/  &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-ty))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty))
-!hr03 yv(2,j) = sqrt((1+dpsv(j))**2-yv(1,j)**2)*sin_rn(atan_rn(yv(2,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty)
-      yv(2,j) = sqrt((1d0+dpsv(j))**2-yv(1,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(2,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))-ty)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))-ty)
- 
-!     call drift(lin)
- 
-!hr03 xv(1,j) = xv(1,j) + lin*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-   &
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) + (lin*yv(1,j))/                                &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
-!hr03 xv(2,j) = xv(2,j) + lin*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-   &
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) + (lin*yv(2,j))/                                &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
- 
-!      call kick(l,cur,lin,rx,ry,chi)
- 
-      xi = xv(1,j)-rx
-      yi = xv(2,j)-ry
-!hr03 yv(1,j) = yv(1,j)-c1m7*cur/chi*xi/(xi**2+yi**2)*                  &
-!hr03&(sqrt((lin+l)**2+xi**2+yi**2)-sqrt((lin-l)**2+                    &
-!hr03&xi**2+yi**2))
-      yv(1,j) = yv(1,j)-((((c1m7*cur)/chi)*xi)/(xi**2+yi**2))*          &!hr03
-     &(sqrt(((lin+l)**2+xi**2)+yi**2)-sqrt(((lin-l)**2+                 &!hr03
-     &xi**2)+yi**2))                                                     !hr03
-!GRD FOR CONSISTENSY
-!hr03 yv(2,j) = yv(2,j)-c1m7*cur/chi*yi/(xi**2+yi**2)*                  &
-!hr03&(sqrt((lin+l)**2+xi**2+yi**2)-sqrt((lin-l)**2+                    &
-!hr03&xi**2+yi**2))
-      yv(2,j) = yv(2,j)-((((c1m7*cur)/chi)*yi)/(xi**2+yi**2))*          &!hr03
-     &(sqrt(((lin+l)**2+xi**2)+yi**2)-sqrt(((lin-l)**2+                 &!hr03
-     &xi**2)+yi**2))                                                     !hr03
- 
-!     call drift(leff-lin)
- 
-!hr03 xv(1,j) = xv(1,j) + (leff-lin)*yv(1,j)/sqrt((1+dpsv(j))**2-       &
-!hr03&yv(1,j)**2-yv(2,j)**2)
-      xv(1,j) = xv(1,j) + ((leff-lin)*yv(1,j))/sqrt(((1d0+dpsv(j))**2-  &!hr03
-     &yv(1,j)**2)-yv(2,j)**2)                                            !hr03
-!hr03 xv(2,j) = xv(2,j) + (leff-lin)*yv(2,j)/sqrt((1+dpsv(j))**2-       &
-!hr03&yv(1,j)**2-yv(2,j)**2)
-      xv(2,j) = xv(2,j) + ((leff-lin)*yv(2,j))/sqrt(((1d0+dpsv(j))**2-  &!hr03
-     &yv(1,j)**2)-yv(2,j)**2)                                            !hr03
- 
-!     call invtilt(tx,ty)
- 
-!hr03 xv(1,j) = xv(1,j)-xv(2,j)*sin_rn(-ty)*yv(1,j)/sqrt((1+dpsv(j))**2-&
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))+ty)
-      xv(1,j) = xv(1,j)-(((xv(2,j)*sin_rn(-ty))*yv(1,j))/               &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(1,j)**2))/                               &!hr03
-     &cos_rn(atan_rn(yv(2,j)/sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-        &!hr03
-     &yv(2,j)**2))+ty)                                                   !hr03
-!+if crlibm
-!hr03&yv(1,j)**2)/cos_rn(atan_rn(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(1,j)**2)/cos(atan(yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))+ty)
-!hr03 xv(2,j) = xv(2,j)*(cos_rn(-ty)-sin_rn(-ty)*tan_rn(atan_rn(yv(2,j)/&
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty))
-      xv(2,j) = xv(2,j)*                                                &!hr03
-     &(cos_rn(-1d0*ty)-sin_rn(-1d0*ty)*tan_rn(atan_rn(yv(2,j)/          &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+ty))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty))
-!hr03 yv(2,j) = sqrt((1+dpsv(j))**2-yv(1,j)**2)*sin_rn(atan_rn(yv(2,j)/ &
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty)
-      yv(2,j) = sqrt((1d0+dpsv(j))**2-yv(1,j)**2)*                      &!hr03
-     &sin_rn(atan_rn(yv(2,j)/                                           &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+ty)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+ty)
- 
-!hr03 xv(2,j) = xv(2,j)-xv(1,j)*sin_rn(-tx)*yv(2,j)/sqrt((1+dpsv(j))**2-&
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2))+tx)
-      xv(2,j) = xv(2,j)-(((xv(1,j)*sin_rn(-1d0*tx))*yv(2,j))/           &!hr03
-     &sqrt((1d0+dpsv(j))**2-yv(2,j)**2))/cos_rn(atan_rn(yv(1,j)/        &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx)                !hr03
-!+if crlibm
-!hr03&yv(2,j)**2)/cos_rn(atan_rn(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!+ei
-!+if .not.crlibm
-!hr03&yv(2,j)**2)/cos(atan(yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-      &
-!+ei
-!hr03&yv(2,j)**2))+tx)
-!hr03 xv(1,j) = xv(1,j)*(cos_rn(-tx)-sin_rn(-tx)*tan_rn(atan_rn(yv(1,j)/
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx))
-      xv(1,j) = xv(1,j)*                                                &!hr03
-     &(cos_rn(-1d0*tx)-sin_rn(-1d0*tx)*tan_rn(atan_rn(yv(1,j)/          &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx))               !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx))
-!hr03 yv(1,j) = sqrt((1+dpsv(j))**2-yv(2,j)**2)*sin_rn(atan_rn(yv(1,j)/
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx)
-      yv(1,j) = sqrt((1d0+dpsv(j))**2-yv(2,j)**2)*                       !hr03
-     &sin_rn(atan_rn(yv(1,j)/                                            !hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2))+tx)                !hr03
-!hr03&sqrt((1+dpsv(j))**2-yv(1,j)**2-yv(2,j)**2))+tx)
- 
-!     call shift(-embl*tan(tx),-embl*tan(ty)/cos(tx))
- 
-      xv(1,j) = xv(1,j) + embl*tan_rn(tx)
-!hr03 xv(2,j) = xv(2,j) + embl*tan_rn(ty)/cos_rn(tx)
-      xv(2,j) = xv(2,j) + (embl*tan_rn(ty))/cos_rn(tx)                   !hr03
- 
-!     call drift(-embl/2)
- 
-!hr03 xv(1,j) = xv(1,j) - embl/2*yv(1,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(1,j) = xv(1,j) - ((embl*0.5d0)*yv(1,j))/                       &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
-!hr03 xv(2,j) = xv(2,j) - embl/2*yv(2,j)/sqrt((1+dpsv(j))**2-yv(1,j)**2-&
-!hr03&yv(2,j)**2)
-      xv(2,j) = xv(2,j) - ((embl*0.5d0)*yv(2,j))/                       &!hr03
-     &sqrt(((1d0+dpsv(j))**2-yv(1,j)**2)-yv(2,j)**2)                     !hr03
- 
-      xv(1,j) = xv(1,j) * c1e3
-      xv(2,j) = xv(2,j) * c1e3
-      yv(1,j) = yv(1,j) * c1e3
-      yv(2,j) = yv(2,j) * c1e3
+        coord(1)=xv(1,j)
+        coord(2)=xv(2,j)
+        coord(3)=yv(1,j)
+        coord(4)=yv(2,j)
+        coord(9)=dpsv(j)
+        call map_wire(coord,argf,argi)
+        xv(1,j)=coord(1)
+        xv(2,j)=coord(2)
+        yv(1,j)=coord(3)
+        yv(2,j)=coord(4)
  
 !      write(*,*) 'End: ',j,xv(1,j),xv(2,j),yv(1,j),                       &
 !     &yv(2,j)

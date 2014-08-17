@@ -3141,7 +3141,6 @@
 !-----------------------------------------------------------------------
           argf(1)=strack(i)
             do j=1,napx
-              xv(1,j)=xv(1,j)*c1m3
               coord(1)=xv(1,j)
               coord(2)=xv(2,j)
               coord(3)=yv(1,j)
@@ -3590,7 +3589,7 @@
             coord(5)=oidpsv(j)
             call thin6d_map_normal_decapole(coord,argf,argi)
             yv(1,j)=coord(3)                          
-            yv(2,j)=coord(4)                                                 
+            yv(2,j)=coord(4)                                       
   140     continue
           goto 640
 !--NORMAL DODECAPOLE
@@ -3607,7 +3606,7 @@
             coord(5)=oidpsv(j)
             call thin6d_map_normal_dodecapole(coord,argf,argi)
             yv(1,j)=coord(3)                          
-            yv(2,j)=coord(4)                                                  
+            yv(2,j)=coord(4)                    
   160     continue
           goto 640
 !--NORMAL 14-POLE
@@ -3624,7 +3623,7 @@
             coord(5)=oidpsv(j)
             call thin6d_map_normal_14pole(coord,argf,argi)
             yv(1,j)=coord(3)                       
-            yv(2,j)=coord(4)                                                 
+            yv(2,j)=coord(4)                         
   180     continue
           goto 640
 !--NORMAL 16-POLE
@@ -4137,7 +4136,6 @@
               yv(1,j)=coord(3)
               yv(2,j)=coord(4) 
             enddo
-
           goto 640
   720     continue
           argf(1)=ed(ix)
