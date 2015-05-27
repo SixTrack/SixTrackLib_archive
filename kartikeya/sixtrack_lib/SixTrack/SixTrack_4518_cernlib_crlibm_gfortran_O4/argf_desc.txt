@@ -103,3 +103,51 @@
           argf(102)=l
           argf(103)=leff
 
+
+
+
+| Description                |        SixTrack   |    SixTrackLib |
+|----------------------------|-------------------|----------------|
+| BLOC : physical length [m]  |  strack(i)          |  PhysicalLengthOfBlock    |	
+| strack(i)*tiltc(i)   |   strackc(i)          | LengthElementTiltCos	     |	
+| strack(i)*tilts(i)    |   stracks(i)        | LengthElementTiltSin	     |	
+| cos(extalign(i,3)*c1m3)  |   tiltc(i)          | TiltComponentCos	      |	
+| sin(extalign(i,3)*c1m3)    |   tilts(i)             |  TiltComponentSin     |	
+| displacement of current entry in the horizontal direction |   xsiv(1,i) | CurrentEntryDisplacementX |	
+| displacement of current entry in the vertical  direction |  zsiv(1,i)|CurrentEntryDisplacementY |
+| Frequency Of Crab Cavity |  crabfreq    | FrequencyCrabCavity       |	
+| Amplitude crab cavity order2  |  crabamp2           | AmplitudeCrabCavity2 |	
+|  Phase of crab Cavity order2 |  crabph2(ix)        | PhaseCrabCavity2  |	
+| First Additional Datum  |  ed(ix)        | FirstAdditionalDatum      |	
+| Second Additional Datum  |  ek(ix)      |  SecondAdditionalDatum   |	
+| total energy of the reference particle [MeV] |   e0          | EnergyOfReferenceParticle   |
+| momentum of the reference particle [MeV/c]  |   e0f          | MomentumOfReferenceParticle   |
+| rest mass of the tracked particles [MeV/c^2]  |   pma     | RestMassOfParticle |
+| Path Length Offset  |   sigmoff(i)       |  PathLengthOff     |
+| second datum in element declaration, interpreted as type |  kz(ix)          |  ElementType   |
+| frequency' of the cavity     |       |   FrequencyOfCavity |
+| lag phase of the cavity|     phasc(ix) |   LagPhaseOfCavity	|
+| voltage of each cavity |     hsy(1)    |   VoltageOfCavity	|
+| RF frequency of the cavity   |     hsy(3)    |   RFFrequencyOfCavity	|
+| horizontal bending kick [rad] of a multipole block  |    dki(ix,1)  | HorizontalBendingKick		|
+| Switch to turn on linear coupling (0: off, 1: on)     |    ibbc | SwitchToLinearCoupling	|
+| Closed Orbit X coordinate    |  clobeam(1,imbb(i)) |    ClosedOrbitBeamX		|
+| Closed Orbit Y coordinate    |  clobeam(2,imbb(i)) |    ClosedOrbitBeamY		|
+| Closed Orbit Sigma coordinate|  clobeam(3,imbb(i)) |    ClosedOrbitBeamSigma		|
+| Closed Orbit Px coordinate   |  clobeam(4,imbb(i)) |    ClosedOrbitBeamPx	|
+| Closed Orbit Py coordinate   |  clobeam(5,imbb(i)) |    ClosedOrbitBeamPy			|
+| Closed Orbit Delta coordinate|  clobeam(6,imbb(i)) |    ClosedOrbitBeamDelta	|
+| Square Of SigmaN for X |  sigman2(1,imbb(i)) |    SquareOfSigmaNX		|
+| Square Of SigmaN for Y |  sigman2(2,imbb(i)) |    SquareOfSigmaNY		|
+| Beam Offset X    |   beamoff(1,imbb(i))|     BeamOffsetX	|
+| Beam Offset Y    |   beamoff(2,imbb(i))|     BeamOffsetY	|
+| Beam Offset Sigma|   beamoff(3,imbb(i))|     BeamOffsetSigma		|
+| Beam Offset Px   |   beamoff(4,imbb(i))|     BeamOffsetPx	|
+| Beam Offset Py   |   beamoff(5,imbb(i))|     BeamOffsetPy		|
+| Beam Offset Delta|   beamoff(6,imbb(i))|     BeamOffsetDelta	|
+|  --     |   bbcu(imbb(i),11)  |     bbcu11		|
+|  --   |   bbcu(imbb(i),12)  |     bbcu12		|
+		
+		
+
+

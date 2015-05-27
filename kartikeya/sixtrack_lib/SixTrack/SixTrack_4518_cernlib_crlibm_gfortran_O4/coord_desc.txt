@@ -31,7 +31,6 @@
 
 
 
-
             xv(1,j)=coord(1)
             xv(2,j)=coord(2)
             yv(1,j)=coord(3)
