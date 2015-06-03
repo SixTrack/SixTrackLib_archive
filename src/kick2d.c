@@ -10,45 +10,36 @@
 #define INT int
 #endif
 
-INT rot2d_init(INT elemi[], FLOAT elemf[], INT elemid){
-    FLOAT angle;
-    INT elem_floatid;
-    elem_floatid=elemi[elemid+1];
-    angle=elemf[elem_floatid];
-    elemf[elem_floatid+1]=cos(angle);
-    elemf[elem_floatid+2]=sin(angle);
+INT kick2d_init(INT elemi[], FLOAT elemf[], INT elemid){
     return 1;
 }
 
-inline void rot2d_calc(FLOAT cx, FLOAT sx, FLOAT partf[]){
-   FLOAT x=partf[0];
-   FLOAT y=partf[1];
-   partf[0]= cx*x+sx*y;
-   partf[1]=-sx*x+cx*y;
+inline void kick2d_calc(FLOAT kv, INT ord, FLOAT partf[]){
+   partf[1]+=kv*pow(partf[0],ord);
 }
 
-INT rot2d_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid){
-    FLOAT cx,sx;
-    INT elem_floatid,ndf,stf;
+INT kick2d_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid){
+    FLOAT kv;
+    INT elem_floatid,ndf,stf,ord;
     elem_floatid=elemi[elemid+1];
-    ndf=parti[1]; //n of flaot coordinates
-    stf=parti[3]; //starot for float coordinates
-    cx=elemf[elem_floatid+1];
-    sx=elemf[elem_floatid+2];
-    rot2d_calc(cx,sx,&partf[stf+partid*ndf]);
+    ndf=parti[1]; 
+    stf=parti[3]; 
+    ord=elemi[elemid+2];
+    kv=elemf[elem_floatid+1];
+    kick2d_calc(kv,ord,&partf[stf+partid*ndf]);
     return 1;
 }
 
-MAKE_MAPSET(rot2d);
+MAKE_MAPSET(kick2d);
 
 /*
-INT map_kcuda_rot2d(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid){
+INT map_kcuda_kick2d(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid){
     //to be completed
     return 1;
 }
 
 
-INT map_kopencl_rot2d(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid){
+INT map_kopencl_kick2d(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid){
     //to be completed
     return 1;
 }
@@ -67,13 +58,13 @@ void print_var(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[]){
     INT i;
 
     printf("elemi: {");
-    for(i=0;i<5;i++){
+    for(i=0;i<8;i++){
         printf("%d, ",elemi[i]);
     }
     printf("%d}\n",elemi[i]);
 
     printf("elemf: {");
-    for(i=0;i<8;i++){
+    for(i=0;i<2;i++){
         printf("%f, ",elemf[i]);
     }
     printf("%f}\n",elemf[i]);
@@ -94,20 +85,21 @@ void print_var(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[]){
 #define PI (3.141592653589793)
 
 int main(){
-    INT elemi[] = {0, 0,
-                   0, 4,
-                   0, 8};
-    FLOAT elemf[] = { PI/2,0,0,
-                     -PI/2,0,0,
-                      PI/3,0,0};
+    INT elemi[] = {0, 0, 2,
+                   0, 4, 4,
+                   0, 8, 6};
+    FLOAT elemf[] = { 0.03,
+                      0.01,
+                      0.2};
     INT elemid = 0;
-    INT parti[] = {2,2,0,0,0};
+    INT parti[] = {1,2,0,0,0};
     FLOAT partf[] = {1,1};
     INT npart=parti[0];
     INT partid = 0;
-    rot2d_init(elemi, elemf, elemid);
+    // printf("|%d|%d|%d|%d|\n",(sizeof(elemi)/sizeof(INT)),sizeof(elemf),sizeof(parti),sizeof(partf));
+    kick2d_init(elemi, elemf, elemid);
     print_var(elemi, elemf, parti, partf);
-    printf("%d\n", rot2d_mapset(elemi, elemf, elemid,
+    printf("%d\n", kick2d_mapset(elemi, elemf, elemid,
                                 parti, partf, partid, npart));
     print_var(elemi, elemf, parti, partf);
     return 0;
