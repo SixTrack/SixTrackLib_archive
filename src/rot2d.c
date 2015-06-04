@@ -20,22 +20,24 @@ INT rot2d_init(INT elemi[], FLOAT elemf[], INT elemid){
     return 1;
 }
 
-inline void rot2d_calc(FLOAT cx, FLOAT sx, FLOAT partf[]){
-   FLOAT x=partf[0];
-   FLOAT y=partf[1];
-   partf[0]= cx*x+sx*y;
-   partf[1]=-sx*x+cx*y;
+inline void rot2d_calc(INT i, INT j, FLOAT cx, FLOAT sx, FLOAT partf[]){
+   FLOAT x=partf[i];
+   FLOAT y=partf[j];
+   partf[i]= cx*x+sx*y;
+   partf[j]=-sx*x+cx*y;
 }
 
 INT rot2d_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid){
     FLOAT cx,sx;
-    INT elem_floatid,ndf,stf;
+    INT elem_floatid,ndf,stf,i,j;
     elem_floatid=elemi[elemid+1];
     ndf=parti[1]; //n of flaot coordinates
     stf=parti[3]; //starot for float coordinates
     cx=elemf[elem_floatid+1];
     sx=elemf[elem_floatid+2];
-    rot2d_calc(cx,sx,&partf[stf+partid*ndf]);
+    i=stf+partid*ndf;
+    j=stf+partid*ndf+1;
+    rot2d_calc(i,j,cx,sx,partf);
     return 1;
 }
 

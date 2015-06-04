@@ -14,19 +14,21 @@ INT kick2d_init(INT elemi[], FLOAT elemf[], INT elemid){
     return 1;
 }
 
-inline void kick2d_calc(FLOAT kv, INT ord, FLOAT partf[]){
-   partf[1]+=kv*pow(partf[0],ord);
+inline void kick2d_calc(INT i, INT j, FLOAT k, INT o, FLOAT partf[]){
+   partf[j]+=k*pow(partf[i],o);
 }
 
 INT kick2d_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid){
-    FLOAT kv;
-    INT elem_floatid,ndf,stf,ord;
+    FLOAT k;
+    INT elem_floatid,ndf,stf,o,i,j;
     elem_floatid=elemi[elemid+1];
     ndf=parti[1]; 
     stf=parti[3]; 
-    ord=elemi[elemid+2];
-    kv=elemf[elem_floatid+1];
-    kick2d_calc(kv,ord,&partf[stf+partid*ndf]);
+    o=elemi[elemid+2];
+    k=elemf[elem_floatid+1];
+    i=stf+partid*ndf;
+    j=stf+partid*ndf+1;
+    kick2d_calc(i,j,k,o,partf);
     return 1;
 }
 
