@@ -1,4 +1,3 @@
-#include "hmacro.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -18,7 +17,7 @@ inline void kick2d_calc(INT i, INT j, FLOAT k, INT o, FLOAT partf[]){
    partf[j]+=k*pow(partf[i],o);
 }
 
-INT kick2d_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid){
+INT kick2d_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
     FLOAT k;
     INT elem_floatid,ndf,stf,o,i,j;
     elem_floatid=elemi[elemid+1];
@@ -28,11 +27,12 @@ INT kick2d_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[
     k=elemf[elem_floatid+1];
     i=stf+partid*ndf;
     j=stf+partid*ndf+1;
-    kick2d_calc(i,j,k,o,partf);
+    for(partid=0;partid<partn;partid++){
+      kick2d_calc(i,j,k,o,partf);
+    };
     return 1;
 }
 
-MAKE_MAPSET(kick2d);
 
 /*
 INT map_kcuda_kick2d(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid){
@@ -55,8 +55,7 @@ partf: {const1,....,coord1,...,coord<ndf>,coord1,....,coord<ndf>}
 */
 
 //for checking
-
-void print_var(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[]){
+void print_var_kick(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[]){
     INT i;
 
     printf("elemi: {");
@@ -82,27 +81,4 @@ void print_var(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[]){
         printf("%f, ",partf[i]);
     }
     printf("%f}\n",partf[i]);
-}
-
-#define PI (3.141592653589793)
-
-int main(){
-    INT elemi[] = {0, 0, 2,
-                   0, 4, 4,
-                   0, 8, 6};
-    FLOAT elemf[] = { 0.03,
-                      0.01,
-                      0.2};
-    INT elemid = 0;
-    INT parti[] = {1,2,0,0,0};
-    FLOAT partf[] = {1,1};
-    INT npart=parti[0];
-    INT partid = 0;
-    // printf("|%d|%d|%d|%d|\n",(sizeof(elemi)/sizeof(INT)),sizeof(elemf),sizeof(parti),sizeof(partf));
-    kick2d_init(elemi, elemf, elemid);
-    print_var(elemi, elemf, parti, partf);
-    printf("%d\n", kick2d_mapset(elemi, elemf, elemid,
-                                parti, partf, partid, npart));
-    print_var(elemi, elemf, parti, partf);
-    return 0;
 }
