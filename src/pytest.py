@@ -7,43 +7,29 @@ import ctypes, math
 from random import randint
 from ctypes import *
 
-ctypes.cdll.LoadLibrary("/home/aviral/Desktop/Projects/SixTrackLib/src/libtrack.so") #or path of the shared object
-libc = ctypes.CDLL("/home/aviral/Desktop/Projects/SixTrackLib/src/libtrack.so") 	#or path of the shared object
+ctypes.cdll.LoadLibrary("/home/aviral/Desktop/CERN code/NextRound/test/libtrack.so") #or path of the shared object
+libc = ctypes.CDLL("/home/aviral/Desktop/CERN code/NextRound/test/libtrack.so") 	#or path of the shared object
 
-elemiInt = c_int*6
-elemfFloat = c_double*9
+elemiInt = c_int*24
+elemfFloat = c_double*7
 partiInt = c_int*5
 partfFloat = c_double*2
 
-elemi = elemiInt(0, 0, 4, 0, 8)
-elemf = elemfFloat(math.pi/2,0,0,-math.pi/2,0,0, math.pi/3,0,0)
+elemi = elemiInt( 3,-1,4,7,11,15,20,
+                  0,0,0,1,
+                  0,3,0,1,
+                  1,6,0,1,2,
+                  2,-1,2,1)
+elemf = elemfFloat( math.pi/2,0,0,
+                   -math.pi/4,0,0,
+                    0.3)
 elemid = 0
 parti = partiInt(1,2,0,0,0)
-partf = partfFloat(1,1)
+partf = partfFloat(12,2)
 partid = 0
 npart = 1
 
-var = libc.rot2d_init(elemi, elemf, elemid)
-print var
-libc.print_var_rot(elemi, elemf, parti, partf)
-var = libc.rot2d_map(elemi, elemf, elemid, parti, partf, partid, npart)
-libc.print_var_rot(elemi, elemf, parti, partf)
-print var
-
-elemiInt = c_int*9
-elemfFloat = c_double*3
-
-elemi = elemiInt(0, 0, 2, 0, 4, 4, 0, 8, 6)
-elemf = elemfFloat(0.03, 0.01, 0.2)
-elemid = 0
-parti = partiInt(1,2,0,0,0)
-partf = partfFloat(1,1)
-partid = 0
-npart = 1
-
-var = libc.kick2d_init(elemi, elemf, elemid)
-print var
-libc.print_var_kick(elemi, elemf, parti, partf)
-var = libc.kick2d_map(elemi, elemf, elemid, parti, partf, partid, npart)
-libc.print_var_kick(elemi, elemf, parti, partf)
+libc.print_var(elemi, elemf, parti, partf)
+var = libc.loop_map(elemi, elemf, elemid, parti, partf, partid, npart)
+libc.print_var(elemi, elemf, parti, partf)
 print var
