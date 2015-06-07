@@ -16,21 +16,19 @@ INT counter_init(INT elemi[], FLOAT elemf[], INT elemid){
 }
 
 inline void counter_calc(INT *retval, INT count, INT count_max, FLOAT partf[]){
-    if (count<count_max){
-        *retval=1;
-    } 
-    else{
-        *retval=-1;
-    }
+    
 } 
 
 INT counter_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
-    INT ndf,stf,count,count_max,retval=-1;
-    ndf=parti[1];
-    stf=parti[3];
+    INT count,count_max,retval=-1;
     count_max=elemi[elemid+2];
     count=elemi[elemid+3]++;
-    counter_calc(&retval,count,count_max,&partf[stf+partid*ndf]);
+    if (count<count_max){
+        retval=1;
+    } 
+    else{
+        retval=-1;
+    }
     printf("COUNTER:\n");
     print_var(elemi, elemf, parti, partf);
     return retval;

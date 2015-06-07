@@ -1,3 +1,4 @@
+#include "hmacro.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -15,7 +16,7 @@ INT rot2d_init(INT elemi[], FLOAT elemf[], INT elemid){
     FLOAT angle;
     INT elem_floatid;
     elem_floatid=elemi[elemid+1];
-    angle=elemf[elem_floatid];
+    GETATTRF(rot2d,angle);
     elemf[elem_floatid+1]=cos(angle);
     elemf[elem_floatid+2]=sin(angle);
     return 1;
@@ -30,16 +31,15 @@ inline void rot2d_calc(INT i, INT j, FLOAT cx, FLOAT sx, FLOAT partf[]){
 
 INT rot2d_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
     FLOAT cx,sx;
-    INT elem_floatid,ndf,stf,i,j;
-    elem_floatid=elemi[elemid+1];
-    ndf=parti[1]; 
-    stf=parti[3]; 
+    INT elem_floatid,ndf,stf,i,j,pfstart;
+    ELEMINIT;
+    GETPARTF;
     i=elemi[elemid+2];
     j=elemi[elemid+3];
-    cx=elemf[elem_floatid+1];
-    sx=elemf[elem_floatid+2];
+    GETATTRF(rot2d,cx);
+    GETATTRF(rot2d,sx);
     for(partid=0;partid<partn;partid++){
-      rot2d_calc(i,j,cx,sx,&partf[stf+partid*ndf]);
+      rot2d_calc(i,j,cx,sx,&partf[pfstart]);
     };
     printf("ROT2D:\n");
     print_var(elemi, elemf, parti, partf);
@@ -65,3 +65,32 @@ elemf: {attr1,attr...,attr1,attr...,}
 parti: {npart,ndf,ndi,stf,sti}
 partf: {const1,....,coord1,...,coord<ndf>,coord1,....,coord<ndf>}
 */
+
+//for checking
+/*void print_var_rot(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[]){
+    INT i;
+
+    printf("elemi: {");
+    for(i=0;i<5;i++){
+        printf("%d, ",elemi[i]);
+    }
+    printf("%d}\n",elemi[i]);
+
+    printf("elemf: {");
+    for(i=0;i<8;i++){
+        printf("%f, ",elemf[i]);
+    }
+    printf("%f}\n",elemf[i]);
+
+    printf("parti: {");
+    for(i=0;i<4;i++){
+        printf("%d, ",parti[i]);
+    }
+    printf("%d}\n", parti[i]);
+
+    printf("partf: {");
+    for(i=0;i<1;i++){
+        printf("%f, ",partf[i]);
+    }
+    printf("%f}\n",partf[i]);
+}*/

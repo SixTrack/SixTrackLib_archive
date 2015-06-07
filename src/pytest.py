@@ -10,12 +10,12 @@ from ctypes import *
 ctypes.cdll.LoadLibrary("/home/aviral/Desktop/CERN code/NextRound/test/libtrack.so") #or path of the shared object
 libc = ctypes.CDLL("/home/aviral/Desktop/CERN code/NextRound/test/libtrack.so") 	#or path of the shared object
 
-elemiInt = c_int*24
+elemiInt = c_int*28
 elemfFloat = c_double*7
 partiInt = c_int*5
 partfFloat = c_double*2
 
-elemi = elemiInt( 3,-1,4,7,11,15,20,
+elemi = elemiInt( 3,-1,4,11,0,15,0,19,1,24,2,
                   0,0,0,1,
                   0,3,0,1,
                   1,6,0,1,2,
