@@ -1,3 +1,8 @@
+
+#define rot2d_TYPE 0
+#define kick2d_TYPE 1
+#define counter_TYPE 2
+
 #define ELEMINIT \
  elem_floatid=elemi[elemid+1];
 
@@ -32,6 +37,5 @@
 #define six_y 2
 #define six_py 3
 
-// GETPARTF;
 // GETCOORDF(six,x);
 // GETCOORDF(six,px);

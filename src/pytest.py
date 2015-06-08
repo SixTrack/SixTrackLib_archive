@@ -30,6 +30,7 @@ partid = 0
 npart = 1
 
 libc.print_var(elemi, elemf, parti, partf)
+libc.loop_init(elemi, elemf, elemid)
 var = libc.loop_map(elemi, elemf, elemid, parti, partf, partid, npart)
 libc.print_var(elemi, elemf, parti, partf)
 print var
