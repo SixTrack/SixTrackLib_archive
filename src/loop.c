@@ -28,11 +28,8 @@ INT loop_init(INT elemi[], FLOAT elemf[], INT elemid){
             case rot2d_TYPE:
                 rot2d_init(elemi, elemf, id);
                 break;
-            case kick2d_TYPE:
-                kick2d_init(elemi, elemf, id);  //does nothing
-                break;
             case counter_TYPE:
-                counter_init(elemi, elemf, id); //does nothing
+                counter_init(elemi, elemf, id);
                 break;
         }
     }
