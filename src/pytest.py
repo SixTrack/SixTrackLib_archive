@@ -2,13 +2,15 @@
 #creating shared library: 	$ gcc -shared -o libtrack.so track.o
 #or simply use the makefile instead of the above two commands (which ignores the warning)
 
-import sys
+import sys, os
 import ctypes, math
 from random import randint
 from ctypes import *
 
-ctypes.cdll.LoadLibrary("/home/aviral/Desktop/CERN code/NextRound/test/libtrack.so") #or path of the shared object
-libc = ctypes.CDLL("/home/aviral/Desktop/CERN code/NextRound/test/libtrack.so") 	#or path of the shared object
+libfn=os.path.join(os.path.dirname(os.path.abspath(__file__)),'libtrack.so')
+
+
+libc = ctypes.CDLL(libfn)
 
 class Rot2d(object):
   _typeid=0
@@ -52,7 +54,7 @@ class Simulation(object):
 
   def __init__(self):
     # self.elems={}
-    self.lst={}  
+    self.lst={}
 
   def add_rot(self,label,angle):
     mapid=0
@@ -142,9 +144,9 @@ class Simulation(object):
   def simulate(self):
     arg_elemi=(ctypes.c_int *len(self.elemi))()
     arg_elemf=(ctypes.c_double *len(self.elemf))()
-    arg_parti=(ctypes.c_int *len(self.parti))()    
+    arg_parti=(ctypes.c_int *len(self.parti))()
     arg_partf=(ctypes.c_double *len(self.partf))()
-    for index, value in enumerate(self.elemi):  
+    for index, value in enumerate(self.elemi):
       arg_elemi[index] = int(value) 
     for index, value in enumerate(self.elemf):
       arg_elemf[index] = float(value)
