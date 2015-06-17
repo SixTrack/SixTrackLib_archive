@@ -1,27 +1,21 @@
-CC = gcc # C compiler
-CFLAGS = -fPIC -Wall -Wextra -O2 -g # C flags
-LDFLAGS = -shared  # linking flags
-LIBS = -lm  # linking flags
-RM = rm -f  # rm command
-
-SRCS = rot2d.c # source files
-OBJS = $(SRCS:.c=.o)
-TARGET_LIB = $(SRCS:.c=.so) # target lib
-TARGET_EXE = $(SRCS:.c=) # target lib
+CC= gcc
+CFLAGS= -Wall -Werror -fpic
+LDFLAGS= -shared
+SRCS = kick2d.c rot2d.c counter.c loop.c results.c
+OBJECTS= $(SRCS:.c=.o)
+TARGET_LIB= libtrack.so
 
 .PHONY: all clean
-all: ${TARGET_LIB} ${TARGET_EXE}
+all: $(TARGET_LIB)
 
-$(TARGET_LIB): $(OBJS)
-	$(CC) ${LDFLAGS} -o $@ $^
+test: $(TARGET_LIB)
+	python pytest.py
 
-$(TARGET_EXE): $(OBJS)
-	$(CC) -o $@ $^ $(LIBS)
+$(TARGET_LIB): $(OBJECTS)
+	$(CC) $(LDFLAGS) -o libtrack.so $(OBJECTS)
 
-$(SRCS:.c=.d):%.d:%.c
-	$(CC) $(CFLAGS) -MM $< >$@
-
-include $(SRCS:.c=.d)
+.o:
+	$(CC) -c $(CFLAGS) $(INCLUDES) $<  
 
 clean:
-	-${RM} ${TARGET_LIB} ${OBJS} $(SRCS:.c=.d)
+	rm $(OBJECTS) $(TARGET_LIB)
