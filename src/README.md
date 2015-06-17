@@ -1,4 +1,6 @@
-###Run the code using:
-```$ chmod +x command.sh```
+###README:
+Create the shared library using:
+```make```
 
-```$ ./command.sh```
+Run the code using:
+```make test```
