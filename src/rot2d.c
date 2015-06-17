@@ -10,7 +10,7 @@
 #define INT int
 #endif
 
-void print_var(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[]);
+void print_var(INT [], FLOAT [], INT [], FLOAT [], INT);
 
 INT rot2d_init(INT elemi[], FLOAT elemf[], INT elemid){
     ELEMINIT;
@@ -37,7 +37,6 @@ INT rot2d_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[]
     for(partid=0;partid<partn;partid++){
       rot2d_calc(i,j,cx,sx,GETPARTF(partid));
     };
-    printf("ROT2D:\n");
-    print_var(elemi, elemf, parti, partf);
+    print_var(elemi, elemf, parti, partf, rot2d_TYPE);
     return 1;
 }

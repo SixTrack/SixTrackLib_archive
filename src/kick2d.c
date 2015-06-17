@@ -10,7 +10,7 @@
 #define INT int
 #endif
 
-void print_var(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[]);
+void print_var(INT [], FLOAT [], INT [], FLOAT [], INT);
 
 inline void kick2d_calc(INT i, INT j, FLOAT k, INT o, FLOAT partf[]){
    partf[j]+=k*pow(partf[i],o);
@@ -26,7 +26,6 @@ INT kick2d_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[
     for(partid=0;partid<partn;partid++){
       kick2d_calc(i,j,k,o,GETPARTF(partid));
     };
-    printf("KICK2D:\n");
-    print_var(elemi, elemf, parti, partf);
+    print_var(elemi, elemf, parti, partf, kick2d_TYPE);
     return 1;
 }

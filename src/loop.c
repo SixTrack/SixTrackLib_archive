@@ -11,12 +11,12 @@
 #define INT int
 #endif
 
-INT rot2d_init(INT elemi[], FLOAT elemf[], INT elemid);
-INT rot2d_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn);
-INT kick2d_init(INT elemi[], FLOAT elemf[], INT elemid);
-INT kick2d_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn);
-INT counter_init(INT elemi[], FLOAT elemf[], INT elemid);
-INT counter_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn);
+INT rot2d_init(INT [], FLOAT [], INT );
+INT rot2d_map(INT [], FLOAT [], INT , INT [], FLOAT [], INT , INT );
+INT kick2d_init(INT [], FLOAT [], INT );
+INT kick2d_map(INT [], FLOAT [], INT , INT [], FLOAT [], INT , INT );
+INT counter_init(INT [], FLOAT [], INT );
+INT counter_map(INT [], FLOAT [], INT , INT [], FLOAT [], INT , INT );
 
 INT loop_init(INT elemi[], FLOAT elemf[], INT elemid){
     INT nelem,mapid,id,i;
@@ -58,23 +58,3 @@ INT loop_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[],
     }
     return 1;
 }
-
-/*
-INT map_kcuda_loop(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid){
-    //to be completed
-    return 1;
-}
-
-
-INT map_kopencl_loop(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid){
-    //to be completed
-    return 1;
-}
-*/
-
-/*
-elemi: {mapid, mapst, attr1, attr..., mapid, mapst}
-elemf: {attr1,attr...,attr1,attr...,}
-parti: {npart,ndf,ndi,stf,sti}
-partf: {const1,....,coord1,...,coord<ndf>,coord1,....,coord<ndf>}
-*/
