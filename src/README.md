@@ -1,6 +1,6 @@
 ###README:
 Create the shared library using:
-```make```
+`make`
 
 Run the code using:
-```make test```
+`make test`
