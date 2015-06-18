@@ -1,7 +1,7 @@
 CC= gcc
 CFLAGS= -Wall -Werror -fpic
 LDFLAGS= -shared
-SRCS = kick2d.c rot2d.c counter.c loop.c results.c
+SRCS = kick2d.c rot2d.c counter.c loop.c results.c monitor.c
 OBJECTS= $(SRCS:.c=.o)
 TARGET_LIB= libtrack.so
 INCLUDES= hmacro.h
@@ -19,4 +19,4 @@ $(TARGET_LIB): $(OBJECTS)
 	$(CC) -c $(CFLAGS) $<  
 
 clean:
-	rm $(OBJECTS) $(TARGET_LIB)
+	rm $(OBJECTS) $(TARGET_LIB) Output.txt

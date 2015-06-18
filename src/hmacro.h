@@ -37,12 +37,13 @@
 #define counter_int_count_max 0
 #define counter_int_count 1
 
-#define monitor_float_dataf 0
-#define monitor_int_nrec 0
-#define monitor_int_skip 1
-#define monitor_int_index 2
-#define monitor_int_last 2+nrec
-#define monitor_int_datai 2+2*nrec
+#define monitor_float_dataf 0+ndf*last+i
+#define monitor_int_count 0
+#define monitor_int_nrec 1
+#define monitor_int_skip 2
+#define monitor_int_last 3
+#define monitor_int_index 4+last
+#define monitor_int_datai 4+nrec+ndf*last+i
 
 #define INITPARTF \
  int ndf, stf; \

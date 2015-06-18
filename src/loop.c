@@ -17,6 +17,8 @@ INT kick2d_init(INT [], FLOAT [], INT );
 INT kick2d_map(INT [], FLOAT [], INT , INT [], FLOAT [], INT , INT );
 INT counter_init(INT [], FLOAT [], INT );
 INT counter_map(INT [], FLOAT [], INT , INT [], FLOAT [], INT , INT );
+INT monitor_init(INT [], FLOAT [], INT );
+INT monitor_map(INT [], FLOAT [], INT , INT [], FLOAT [], INT , INT );
 
 INT loop_init(INT elemi[], FLOAT elemf[], INT elemid){
     INT nelem,mapid,id,i;
@@ -52,6 +54,9 @@ INT loop_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[],
                 break;
               case counter_TYPE:
                 retval=counter_map(elemi, elemf, id, parti, partf, partid, partn);
+                break;
+              case monitor_TYPE:
+                retval=monitor_map(elemi, elemf, id, parti, partf, partid, partn);
                 break;
             }
         }

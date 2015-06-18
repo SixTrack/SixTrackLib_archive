@@ -18,17 +18,18 @@ void print_var(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[], INT elem_
         case 0: fprintf(fptr,"ROT2D:\n"); break;
         case 1: fprintf(fptr,"KICK2D:\n"); break;
         case 2: fprintf(fptr,"COUNTER:\n"); break;
-        case 4: fprintf(fptr,"FINAL:\n"); break;
+        case 4: fprintf(fptr,"MONITOR:\n"); break;
+        case 5: fprintf(fptr,"FINAL:\n"); break;
     }
 
     fprintf(fptr,"elemi: {");
-    for(i=0;i<27;i++){
+    for(i=0;i<37;i++){
         fprintf(fptr,"%d, ",elemi[i]);
     }
     fprintf(fptr,"%d}\n",elemi[i]);
 
     fprintf(fptr,"elemf: {");
-    for(i=0;i<6;i++){
+    for(i=0;i<10;i++){
         fprintf(fptr,"%f, ",elemf[i]);
     }
     fprintf(fptr,"%f}\n",elemf[i]);

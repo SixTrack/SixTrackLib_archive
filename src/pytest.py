@@ -8,8 +8,6 @@ from random import randint
 from ctypes import *
 
 libfn=os.path.join(os.path.dirname(os.path.abspath(__file__)),'libtrack.so')
-
-
 libc = ctypes.CDLL(libfn)
 
 class Rot2d(object):
@@ -42,6 +40,11 @@ class Counter(object):
 
 class Loop(object):
   _typeid=3
+  def __init__(self,Element,**argsv):
+    self.name = Element
+
+class Monitor(object):
+  _typeid=4
   def __init__(self,Element,**argsv):
     self.name = Element
 
@@ -99,6 +102,26 @@ class Simulation(object):
         temp.extend([self.lst[elem][0],self.lst[elem][1]])
     self.elemi=temp+self.elemi
 
+  def add_monitor(self,label,count,nrec,skip,ndi,ndf):
+    mapid=4
+    elemid=len(self.elemi)
+    mapst=len(self.elemf)
+    self.elemi.extend([mapid,mapst,count,nrec,skip,0])
+    i=0
+    while i<nrec:
+      self.elemi.extend([0])  #for index
+      j=0
+      while j<ndi:
+        self.elemi.extend([0])  #for datai
+        j=j+1
+      j=0
+      while j<ndf:
+        self.elemf.extend([0.0])  #for dataf
+        j=j+1
+      i=i+1
+    self.lst[label]=(elemid,mapid)
+    Monitor(label,count=count,nrec=nrec,skip=skip)
+
   def add_elem(self,name,label,*args):
     if(name=='rot2d'):
         self.add_rot(label,*args)
@@ -108,6 +131,8 @@ class Simulation(object):
         self.add_count(label,*args)
     elif(name=='loop'):
         self.add_loop(label,*args)
+    elif(name=='monitor'):
+        self.add_monitor(label,*args)
 
   def add_part(self,coordf,coordi):
     self.npart=self.npart+1
@@ -160,15 +185,16 @@ class Simulation(object):
 
     libc.loop_init(arg_elemi, arg_elemf, arg_elemid)
     var=libc.loop_map(arg_elemi, arg_elemf, arg_elemid, arg_parti, arg_partf, arg_partid, arg_npart)
-    libc.print_var(arg_elemi, arg_elemf, arg_parti, arg_partf)
+    libc.print_var(arg_elemi, arg_elemf, arg_parti, arg_partf, 5)
     return self
 
 sim=Simulation()
 sim.add_elem('rot2d','r1',math.pi/2)
 sim.add_elem('rot2d','r2',-math.pi/4)
-sim.add_elem('kick2d','k1',0.3,2)
-sim.add_elem('counter','c1',2)
-sim.add_elem('loop','l1','r1 r2 k1 c1')
+sim.add_elem('kick2d','k1',0.03,2)
+sim.add_elem('monitor','m1',1,2,2,0,2)
+sim.add_elem('counter','c1',10)
+sim.add_elem('loop','l1','r1 r2 k1 m1 c1')
 sim.add_part([12,2],[])
 # sim.add_part([.2,.2],[2])
 # sim.add_part([.4,.4],[2])
