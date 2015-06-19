@@ -46,12 +46,12 @@
 #define monitor_int_datai 4+nrec+ndf*last+i
 
 #define INITPARTF \
- int ndf, stf; \
+ INT ndf, stf; \
  ndf=parti[1]; \
  stf=parti[3]; \
 
 #define INITPARTI \
- int ndi, sti; \
+ INT ndi, sti; \
  ndi=parti[2]; \
  sti=parti[4]; \
 
