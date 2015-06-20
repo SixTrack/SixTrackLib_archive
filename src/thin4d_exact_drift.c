@@ -12,10 +12,6 @@
 
 void print_var(INT [], FLOAT [], INT [], FLOAT [], INT);
 
-INT thin4d_exact_drift_init(INT elemi[], FLOAT elemf[], INT elemid){
-    return 1;
-}
-
 inline void thin4d_exact_drift_calc(INT elem_floatid, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT PhysicalLengthOfBlock, FLOAT partf[]){
     double Pz;
     x *= OnePoweredToMinus3;
