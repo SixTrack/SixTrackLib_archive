@@ -58,6 +58,8 @@ INT loop_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[],
               case monitor_TYPE:
                 retval=monitor_map(elemi, elemf, id, parti, partf, partid, partn);
                 break;
+              case drift_exact_TYPE:
+                retval=drift_exact_map(elemi, elemf, id, parti, partf, partid, partn);
             }
         }
     }

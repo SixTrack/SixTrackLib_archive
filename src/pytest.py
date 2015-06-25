@@ -48,6 +48,11 @@ class Monitor(object):
   def __init__(self,Element,**argsv):
     self.name = Element
 
+class Drift_Exact(object):
+  _typeid=5
+  def __init__(self,Element,**argsv):
+    self.name = Element
+
 class Simulation(object):
   elemi=[]
   elemf=[]
@@ -122,6 +127,15 @@ class Simulation(object):
     self.lst[label]=(elemid,mapid)
     Monitor(label,count=count,nrec=nrec,skip=skip)
 
+  def add_drift_exact(self,label,PhysicalLengthOfBlock):
+    mapid=5
+    elemid=len(self.elemi)
+    mapst=len(self.elemf)
+    self.elemi.extend([mapid,mapst])
+    self.elemf.extend([PhysicalLengthOfBlock])
+    self.lst[label]=(elemid,mapid)
+    Drift_Exact(label,PhysicalLengthOfBlock=PhysicalLengthOfBlock)
+
   def add_elem(self,name,label,*args):
     if(name=='rot2d'):
         self.add_rot(label,*args)
@@ -133,6 +147,8 @@ class Simulation(object):
         self.add_loop(label,*args)
     elif(name=='monitor'):
         self.add_monitor(label,*args)
+    elif(name=='drift_exact'):
+        self.add_drift_exact(label, *args)
 
   def add_part(self,coordf,coordi):
     self.npart=self.npart+1
@@ -183,20 +199,22 @@ class Simulation(object):
     arg_partid=0
     arg_npart=1
 
+    libc.print_var(arg_elemi, arg_elemf, arg_parti, arg_partf, 6)
     libc.loop_init(arg_elemi, arg_elemf, arg_elemid)
     var=libc.loop_map(arg_elemi, arg_elemf, arg_elemid, arg_parti, arg_partf, arg_partid, arg_npart)
-    libc.print_var(arg_elemi, arg_elemf, arg_parti, arg_partf, 5)
+    libc.print_var(arg_elemi, arg_elemf, arg_parti, arg_partf, 6)
     return self
 
 sim=Simulation()
-sim.add_elem('rot2d','r1',math.pi/2)
+sim.add_elem('rot2d','r1',math.pi/2) #(angle)
 sim.add_elem('rot2d','r2',-math.pi/4)
-sim.add_elem('kick2d','k1',0.03,2)
-sim.add_elem('monitor','m1',1,2,2,0,2) #(count,nrec,skip,ndi,ndf)
+sim.add_elem('kick2d','k1',0.03,2) #(k,o)
+sim.add_elem('drift_exact','d1',1.0) #(PhysicalLengthOfBlock)
+sim.add_elem('monitor','m1',1,2,2,0,15) #(count,nrec,skip,ndi,ndf)
 sim.add_elem('counter','c1',10)
-sim.add_elem('loop','l1','r1 r2 k1 m1 c1')
-sim.add_part([12,2],[])
-# sim.add_part([.2,.2],[2])
+sim.add_elem('loop','l1','r1 r2 k1 d1 m1 c1')
+# sim.add_part([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],[]) 
+sim.add_part([0,0,0,0,0,0.1,0.001,0.1,0.001,0.1,0.001,0.1,0,0],[]) #p0,beta0,gamma0,m0,E0,x,px,y,py,ds,ps,s,m,q
 # sim.add_part([.4,.4],[2])
 
 print sim.elemi
@@ -204,29 +222,3 @@ print sim.elemf
 print sim.parti
 print sim.partf
 sim.simulate()
-
-
-# elemiInt = c_int*28
-# elemfFloat = c_double*7
-# partiInt = c_int*5
-# partfFloat = c_double*2
-
-# elemi = elemiInt( 3,-1,4,11,0,15,0,19,1,24,2,
-#                   0,0,0,1,
-#                   0,3,0,1,
-#                   1,6,0,1,2,
-#                   2,-1,2,1)
-# elemf = elemfFloat( math.pi/2,0,0,
-#                    -math.pi/4,0,0,
-#                     0.3)
-# elemid = 0
-# parti = partiInt(1,2,0,0,0)
-# partf = partfFloat(12,2)
-# partid = 0
-# npart = 1
-
-# libc.print_var(elemi, elemf, parti, partf)
-# libc.loop_init(elemi, elemf, elemid)
-# var = libc.loop_map(elemi, elemf, elemid, parti, partf, partid, npart)
-# libc.print_var(elemi, elemf, parti, partf)
-# print var

@@ -1,7 +1,7 @@
 CC= gcc
-CFLAGS= -Wall -Werror -fpic
+CFLAGS= -fpic
 LDFLAGS= -shared
-SRCS = kick2d.c rot2d.c counter.c loop.c results.c monitor.c
+SRCS = kick2d.c rot2d.c counter.c loop.c results.c monitor.c drift_exact.c
 OBJECTS= $(SRCS:.c=.o)
 TARGET_LIB= libtrack.so
 INCLUDES= hmacro.h

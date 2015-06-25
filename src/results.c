@@ -19,7 +19,8 @@ void print_var(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[], INT elem_
         case 1: fprintf(fptr,"KICK2D:\n"); break;
         case 2: fprintf(fptr,"COUNTER:\n"); break;
         case 4: fprintf(fptr,"MONITOR:\n"); break;
-        case 5: fprintf(fptr,"FINAL:\n"); break;
+        case 5: fprintf(fptr,"DRIFT:\n"); break;
+        case 6: fprintf(fptr,"FINAL:\n"); break;
     }
 
     fprintf(fptr,"elemi: {");
@@ -29,7 +30,7 @@ void print_var(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[], INT elem_
     fprintf(fptr,"%d}\n",elemi[i]);
 
     fprintf(fptr,"elemf: {");
-    for(i=0;i<10;i++){
+    for(i=0;i<37;i++){
         fprintf(fptr,"%f, ",elemf[i]);
     }
     fprintf(fptr,"%f}\n",elemf[i]);
@@ -41,7 +42,7 @@ void print_var(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[], INT elem_
     fprintf(fptr,"%d}\n", parti[i]);
 
     fprintf(fptr,"partf: {");
-    for(i=0;i<1;i++){
+    for(i=0;i<13;i++){
         fprintf(fptr,"%f, ",partf[i]);
     }
     fprintf(fptr,"%f}\n\n\n",partf[i]);

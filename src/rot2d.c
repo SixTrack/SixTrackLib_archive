@@ -20,11 +20,11 @@ INT rot2d_init(INT elemi[], FLOAT elemf[], INT elemid){
     return 1;
 }
 
-inline void rot2d_calc(INT i, INT j, FLOAT cx, FLOAT sx, FLOAT partf[]){
-   FLOAT x=partf[i];
-   FLOAT y=partf[j];
-   partf[i]= cx*x+sx*y;
-   partf[j]=-sx*x+cx*y;
+inline void rot2d_calc(INT pfstart, FLOAT cx, FLOAT sx, FLOAT partf[]){
+   GETCOORDF(partf,x);
+   GETCOORDF(partf,y);
+   SETCOORDF(partf,x,cx*x+sx*y);
+   SETCOORDF(partf,y,-sx*x+cx*y);
 }
 
 INT rot2d_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
@@ -35,7 +35,7 @@ INT rot2d_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[]
     GETATTRI(rot2d,j);
     INITPARTF;
     for(partid=0;partid<partn;partid++){
-      rot2d_calc(i,j,cx,sx,GETPARTF(partid));
+      rot2d_calc(pfstart,cx,sx,GETPARTF(partid));
     };
     print_var(elemi, elemf, parti, partf, rot2d_TYPE);
     return 1;
