@@ -28,7 +28,7 @@ inline void drift_exact_calc(INT pfstart, FLOAT beta0, FLOAT x, FLOAT px, FLOAT 
 }
 
 INT drift_exact_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
-    INT cntexactdrift;
+    INT cntexactdrift=0;
     ELEMINIT;
     INITPARTF;
     GETCOORDF(partf,x);

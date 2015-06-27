@@ -1,3 +1,6 @@
+#define OnePoweredToMinus38       1.0e-38
+#define OnePoweredTo3             1.0e3
+
 #define ELEMINIT \
  INT elem_floatid; \
  elem_floatid=elemi[elemid+1];
@@ -47,6 +50,23 @@
 
 #define drift_exact_float_L 0
 
+#define rf_cavity_float_dppoff 0
+#define rf_cavity_float_ElementType 1
+#define rf_cavity_float_FirstAdditionalDatum 2
+#define rf_cavity_float_FrequencyOfCavity 3
+#define rf_cavity_float_LagPhaseOfCavity 4
+#define rf_cavity_float_VoltageOfCavity 5
+#define rf_cavity_float_RFFrequencyOfCavity 6
+#define rf_cavity_float_PathLengthOffset 7
+
+#define vertical_dipole_float_L 0
+#define vertical_dipole_float_TiltComponentCos 1
+#define vertical_dipole_float_TiltComponentSin 2
+
+#define horizontal_dipole_float_L 0
+#define horizontal_dipole_float_TiltComponentCos 1
+#define horizontal_dipole_float_TiltComponentSin 2
+
 #define INITPARTF \
  INT ndf, stf, pfstart; \
  ndf=parti[1]; \
@@ -94,3 +114,12 @@
 #define partf_s 11
 #define partf_m 12
 #define partf_q 13
+//following are not mentioned in the wiki, assigned random number
+#define partf_RatioPtoPj 4
+#define partf_PathLengthDiff 5
+#define partf_EnergyOfParticle 6
+#define partf_MomentumOfParticle 7
+#define partf_RatioDeltaPtoPj 8
+#define partf_RatioDeltaPtoPj1 9
+#define partf_RatioBetaToBetaj 12
+#define partf_MomentumOfParticle0 13
