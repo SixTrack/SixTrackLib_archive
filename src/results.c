@@ -19,18 +19,21 @@ void print_var(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[], INT elem_
         case 1: fprintf(fptr,"KICK2D:\n"); break;
         case 2: fprintf(fptr,"COUNTER:\n"); break;
         case 4: fprintf(fptr,"MONITOR:\n"); break;
-        case 5: fprintf(fptr,"DRIFT:\n"); break;
-        case 6: fprintf(fptr,"FINAL:\n"); break;
+        case 5: fprintf(fptr,"DRIFT_EXACT:\n"); break;
+        case 6: fprintf(fptr,"RF_CAVITY:\n"); break;
+        case 7: fprintf(fptr,"HORIZONtAL_DIPOLE:\n"); break;
+        case 8: fprintf(fptr,"VERTICAL_DIPOLE:\n"); break;
+        case 9: fprintf(fptr,"FINAL:\n"); break;
     }
 
     fprintf(fptr,"elemi: {");
-    for(i=0;i<37;i++){
+    for(i=0;i<47;i++){
         fprintf(fptr,"%d, ",elemi[i]);
     }
     fprintf(fptr,"%d}\n",elemi[i]);
 
     fprintf(fptr,"elemf: {");
-    for(i=0;i<37;i++){
+    for(i=0;i<51;i++){
         fprintf(fptr,"%f, ",elemf[i]);
     }
     fprintf(fptr,"%f}\n",elemf[i]);

@@ -53,6 +53,21 @@ class Drift_Exact(object):
   def __init__(self,Element,**argsv):
     self.name = Element
 
+class RF_Cavity(object):
+  _typeid=6
+  def __init__(self,Element,**argsv):
+    self.name = Element
+
+class Horizontal_Dipole(object):
+  _typeid=7
+  def __init__(self,Element,**argsv):
+    self.name = Element
+
+class Vertical_Dipole(object):
+  _typeid=8
+  def __init__(self,Element,**argsv):
+    self.name = Element    
+
 class Simulation(object):
   elemi=[]
   elemf=[]
@@ -127,14 +142,41 @@ class Simulation(object):
     self.lst[label]=(elemid,mapid)
     Monitor(label,count=count,nrec=nrec,skip=skip)
 
-  def add_drift_exact(self,label,PhysicalLengthOfBlock):
+  def add_drift_exact(self,label,L):
     mapid=5
     elemid=len(self.elemi)
     mapst=len(self.elemf)
     self.elemi.extend([mapid,mapst])
-    self.elemf.extend([PhysicalLengthOfBlock])
+    self.elemf.extend([L])
     self.lst[label]=(elemid,mapid)
-    Drift_Exact(label,PhysicalLengthOfBlock=PhysicalLengthOfBlock)
+    Drift_Exact(label,L=L)
+
+  def add_rf_cavity(self,label,dppoff,ElementType,FirstAdditionalDatum,FrequencyOfCavity,LagPhaseOfCavity,VoltageOfCavity,RFFrequencyOfCavity,PathLengthOffset):
+    mapid=6
+    elemid=len(self.elemi)
+    mapst=len(self.elemf)
+    self.elemi.extend([mapid,mapst])
+    self.elemf.extend([dppoff,ElementType,FirstAdditionalDatum,FrequencyOfCavity,LagPhaseOfCavity,VoltageOfCavity,RFFrequencyOfCavity,PathLengthOffset])
+    self.lst[label]=(elemid,mapid)
+    RF_Cavity(label,dppoff=dppoff,ElementType=ElementType,FirstAdditionalDatum=FirstAdditionalDatum,FrequencyOfCavity=FrequencyOfCavity,LagPhaseOfCavity=LagPhaseOfCavity,VoltageOfCavity=VoltageOfCavity,RFFrequencyOfCavity=RFFrequencyOfCavity,PathLengthOffset=PathLengthOffset)
+
+  def add_horizontal_dipole(self,label,L,TiltComponentCos,TiltComponentSin):
+    mapid=7
+    elemid=len(self.elemi)
+    mapst=len(self.elemf)
+    self.elemi.extend([mapid,mapst])
+    self.elemf.extend([L,TiltComponentCos,TiltComponentSin])
+    self.lst[label]=(elemid,mapid)
+    Horizontal_Dipole(label,L=L,TiltComponentCos=TiltComponentCos, TiltComponentSin=TiltComponentSin)
+
+  def add_vertical_dipole(self,label,L,TiltComponentCos,TiltComponentSin):
+    mapid=8
+    elemid=len(self.elemi)
+    mapst=len(self.elemf)
+    self.elemi.extend([mapid,mapst])
+    self.elemf.extend([L,TiltComponentCos,TiltComponentSin])
+    self.lst[label]=(elemid,mapid)
+    Vertical_Dipole(label,L=L,TiltComponentCos=TiltComponentCos, TiltComponentSin=TiltComponentSin)
 
   def add_elem(self,name,label,*args):
     if(name=='rot2d'):
@@ -149,6 +191,12 @@ class Simulation(object):
         self.add_monitor(label,*args)
     elif(name=='drift_exact'):
         self.add_drift_exact(label, *args)
+    elif(name=='rf_cavity'):
+        self.add_rf_cavity(label, *args)
+    elif(name=='horizontal_dipole'):
+        self.add_horizontal_dipole(label, *args)
+    elif(name=='vertical_dipole'):
+        self.add_vertical_dipole(label, *args)
 
   def add_part(self,coordf,coordi):
     self.npart=self.npart+1
@@ -199,26 +247,28 @@ class Simulation(object):
     arg_partid=0
     arg_npart=1
 
-    libc.print_var(arg_elemi, arg_elemf, arg_parti, arg_partf, 6)
+    libc.print_var(arg_elemi, arg_elemf, arg_parti, arg_partf, 9)
     libc.loop_init(arg_elemi, arg_elemf, arg_elemid)
     var=libc.loop_map(arg_elemi, arg_elemf, arg_elemid, arg_parti, arg_partf, arg_partid, arg_npart)
-    libc.print_var(arg_elemi, arg_elemf, arg_parti, arg_partf, 6)
+    libc.print_var(arg_elemi, arg_elemf, arg_parti, arg_partf, 9)
     return self
 
 sim=Simulation()
 sim.add_elem('rot2d','r1',math.pi/2) #(angle)
 sim.add_elem('rot2d','r2',-math.pi/4)
 sim.add_elem('kick2d','k1',0.03,2) #(k,o)
-sim.add_elem('drift_exact','d1',1.0) #(PhysicalLengthOfBlock)
+sim.add_elem('drift_exact','d1',1.0) #(L)
+sim.add_elem('rf_cavity','rf1',1.0,12,1,1,1,2,2,2) #(dppoff,ElementType,FirstAdditionalDatum,FrequencyOfCavity,LagPhaseOfCavity,VoltageOfCavity,RFFrequencyOfCavity,PathLengthOffset)
+sim.add_elem('horizontal_dipole','hd1',1.0,0.70710678118,0.70710678118) #(L,TiltComponentCos,TiltComponentSin)
+sim.add_elem('vertical_dipole','vd1',1.0,0.70710678118,0.70710678118) #(L,TiltComponentCos,TiltComponentSin)
 sim.add_elem('monitor','m1',1,2,2,0,15) #(count,nrec,skip,ndi,ndf)
 sim.add_elem('counter','c1',10)
-sim.add_elem('loop','l1','r1 r2 k1 d1 m1 c1')
-# sim.add_part([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],[]) 
+sim.add_elem('loop','l1','r1 r2 k1 d1 rf1 hd1 vd1 m1 c1')
 sim.add_part([0,0,0,0,0,0.1,0.001,0.1,0.001,0.1,0.001,0.1,0,0],[]) #p0,beta0,gamma0,m0,E0,x,px,y,py,ds,ps,s,m,q
 # sim.add_part([.4,.4],[2])
 
-print sim.elemi
-print sim.elemf
+print sim.elemi, len(sim.elemi)
+print sim.elemf, len(sim.elemf)
 print sim.parti
 print sim.partf
 sim.simulate()

@@ -60,6 +60,16 @@ INT loop_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[],
                 break;
               case drift_exact_TYPE:
                 retval=drift_exact_map(elemi, elemf, id, parti, partf, partid, partn);
+                break;
+              case rf_cavity_TYPE:
+                retval=rf_cavity_map(elemi, elemf, id, parti, partf, partid, partn);
+                break;
+              case horizontal_dipole_TYPE:
+                retval=horizontal_dipole_map(elemi, elemf, id, parti, partf, partid, partn);
+                break;
+              case vertical_dipole_TYPE:
+                retval=vertical_dipole_map(elemi, elemf, id, parti, partf, partid, partn);
+                break;
             }
         }
     }

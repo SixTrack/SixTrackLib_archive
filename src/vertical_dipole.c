@@ -20,9 +20,9 @@ inline void vertical_dipole_calc(INT pfstart, FLOAT px, FLOAT py, FLOAT RatioPto
 }
 
 INT vertical_dipole_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
-    INT cntverdip=0;
+    // INT cntverdip=0;
     ELEMINIT;
-    INITPARTF;    
+    INITPARTF;
     GETCOORDF(partf,px);
     GETCOORDF(partf,py);
     GETCOORDF(partf,RatioPtoPj)
@@ -30,11 +30,12 @@ INT vertical_dipole_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLO
     GETATTRF(vertical_dipole,TiltComponentCos);
     GETATTRF(vertical_dipole,TiltComponentSin);
     vertical_dipole_calc(pfstart, px, py, RatioPtoPj, L, TiltComponentSin, TiltComponentSin, GETPARTF(partid));
-    if(cntverdip++ ==0) printf("vertical dipole called\n");
+    print_var(elemi, elemf, parti, partf, vertical_dipole_TYPE);
+    // if(cntverdip++ ==0) printf("vertical dipole called\n");
     return 1;
 }
 
-int main(){
+/*int main(){
   INT elemi[]={0,0}; //mapid,mapst
   FLOAT elemf[]={2.0,0.17,0.45};  //L,TiltComponentCos,TiltComponentSin
   INT parti[]={1,15,0,0,0}; // partn,ndf,ndi,psf,psi
@@ -44,4 +45,4 @@ int main(){
   INT partn=0;
   printf("%d\n", vertical_dipole_map(elemi,elemf,elemid,parti,partf,partid,partn));
   return 1;
-}
+}*/

@@ -19,53 +19,56 @@
 #define SETATTRI(type,name,value)   \
  elemi[elemid+2+type##_int_##name]=value;
  
-#define rot2d_TYPE 0
-#define kick2d_TYPE 1
-#define counter_TYPE 2
-#define loop_TYPE 3
-#define monitor_TYPE 4
-#define drift_exact_TYPE 5
+#define rot2d_TYPE                                              0
+#define kick2d_TYPE                                             1
+#define counter_TYPE                                            2
+#define loop_TYPE                                               3
+#define monitor_TYPE                                            4
+#define drift_exact_TYPE                                        5
+#define rf_cavity_TYPE                                          6
+#define horizontal_dipole_TYPE                                  7
+#define vertical_dipole_TYPE                                    8 
 
-#define rot2d_float_angle  0
-#define rot2d_float_cx  1
-#define rot2d_float_sx  2
-#define rot2d_int_i   0
-#define rot2d_int_j   1
+#define rot2d_float_angle                                       0
+#define rot2d_float_cx                                          1
+#define rot2d_float_sx                                          2
+#define rot2d_int_i                                             0
+#define rot2d_int_j                                             1
 
-#define kick2d_float_k   0 
-#define kick2d_int_i   0
-#define kick2d_int_j   1
-#define kick2d_int_o   2
+#define kick2d_float_k                                          0 
+#define kick2d_int_i                                            0
+#define kick2d_int_j                                            1
+#define kick2d_int_o                                            2
 
-#define counter_int_count_max 0
-#define counter_int_count 1
+#define counter_int_count_max                                   0
+#define counter_int_count                                       1
 
-#define monitor_float_dataf 0+ndf*last+i
-#define monitor_int_count 0
-#define monitor_int_nrec 1
-#define monitor_int_skip 2
-#define monitor_int_last 3
-#define monitor_int_index 4+last
-#define monitor_int_datai 4+nrec+ndf*last+i
+#define monitor_float_dataf                                     0+ndf*last+i
+#define monitor_int_count                                       0
+#define monitor_int_nrec                                        1
+#define monitor_int_skip                                        2
+#define monitor_int_last                                        3
+#define monitor_int_index                                       4+last
+#define monitor_int_datai                                       4+nrec+ndf*last+i
 
-#define drift_exact_float_L 0
+#define drift_exact_float_L                                     0
 
-#define rf_cavity_float_dppoff 0
-#define rf_cavity_float_ElementType 1
-#define rf_cavity_float_FirstAdditionalDatum 2
-#define rf_cavity_float_FrequencyOfCavity 3
-#define rf_cavity_float_LagPhaseOfCavity 4
-#define rf_cavity_float_VoltageOfCavity 5
-#define rf_cavity_float_RFFrequencyOfCavity 6
-#define rf_cavity_float_PathLengthOffset 7
+#define rf_cavity_float_dppoff                                  0
+#define rf_cavity_float_ElementType                             1
+#define rf_cavity_float_FirstAdditionalDatum                    2
+#define rf_cavity_float_FrequencyOfCavity                       3
+#define rf_cavity_float_LagPhaseOfCavity                        4
+#define rf_cavity_float_VoltageOfCavity                         5
+#define rf_cavity_float_RFFrequencyOfCavity                     6
+#define rf_cavity_float_PathLengthOffset                        7
 
-#define vertical_dipole_float_L 0
-#define vertical_dipole_float_TiltComponentCos 1
-#define vertical_dipole_float_TiltComponentSin 2
+#define vertical_dipole_float_L                                 0
+#define vertical_dipole_float_TiltComponentCos                  1
+#define vertical_dipole_float_TiltComponentSin                  2
 
-#define horizontal_dipole_float_L 0
-#define horizontal_dipole_float_TiltComponentCos 1
-#define horizontal_dipole_float_TiltComponentSin 2
+#define horizontal_dipole_float_L                               0
+#define horizontal_dipole_float_TiltComponentCos                1
+#define horizontal_dipole_float_TiltComponentSin                2
 
 #define INITPARTF \
  INT ndf, stf, pfstart; \
@@ -100,23 +103,22 @@
  parti[pistart+type##_##name]=value;
 
 
-#define partf_p0 0
-#define partf_beta0 1
-#define partf_gamma0 2
-#define partf_m0 3
-#define partf_E0 4
-#define partf_x 5
-#define partf_px 6
-#define partf_y 7
-#define partf_py 8
-#define partf_ds 9
-#define partf_ps 10
-#define partf_s 11
-#define partf_m 12
-#define partf_q 13
-//following are not mentioned in the wiki, assigned random number
+#define partf_p0                                                0
+#define partf_beta0                                             1
+#define partf_gamma0                                            2
+#define partf_m0                                                3
+#define partf_E0                                                4
+#define partf_x                                                 5
+#define partf_px                                                6
+#define partf_y                                                 7
+#define partf_py                                                8
+#define partf_ds                                                9
+#define partf_ps                                                10
+#define partf_s                                                 11
+#define partf_m                                                 12
+#define partf_q                                                 13
+//following are not mentioned in the wiki
 #define partf_RatioPtoPj 4
-#define partf_PathLengthDiff 5
 #define partf_EnergyOfParticle 6
 #define partf_MomentumOfParticle 7
 #define partf_RatioDeltaPtoPj 8
