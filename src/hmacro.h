@@ -70,6 +70,18 @@
 #define horizontal_dipole_float_TiltComponentCos                1
 #define horizontal_dipole_float_TiltComponentSin                2
 
+#define normal_pole_float_L                                     0
+#define normal_pole_float_TiltComponentCos                      1
+#define normal_pole_float_TiltComponentSin                      2
+#define normal_pole_float_CurrentEntryDisplacementX             3
+#define normal_pole_float_CurrentEntryDisplacementY             4
+
+#define skew_pole_float_L                                       0
+#define skew_pole_float_TiltComponentCos                        1
+#define skew_pole_float_TiltComponentSin                        2
+#define skew_pole_float_CurrentEntryDisplacementX               3
+#define skew_pole_float_CurrentEntryDisplacementY               4
+
 #define INITPARTF \
  INT ndf, stf, pfstart; \
  ndf=parti[1]; \
