@@ -1,5 +1,6 @@
 #define OnePoweredToMinus38       1.0e-38
 #define OnePoweredTo3             1.0e3
+#define Pi                        4.0*atan(1.0)
 
 #define ELEMINIT \
  INT elem_floatid; \
@@ -82,6 +83,32 @@
 #define skew_pole_float_CurrentEntryDisplacementX               3
 #define skew_pole_float_CurrentEntryDisplacementY               4
 
+#define beambeam_float_HorBeamBeamSeparation              		0
+#define beambeam_float_VerBeamBeamSeparation              		1
+#define beambeam_float_L						            	2
+#define beambeam_float_ClosedOrbitBeamX                  		3
+#define beambeam_float_ClosedOrbitBeamY                			4
+#define beambeam_float_ClosedOrbitBeamSigma               		5
+#define beambeam_float_ClosedOrbitBeamPx                  		6
+#define beambeam_float_ClosedOrbitBeamPy                  		7
+#define beambeam_float_ClosedOrbitBeamDelta              		8
+#define beambeam_float_BeamOffsetX                       		9
+#define beambeam_float_BeamOffsetY                        		10
+#define beambeam_float_BeamOffsetSigma                    		11
+#define beambeam_float_BeamOffsetPx                       		12
+#define beambeam_float_BeamOffsetPy                       		13
+#define beambeam_float_BeamOffsetDelta                    		14
+#define beambeam_float_bbcu11                             		15
+#define beambeam_float_bbcu12                             		16
+#define beambeam_float_SigmaNqX                           		17
+#define beambeam_float_SigmaNqY                     		    18
+#define beambeam_float_SquareOfSigmaNX                    		19
+#define beambeam_float_SquareOfSigmaNY                    		20
+#define beambeam_int_SwitchToLinearCoupling               		0
+#define beambeam_int_NoOfParticles               				1
+#define beambeam_int_SwitchToFastBeamBeamAlgo               	2
+#define beambeam_int_BeambeamType               				3
+
 #define INITPARTF \
  INT ndf, stf, pfstart; \
  ndf=parti[1]; \
@@ -137,3 +164,7 @@
 #define partf_RatioDeltaPtoPj1 9
 #define partf_RatioBetaToBetaj 12
 #define partf_MomentumOfParticle0 13
+#define partf_crxbj 10
+#define partf_crzbj 11
+#define partf_cbxbj 3
+#define partf_cbzbj 2
