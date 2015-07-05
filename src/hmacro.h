@@ -109,6 +109,22 @@
 #define beambeam_int_SwitchToFastBeamBeamAlgo               	2
 #define beambeam_int_BeambeamType               				3
 
+#define multipole_ver_float_L                                   0
+#define multipole_ver_float_TiltComponentCos                    1
+#define multipole_ver_float_TiltComponentSin                    2
+#define multipole_ver_float_CurrentEntryDisplacementX           3
+#define multipole_ver_float_CurrentEntryDisplacementY           4
+#define multipole_ver_float_VerticalBendingKick                 5
+#define multipole_ver_int_ApproxType                            0
+
+#define multipole_hor_float_L                                   0
+#define multipole_hor_float_TiltComponentCos                    1
+#define multipole_hor_float_TiltComponentSin                    2
+#define multipole_hor_float_CurrentEntryDisplacementX           3
+#define multipole_hor_float_CurrentEntryDisplacementY           4
+#define multipole_hor_float_HorizontalBendingKick               5
+#define multipole_hor_int_ApproxType                            0
+
 #define INITPARTF \
  INT ndf, stf, pfstart; \
  ndf=parti[1]; \
