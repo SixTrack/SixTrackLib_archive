@@ -10,7 +10,7 @@
 #define INT int
 #endif
 
-inline void multipole_ver_nzapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT RatioPtoPj, FLOAT ds, FLOAT RatioDeltaPtoPj, FLOAT RatioDeltaPtoPj1, FLOAT RatioBetaToBetaj, FLOAT L, FLOAT TiltComponentCos, FLOAT TiltComponentSin, FLOAT CurrentEntryDisplacementX, FLOAT CurrentEntryDisplacementY, FLOAT VerticalBendingKick, FLOAT partf[]){
+inline void multipole_ver_nzapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT RatioPtoPj, FLOAT ds, FLOAT RatioDeltaPtoPj1, FLOAT RatioBetaToBetaj, FLOAT L, FLOAT TiltComponentCos, FLOAT TiltComponentSin, FLOAT CurrentEntryDisplacementX, FLOAT CurrentEntryDisplacementY, FLOAT VerticalBendingKick, FLOAT partf[]){
       FLOAT xlvj, zlvj;
       xlvj = ( x - CurrentEntryDisplacementX ) * TiltComponentCos + ( y - CurrentEntryDisplacementY ) * TiltComponentSin;
       zlvj = ( y - CurrentEntryDisplacementY ) * TiltComponentCos - ( x - CurrentEntryDisplacementX ) * TiltComponentSin;
@@ -23,7 +23,7 @@ inline void multipole_ver_nzapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px,
       SETCOORDF(partf,ds,ds);
 }
 
-inline void multipole_ver_zapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT RatioPtoPj, FLOAT ds, FLOAT RatioDeltaPtoPj, FLOAT RatioDeltaPtoPj1, FLOAT RatioBetaToBetaj, FLOAT L, FLOAT TiltComponentCos, FLOAT TiltComponentSin, FLOAT CurrentEntryDisplacementX, FLOAT CurrentEntryDisplacementY, FLOAT VerticalBendingKick, FLOAT partf[]){
+inline void multipole_ver_zapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT RatioPtoPj, FLOAT ds, FLOAT RatioDeltaPtoPj1, FLOAT RatioBetaToBetaj, FLOAT L, FLOAT TiltComponentCos, FLOAT TiltComponentSin, FLOAT CurrentEntryDisplacementX, FLOAT CurrentEntryDisplacementY, FLOAT VerticalBendingKick, FLOAT partf[]){
       FLOAT xlvj, zlvj;
       xlvj = ( x - CurrentEntryDisplacementX ) * TiltComponentCos + ( y - CurrentEntryDisplacementY ) * TiltComponentSin;
       zlvj = ( y - CurrentEntryDisplacementY ) * TiltComponentCos - ( x - CurrentEntryDisplacementX ) * TiltComponentSin;
@@ -38,18 +38,19 @@ inline void multipole_ver_zapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, 
 
 #define make_map_multipole_ver_approx(NAME)                                                                                                                                                                                                                     \
       INT multipole_##NAME##_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){                                                                                                                                    \
-            int cntmulverz##NAME = 0;                                                                                                                                                                                                                           \
+            INT cntmulverz##NAME = 0;                                                                                                                                                                                                                           \
+            FLOAT RatioPtoPj, RatioDeltaPtoPj1, RatioBetaToBetaj, MomentumOfParticle, EnergyOfParticle;                                                                                                                                                         \
             ELEMINIT;                                                                                                                                                                                                                                           \
             INITPARTF;                                                                                                                                                                                                                                          \
             GETCOORDF(partf,x);                                                                                                                                                                                                                                 \
             GETCOORDF(partf,y);                                                                                                                                                                                                                                 \
             GETCOORDF(partf,px);                                                                                                                                                                                                                                \
             GETCOORDF(partf,py);                                                                                                                                                                                                                                \
-            GETCOORDF(partf,RatioPtoPj);                                                                                                                                                                                                                        \
+            GETCOORDF(partf,ps);                                                                                                                                                                                                                                \
             GETCOORDF(partf,ds);                                                                                                                                                                                                                                \
-            GETCOORDF(partf,RatioDeltaPtoPj);                                                                                                                                                                                                                   \
-            GETCOORDF(partf,RatioDeltaPtoPj1);                                                                                                                                                                                                                  \
-            GETCOORDF(partf,RatioBetaToBetaj);                                                                                                                                                                                                                  \
+            GETCOORDF(partf,E0);                                                                                                                                                                                                                                \
+            GETCOORDF(partf,m0);                                                                                                                                                                                                                                \
+            GETCOORDF(partf,p0);                                                                                                                                                                                                                                \
                                                                                                                                                                                                                                                                 \
             GETATTRF(multipole_ver,L);                                                                                                                                                                                                                          \
             GETATTRF(multipole_ver,TiltComponentCos);                                                                                                                                                                                                           \
@@ -59,11 +60,17 @@ inline void multipole_ver_zapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, 
             GETATTRF(multipole_ver,VerticalBendingKick);                                                                                                                                                                                                        \
             GETATTRI(multipole_ver,ApproxType);                                                                                                                                                                                                                 \
                                                                                                                                                                                                                                                                 \
+            RatioPtoPj = One / ( One + ps );                                                                                                                                                                                                                    \
+            RatioDeltaPtoPj1 = ( ps * OnePoweredTo3 ) * RatioPtoPj;                                                                                                                                                                                             \
+            MomentumOfParticle = p0 * ( One + ps );                                                                                                                                                                                                             \
+            EnergyOfParticle = sqrt( MomentumOfParticle * MomentumOfParticle + m0 * m0 );                                                                                                                                                                       \
+            RatioBetaToBetaj = ( EnergyOfParticle * p0 ) / ( E0 * MomentumOfParticle );                                                                                                                                                                         \
+                                                                                                                                                                                                                                                                \
             switch(ApproxType){                                                                                                                                                                                                                                 \
-                  case 0: multipole_ver_zapprox_calc(pfstart,x,y,px,py,RatioPtoPj,ds,RatioDeltaPtoPj,RatioDeltaPtoPj1,RatioBetaToBetaj,L,TiltComponentCos,TiltComponentSin,CurrentEntryDisplacementX,CurrentEntryDisplacementY,VerticalBendingKick,partf);      \
+                  case 0: multipole_ver_zapprox_calc(pfstart,x,y,px,py,RatioPtoPj,ds,RatioDeltaPtoPj1,RatioBetaToBetaj,L,TiltComponentCos,TiltComponentSin,CurrentEntryDisplacementX,CurrentEntryDisplacementY,VerticalBendingKick,partf);      \
                           if( cntmulverz##NAME++ == 0 ) printf("mulipole vericle Zero approx "#NAME" called \n");                                                                                                                                               \
                           break;                                                                                                                                                                                                                                \
-                  case 1: multipole_ver_nzapprox_calc(pfstart,x,y,px,py,RatioPtoPj,ds,RatioDeltaPtoPj,RatioDeltaPtoPj1,RatioBetaToBetaj,L,TiltComponentCos,TiltComponentSin,CurrentEntryDisplacementX,CurrentEntryDisplacementY,VerticalBendingKick,partf);     \
+                  case 1: multipole_ver_nzapprox_calc(pfstart,x,y,px,py,RatioPtoPj,ds,RatioDeltaPtoPj1,RatioBetaToBetaj,L,TiltComponentCos,TiltComponentSin,CurrentEntryDisplacementX,CurrentEntryDisplacementY,VerticalBendingKick,partf);     \
                           if( cntmulverz##NAME++ == 0 ) printf("mulipole vericle non-Zero approx "#NAME" called \n");                                                                                                                                           \
                           break;                                                                                                                                                                                                                                \
             }                                                                                                                                                                                                                                                   \
@@ -74,7 +81,7 @@ inline void multipole_ver_zapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, 
 make_map_multipole_ver_approx(ver_approx_ho);
 make_map_multipole_ver_approx(purever_approx);
 
-int main(){
+/*int main(){
   INT elemi[]={0,0,0}; //mapid,mapst,ApproxType
   FLOAT elemf[]={2.0,0.17,0.45,0.6,0.6,1.0};  //L,TiltComponentCos,TiltComponentSin,CurrentEntryDisplacementX,CurrentEntryDisplacementY,VerticalBendingKick
   INT parti[]={1,15,0,0,0}; // partn,ndf,ndi,psf,psi
@@ -84,4 +91,4 @@ int main(){
   INT partn=0;
   printf("%d\n", multipole_purever_approx_map(elemi,elemf,elemid,parti,partf,partid,partn));
   return 1;
-}
+}*/

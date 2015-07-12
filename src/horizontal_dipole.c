@@ -21,14 +21,16 @@ inline void horizontal_dipole_calc(INT pfstart, FLOAT px, FLOAT py, FLOAT RatioP
 
 INT horizontal_dipole_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
     // INT cnthordipole=0;
+    FLOAT RatioPtoPj=0;
     ELEMINIT;
     INITPARTF;    
     GETCOORDF(partf,px);
     GETCOORDF(partf,py);
-    GETCOORDF(partf,RatioPtoPj)
+    GETCOORDF(partf,ps);
     GETATTRF(horizontal_dipole,L);
     GETATTRF(horizontal_dipole,TiltComponentCos);
     GETATTRF(horizontal_dipole,TiltComponentSin);
+    RatioPtoPj=1/(1+ps);
     horizontal_dipole_calc(pfstart, px, py, RatioPtoPj, L, TiltComponentSin, TiltComponentSin, GETPARTF(partid));
     print_var(elemi, elemf, parti, partf, horizontal_dipole_TYPE);
     // if(cnthordipole++ ==0) printf("horizontal dipole called\n");

@@ -1,5 +1,6 @@
 #define OnePoweredToMinus38       1.0e-38
 #define OnePoweredTo3             1.0e3
+#define One 					  1.0	
 #define Pi                        4.0*atan(1.0)
 
 #define ELEMINIT \
@@ -173,13 +174,6 @@
 #define partf_m                                                 12
 #define partf_q                                                 13
 //following are not mentioned in the wiki
-#define partf_RatioPtoPj 4
-#define partf_EnergyOfParticle 6
-#define partf_MomentumOfParticle 7
-#define partf_RatioDeltaPtoPj 8
-#define partf_RatioDeltaPtoPj1 9
-#define partf_RatioBetaToBetaj 12
-#define partf_MomentumOfParticle0 13
 #define partf_crxbj 10
 #define partf_crzbj 11
 #define partf_cbxbj 3

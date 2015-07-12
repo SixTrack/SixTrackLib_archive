@@ -11,8 +11,9 @@
 #endif
 
 #define make_map_skew_pole(NAME,i)                                                                                            \
-  int cntnorm##NAME = 0;                                                                                                        \
+  INT cntskew##NAME = 0;                                                                                                        \
   extern int skew_##NAME##_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn) {   \
+    FLOAT RatioPtoPj;                                                                                                           \
     FLOAT xlvj, zlvj;                                                                                                           \
     FLOAT crkve, cikve, crkveuk;                                                                                                \
     INT k = 0;                                                                                                                  \
@@ -22,13 +23,14 @@
     GETCOORDF(partf,y);                                                                                                         \
     GETCOORDF(partf,px);                                                                                                        \
     GETCOORDF(partf,py);                                                                                                        \
-    GETCOORDF(partf,RatioPtoPj)                                                                                                 \
+    GETCOORDF(partf,ps);                                                                                                        \
     GETATTRF(skew_pole,L);                                                                                                    \
     GETATTRF(skew_pole,TiltComponentCos);                                                                                     \
     GETATTRF(skew_pole,TiltComponentSin);                                                                                     \
     GETATTRF(skew_pole,CurrentEntryDisplacementX);                                                                            \
     GETATTRF(skew_pole,CurrentEntryDisplacementY);                                                                            \
                                                                                                                                 \
+    RatioPtoPj = One / ( One + ps );                                                                                            \
     xlvj = ( x - CurrentEntryDisplacementX ) * TiltComponentCos + ( y - CurrentEntryDisplacementY ) * TiltComponentSin;    \
     zlvj = ( y - CurrentEntryDisplacementY ) * TiltComponentCos - ( x - CurrentEntryDisplacementX ) * TiltComponentSin;    \
     crkve = xlvj;                                                                                                          \
@@ -45,7 +47,7 @@
     SETCOORDF(partf,px,px);                                                                                                     \
     SETCOORDF(partf,py,py);                                                                                                     \
                                                                                                                                 \
-    if( cntnorm##NAME++ == 0 ) printf("skew "#NAME" called \n");                                                              \
+    if( cntskew##NAME++ == 0 ) printf("skew "#NAME" called \n");                                                              \
     return 1;                                                                                                                   \
   }                                                                                                                             \
 
