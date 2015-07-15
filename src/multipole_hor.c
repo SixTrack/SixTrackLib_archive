@@ -2,13 +2,15 @@
 #include <math.h>
 #include <stdio.h>
 
-#ifndef FLOAT
-#define FLOAT double
-#endif
-
-#ifndef INT
-#define INT int
-#endif
+#define hor_approx_ho_TYPE                                      26
+#define purehor_approx_TYPE                                     27
+#define multipole_hor_float_L                                   0
+#define multipole_hor_float_TiltComponentCos                    1
+#define multipole_hor_float_TiltComponentSin                    2
+#define multipole_hor_float_CurrentEntryDisplacementX           3
+#define multipole_hor_float_CurrentEntryDisplacementY           4
+#define multipole_hor_float_HorizontalBendingKick               5
+#define multipole_hor_int_ApproxType                            0
 
 inline void multipole_hor_nzapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT RatioPtoPj, FLOAT ds, FLOAT RatioDeltaPtoPj1, FLOAT RatioBetaToBetaj, FLOAT L, FLOAT TiltComponentCos, FLOAT TiltComponentSin, FLOAT CurrentEntryDisplacementX, FLOAT CurrentEntryDisplacementY, FLOAT HorizontalBendingKick, FLOAT partf[]){
       FLOAT xlvj, zlvj;

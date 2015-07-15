@@ -2,16 +2,23 @@
 #include <math.h>
 #include <stdio.h>
 
-#ifndef FLOAT
-#define FLOAT double
-#endif
-
-#ifndef INT
-#define INT int
-#endif
+#define normal_quadrupole_TYPE                                  8
+#define normal_sextupole_TYPE                                   9
+#define normal_octupole_TYPE                                    10
+#define normal_decapole_TYPE                                    11
+#define normal_dodecapole_TYPE                                  12
+#define normal_14pole_TYPE                                      13
+#define normal_16pole_TYPE                                      14
+#define normal_18pole_TYPE                                      15
+#define normal_20pole_TYPE                                      16
+#define normal_pole_float_L                                     0
+#define normal_pole_float_TiltComponentCos                      1
+#define normal_pole_float_TiltComponentSin                      2
+#define normal_pole_float_CurrentEntryDisplacementX             3
+#define normal_pole_float_CurrentEntryDisplacementY             4
 
 #define make_map_normal_pole(NAME,i)                                                                                            \
-  int cntnorm##NAME = 0;                                                                                                        \
+  INT cntnorm##NAME = 0;                                                                                                        \
   extern int normal_##NAME##_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn) {   \
     FLOAT RatioPtoPj;                                                                                                           \
     FLOAT xlvj, zlvj;                                                                                                           \

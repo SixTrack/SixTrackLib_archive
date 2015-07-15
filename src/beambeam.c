@@ -3,15 +3,32 @@
 #include <math.h>
 #include <stdio.h>
 
-#ifndef FLOAT
-#define FLOAT double
-#endif
-
-#ifndef INT
-#define INT int
-#endif
-
-// void print_var(INT [], FLOAT [], INT [], FLOAT [], INT);
+#define beambeam_TYPE                                           30
+#define beambeam_float_HorBeamBeamSeparation                    0
+#define beambeam_float_VerBeamBeamSeparation                    1
+#define beambeam_float_L                                        2
+#define beambeam_float_ClosedOrbitBeamX                         3
+#define beambeam_float_ClosedOrbitBeamY                         4
+#define beambeam_float_ClosedOrbitBeamSigma                     5
+#define beambeam_float_ClosedOrbitBeamPx                        6
+#define beambeam_float_ClosedOrbitBeamPy                        7
+#define beambeam_float_ClosedOrbitBeamDelta                     8
+#define beambeam_float_BeamOffsetX                              9
+#define beambeam_float_BeamOffsetY                              10
+#define beambeam_float_BeamOffsetSigma                          11
+#define beambeam_float_BeamOffsetPx                             12
+#define beambeam_float_BeamOffsetPy                             13
+#define beambeam_float_BeamOffsetDelta                          14
+#define beambeam_float_bbcu11                                   15
+#define beambeam_float_bbcu12                                   16
+#define beambeam_float_SigmaNqX                                 17
+#define beambeam_float_SigmaNqY                                 18
+#define beambeam_float_SquareOfSigmaNX                          19
+#define beambeam_float_SquareOfSigmaNY                          20
+#define beambeam_int_SwitchToLinearCoupling                     0
+#define beambeam_int_NoOfParticles                              1
+#define beambeam_int_SwitchToFastBeamBeamAlgo                   2
+#define beambeam_int_BeambeamType                               3
 
 INT beambeam_type1_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT RatioPtoPj, FLOAT HorBeamBeamSeparation, FLOAT VerBeamBeamSeparation, FLOAT L, FLOAT ClosedOrbitBeamX, FLOAT ClosedOrbitBeamY, FLOAT ClosedOrbitBeamSigma, FLOAT ClosedOrbitBeamPx, FLOAT ClosedOrbitBeamPy, FLOAT ClosedOrbitBeamDelta, FLOAT BeamOffsetX, FLOAT BeamOffsetY, FLOAT BeamOffsetSigma, FLOAT BeamOffsetPx, FLOAT BeamOffsetPy, FLOAT BeamOffsetDelta, FLOAT bbcu11, FLOAT bbcu12, FLOAT SigmaNqX, FLOAT SigmaNqY, FLOAT SquareOfSigmaNX, FLOAT SquareOfSigmaNY, INT SwitchToLinearCoupling, FLOAT partf[]){
     FLOAT crkvebj,cikvebj,rho2bj,tkbj,cccc;
@@ -267,13 +284,14 @@ INT beambeam_type3_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT
 
 INT beambeam_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
     INT ret=0;
+    INT RatioPtoPj;
     ELEMINIT;
     INITPARTF;
     GETCOORDF(partf,x);
     GETCOORDF(partf,y);
     GETCOORDF(partf,px);
     GETCOORDF(partf,py);
-    GETCOORDF(partf,RatioPtoPj);
+    GETCOORDF(partf,ps);
     GETCOORDF(partf,crxbj);
     GETCOORDF(partf,crzbj);
     GETCOORDF(partf,cbxbj);
@@ -305,6 +323,7 @@ INT beambeam_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT part
     GETATTRI(beambeam,SwitchToFastBeamBeamAlgo);
     GETATTRI(beambeam,BeambeamType);
     
+    RatioPtoPj = One / ( One + ps );
     switch(BeambeamType){
         case 1: ret = beambeam_type1_calc(pfstart, x, y, px, py, RatioPtoPj, HorBeamBeamSeparation,VerBeamBeamSeparation,L,ClosedOrbitBeamX,ClosedOrbitBeamY,ClosedOrbitBeamSigma,ClosedOrbitBeamPx,ClosedOrbitBeamPy,ClosedOrbitBeamDelta,BeamOffsetX,BeamOffsetY,BeamOffsetSigma,BeamOffsetPx,BeamOffsetPy,BeamOffsetDelta,bbcu11,bbcu12,SigmaNqX,SigmaNqY,SquareOfSigmaNX,SquareOfSigmaNY,SwitchToLinearCoupling,partf);
                 break;
@@ -317,7 +336,7 @@ INT beambeam_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT part
     return ret;
 }
 
-int main(){
+/*int main(){
   INT elemi[]={0,0,2,2,1}; //mapid,mapst,SwitchToLinearCoupling,NoOfParticles,SwitchToFastBeamBeamAlgo,BeambeamType
   FLOAT elemf[]={2.0,0.17,0.45,0.6,0.6,0.3,0.4,0.1,1.0,2.0,2.3,12.0,3.2,4.05,3.6,7.12,5.5,9.0,5.2,4.44};  //HorBeamBeamSeparation,VerBeamBeamSeparation,L,ClosedOrbitBeamX,ClosedOrbitBeamY,ClosedOrbitBeamSigma,ClosedOrbitBeamPx,ClosedOrbitBeamPy,ClosedOrbitBeamDelta,BeamOffsetX,BeamOffsetY,BeamOffsetSigma,BeamOffsetPx,BeamOffsetPy,BeamOffsetDelta,bbcu11,bbcu12,SigmaNqX,SigmaNqY,SquareOfSigmaNX,SquareOfSigmaNY         
   INT parti[]={1,15,0,0,0}; // partn,ndf,ndi,psf,psi
@@ -327,4 +346,4 @@ int main(){
   INT partn=0;
   printf("%d\n", beambeam_map(elemi,elemf,elemid,parti,partf,partid,partn));
   return 1;
-}
+}*/

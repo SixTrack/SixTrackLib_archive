@@ -2,28 +2,24 @@
 #include <math.h>
 #include <stdio.h>
 
-#ifndef FLOAT
-#define FLOAT double
-#endif
+#define counter_TYPE 2
+#define counter_int_count_max 0
+#define counter_int_count 1
 
-#ifndef INT
-#define INT int
-#endif
-
-void print_var(INT [], FLOAT [], INT [], FLOAT [], INT);
 
 INT counter_init(INT elemi[], FLOAT elemf[], INT elemid){
     return 1;
 }
 
-INT counter_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
-    INT retval=-1;
+INT counter_map(INT elemi[], FLOAT elemf[], INT elemid,
+                INT parti[], FLOAT partf[], INT partid, INT partn){
     GETATTRI(counter,count_max);
     GETATTRI(counter,count);
     SETATTRI(counter,count,count+1);
     if (count<count_max){
-        retval=1;
+        return 1;
+    } else {
+      SETATTRI(counter,count,0);
+      return -1;
     }
-    print_var(elemi, elemf, parti, partf, counter_TYPE);
-    return retval;
 }

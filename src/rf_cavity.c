@@ -2,17 +2,22 @@
 #include <math.h>
 #include <stdio.h>
 
-#ifndef FLOAT
-#define FLOAT double
-#endif
+#define rf_cavity_TYPE                                          6
+#define rf_cavity_float_dppoff                                  0
+#define rf_cavity_float_ElementType                             1
+#define rf_cavity_float_FirstAdditionalDatum                    2
+#define rf_cavity_float_FrequencyOfCavity                       3
+#define rf_cavity_float_LagPhaseOfCavity                        4
+#define rf_cavity_float_VoltageOfCavity                         5
+#define rf_cavity_float_RFFrequencyOfCavity                     6
+#define rf_cavity_float_PathLengthOffset                        7
 
-#ifndef INT
-#define INT int
-#endif
+inline void rf_cavity_calc(INT pfstart, FLOAT px, FLOAT py, FLOAT ps, FLOAT ds, FLOAT E0, FLOAT p0, FLOAT m0,
+                         FLOAT RatioPtoPj, FLOAT RatioDeltaPtoPj1, FLOAT MomentumOfParticle, FLOAT EnergyOfParticle,
+                         FLOAT RatioBetaToBetaj, FLOAT MomentumOfParticle0, FLOAT dppoff, FLOAT ElementType, 
+                         FLOAT FirstAdditionalDatum, FLOAT FrequencyOfCavity, FLOAT LagPhaseOfCavity, 
+                         FLOAT VoltageOfCavity, FLOAT RFFrequencyOfCavity, FLOAT PathLengthOffset, FLOAT partf[]){
 
-// void print_var(INT [], FLOAT [], INT [], FLOAT [], INT);
-
-inline void rf_cavity_calc(INT pfstart, FLOAT px, FLOAT py, FLOAT ps, FLOAT ds, FLOAT E0, FLOAT p0, FLOAT m0, FLOAT RatioPtoPj, FLOAT RatioDeltaPtoPj1, FLOAT MomentumOfParticle, FLOAT EnergyOfParticle, FLOAT RatioBetaToBetaj, FLOAT MomentumOfParticle0, FLOAT dppoff, FLOAT ElementType, FLOAT FirstAdditionalDatum, FLOAT FrequencyOfCavity, FLOAT LagPhaseOfCavity, FLOAT VoltageOfCavity, FLOAT RFFrequencyOfCavity, FLOAT PathLengthOffset, FLOAT partf[]){
   if( abs( dppoff ) > OnePoweredToMinus38 ) ds  = ds - PathLengthOffset;
 
     if( ElementType == 12 )
@@ -62,8 +67,8 @@ INT rf_cavity_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT par
     RatioBetaToBetaj = ( EnergyOfParticle * p0 ) / ( E0 * MomentumOfParticle );
     MomentumOfParticle0 = MomentumOfParticle;
 
-    rf_cavity_calc(pfstart, px, py, ps, ds, E0, p0, m0, RatioPtoPj, RatioDeltaPtoPj1, MomentumOfParticle, EnergyOfParticle, RatioBetaToBetaj, MomentumOfParticle0, dppoff, ElementType, FirstAdditionalDatum, FrequencyOfCavity, LagPhaseOfCavity, VoltageOfCavity, RFFrequencyOfCavity, PathLengthOffset, GETPARTF(partid));
-
-    // print_var(elemi, elemf, parti, partf, rot2d_TYPE);
+    rf_cavity_calc(pfstart, px, py, ps, ds, E0, p0, m0, RatioPtoPj, RatioDeltaPtoPj1, MomentumOfParticle, EnergyOfParticle, 
+        RatioBetaToBetaj, MomentumOfParticle0, dppoff, ElementType, FirstAdditionalDatum, FrequencyOfCavity, LagPhaseOfCavity, 
+        VoltageOfCavity, RFFrequencyOfCavity, PathLengthOffset, GETPARTF(partid));
     return 1;
 }

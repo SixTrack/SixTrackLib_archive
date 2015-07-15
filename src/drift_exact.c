@@ -2,17 +2,11 @@
 #include <math.h>
 #include <stdio.h>
 
-#ifndef FLOAT
-#define FLOAT double
-#endif
+#define drift_exact_TYPE                                        5
+#define drift_exact_float_L                                     0
 
-#ifndef INT
-#define INT int
-#endif
-
-void print_var(INT [], FLOAT [], INT [], FLOAT [], INT);
-
-inline void drift_exact_calc(INT pfstart, FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py, FLOAT ds, FLOAT ps, FLOAT s, FLOAT L, FLOAT partf[]){
+inline void drift_exact_calc(INT pfstart, FLOAT beta0, FLOAT x, FLOAT px, 
+                FLOAT y, FLOAT py, FLOAT ds, FLOAT ps, FLOAT s, FLOAT L, FLOAT partf[]){
     double Pz;
 
     Pz = sqrt( beta0*beta0*ps*ps + 2*ps - px*px - py*py +1);
@@ -41,7 +35,6 @@ INT drift_exact_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT p
     GETCOORDF(partf,beta0);
     GETATTRF(drift_exact,L);
     drift_exact_calc(pfstart, beta0, x, px, y, py, ds, ps, s, L, GETPARTF(partid));
-    print_var(elemi, elemf, parti, partf, drift_exact_TYPE);
     // if( cntexactdrift++ == 0 ) printf("thin6d exact drift \n");
     return 1;
 }

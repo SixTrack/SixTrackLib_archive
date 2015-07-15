@@ -2,17 +2,20 @@
 #include <math.h>
 #include <stdio.h>
 
-#ifndef FLOAT
-#define FLOAT double
-#endif
+#define monitor_TYPE                                            4
+#define monitor_int_nrec                                        0
+#define monitor_int_skip                                        1
+#define monitor_int_isize                                       2
+#define monitor_int_fsize                                       3
+#define monitor_int_count                                       4
+#define monitor_int_last                                        5
+#define monitor_int_index                                       6+last
+#define monitor_int_datai                                       6+nrec+last*isize+i
+#define monitor_float_dataf                                     last*fsize+i
 
-#ifndef INT
-#define INT int
-#endif
-
-void print_var(INT [], FLOAT [], INT [], FLOAT [], INT);
 
 INT monitor_init(INT elemi[], FLOAT elemf[], INT elemid){
+    SETATTRI(monitor,count,0);
     return 1;
 }
 
@@ -23,8 +26,8 @@ INT monitor_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf
     GETATTRI(monitor,last);
     GETATTRI(monitor,nrec);
     GETATTRI(monitor,skip);
-    INITPARTI;
-    INITPARTF;
+    GETATTRI(monitor,isize);
+    GETATTRI(monitor,fsize);
     if(count%skip==0){
         if(last==nrec-1){
             SETATTRI(monitor,last,0);   //last=0;
@@ -33,14 +36,13 @@ INT monitor_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf
             SETATTRI(monitor,last,last+1);  //last++;
         }
         SETATTRI(monitor,index,count);
-        for(i=0;i<ndi;i++){
-            SETATTRI(monitor,datai,parti[sti+ndi*partid+i]);
+        for(i=0;i<isize;i++){
+            SETATTRI(monitor,datai,parti[i]);
         }
-        for(i=0;i<ndf;i++){
-            SETATTRF(monitor,dataf,partf[stf+ndf*partid+i]);
+        for(i=0;i<fsize;i++){
+            SETATTRF(monitor,dataf,partf[i]);
         }
     }
     SETATTRI(monitor,count,count+1);
-    print_var(elemi, elemf, parti, partf, monitor_TYPE);
     return 1;
 }
