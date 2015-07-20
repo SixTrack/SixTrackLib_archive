@@ -152,8 +152,8 @@ INT beambeam_type2_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT
 
         if( ( cntbb21++ ) % 60 == 0 )
         {
-            wzsubv_( &NoOfParticles, &xrbj, &zrbj, &crxbj, &crzbj );
-            wzsubv_( &NoOfParticles, &xbbj, &zbbj, &cbxbj, &cbzbj );
+            wzsubv( &NoOfParticles, &xrbj, &zrbj, &crxbj, &crzbj );
+            wzsubv( &NoOfParticles, &xbbj, &zbbj, &cbxbj, &cbzbj );
         }
 
         tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
@@ -203,14 +203,14 @@ INT beambeam_type3_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT
         xrbj = abs(crkvebj) / rbj;
         zrbj = abs(cikvebj) / rbj;
 
-        errf_( &zrbj, &xrbj, &crzbj, &crxbj );
+        errf( &zrbj, &xrbj, &crzbj, &crxbj );
 
         tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
 
         xbbj = SigmaNqY * xrbj;
         zbbj = SigmaNqX * zrbj;
 
-        errf_( &zbbj, &xbbj, &cbzbj, &cbxbj );
+        errf( &zbbj, &xbbj, &cbzbj, &cbxbj );
 
         if( SwitchToLinearCoupling == 0 )
         {
@@ -257,8 +257,8 @@ INT beambeam_type3_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT
 
         if( ( cntbb31++ ) % 60 == 0 )
         {
-            wzsubv_( &NoOfParticles, &zrbj, &xrbj, &crzbj, &crxbj );
-            wzsubv_( &NoOfParticles, &zbbj, &xbbj, &cbzbj, &cbxbj );
+            wzsubv( &NoOfParticles, &zrbj, &xrbj, &crzbj, &crxbj );
+            wzsubv( &NoOfParticles, &zbbj, &xbbj, &cbzbj, &cbxbj );
         }
 
         tkbj = ( crkvebj*crkvebj / SquareOfSigmaNX + cikvebj*cikvebj / SquareOfSigmaNY ) * 0.5;
