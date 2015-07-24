@@ -317,6 +317,3 @@ void wzsubv( INT *var_napx, FLOAT *vx, FLOAT *vy, FLOAT *vu, FLOAT *vv ){
         }
     }
 }
-
-
-int main(){}

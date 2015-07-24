@@ -12,7 +12,7 @@
 #define multipole_ver_float_VerticalBendingKick                 5
 #define multipole_ver_int_ApproxType                            0
 
-inline void multipole_ver_nzapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT RatioPtoPj, FLOAT ds, FLOAT RatioDeltaPtoPj1, FLOAT RatioBetaToBetaj, FLOAT L, FLOAT TiltComponentCos, FLOAT TiltComponentSin, FLOAT CurrentEntryDisplacementX, FLOAT CurrentEntryDisplacementY, FLOAT VerticalBendingKick, FLOAT partf[]){
+inline void multipole_ver_nzapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT RatioPtoPj, FLOAT ds, FLOAT RatioDeltaPtoPj1, FLOAT RatioBetaToBetaj, FLOAT L, FLOAT TiltComponentCos, FLOAT TiltComponentSin, FLOAT CurrentEntryDisplacementX, FLOAT CurrentEntryDisplacementY, FLOAT VerticalBendingKick, FLOAT coordf[]){
       FLOAT xlvj, zlvj;
       xlvj = ( x - CurrentEntryDisplacementX ) * TiltComponentCos + ( y - CurrentEntryDisplacementY ) * TiltComponentSin;
       zlvj = ( y - CurrentEntryDisplacementY ) * TiltComponentCos - ( x - CurrentEntryDisplacementX ) * TiltComponentSin;
@@ -20,12 +20,12 @@ inline void multipole_ver_nzapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px,
       py = ( py - ((( L * zlvj ) * RatioPtoPj - RatioDeltaPtoPj1 ) * VerticalBendingKick ) * TiltComponentCos ) - (( OnePoweredTo3 * VerticalBendingKick ) * RatioPtoPj ) * ( 1.0 - TiltComponentCos);
       ds = ds - ( RatioBetaToBetaj * VerticalBendingKick ) * zlvj;
 
-      SETCOORDF(partf,px,px);
-      SETCOORDF(partf,py,py);
-      SETCOORDF(partf,ds,ds);
+      SETCOORDF(coordf,px,px);
+      SETCOORDF(coordf,py,py);
+      SETCOORDF(coordf,ds,ds);
 }
 
-inline void multipole_ver_zapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT RatioPtoPj, FLOAT ds, FLOAT RatioDeltaPtoPj1, FLOAT RatioBetaToBetaj, FLOAT L, FLOAT TiltComponentCos, FLOAT TiltComponentSin, FLOAT CurrentEntryDisplacementX, FLOAT CurrentEntryDisplacementY, FLOAT VerticalBendingKick, FLOAT partf[]){
+inline void multipole_ver_zapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOAT py, FLOAT RatioPtoPj, FLOAT ds, FLOAT RatioDeltaPtoPj1, FLOAT RatioBetaToBetaj, FLOAT L, FLOAT TiltComponentCos, FLOAT TiltComponentSin, FLOAT CurrentEntryDisplacementX, FLOAT CurrentEntryDisplacementY, FLOAT VerticalBendingKick, FLOAT coordf[]){
       FLOAT xlvj, zlvj;
       xlvj = ( x - CurrentEntryDisplacementX ) * TiltComponentCos + ( y - CurrentEntryDisplacementY ) * TiltComponentSin;
       zlvj = ( y - CurrentEntryDisplacementY ) * TiltComponentCos - ( x - CurrentEntryDisplacementX ) * TiltComponentSin;
@@ -33,9 +33,9 @@ inline void multipole_ver_zapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, 
       py = ( py + L * TiltComponentCos * RatioDeltaPtoPj1 ) - (( OnePoweredTo3 * VerticalBendingKick ) * RatioPtoPj ) * ( 1.0 - TiltComponentCos);
       ds = ds - ( RatioBetaToBetaj * VerticalBendingKick ) * zlvj;
 
-      SETCOORDF(partf,px,px);
-      SETCOORDF(partf,py,py);
-      SETCOORDF(partf,ds,ds);
+      SETCOORDF(coordf,px,px);
+      SETCOORDF(coordf,py,py);
+      SETCOORDF(coordf,ds,ds);
 }
 
 #define make_map_multipole_ver_approx(NAME)                                                                                                                                                                                                                     \

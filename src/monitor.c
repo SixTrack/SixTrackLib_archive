@@ -13,12 +13,6 @@
 #define monitor_int_datai                                       6+nrec+last*isize+i
 #define monitor_float_dataf                                     last*fsize+i
 
-
-INT monitor_init(INT elemi[], FLOAT elemf[], INT elemid){
-    SETATTRI(monitor,count,0);
-    return 1;
-}
-
 INT monitor_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
     INT i=0;
     ELEMINIT;
@@ -44,5 +38,10 @@ INT monitor_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf
         }
     }
     SETATTRI(monitor,count,count+1);
+    return 1;
+}
+
+INT monitor_init(INT elemi[], FLOAT elemf[], INT elemid){
+    SETATTRI(monitor,count,0);
     return 1;
 }

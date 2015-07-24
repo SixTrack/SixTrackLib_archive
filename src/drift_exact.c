@@ -2,39 +2,62 @@
 #include <math.h>
 #include <stdio.h>
 
-#define drift_exact_TYPE                                        5
+#define drift_exact_TYPE                                        6
 #define drift_exact_float_L                                     0
 
-inline void drift_exact_calc(INT pfstart, FLOAT beta0, FLOAT x, FLOAT px, 
-                FLOAT y, FLOAT py, FLOAT ds, FLOAT ps, FLOAT s, FLOAT L, FLOAT partf[]){
-    double Pz;
+inline void drift_exact_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py,
+                FLOAT tau, FLOAT delta, FLOAT pt, FLOAT s, FLOAT L, FLOAT coordf[]){
+    
+    FLOAT pzi,bzi,xp,yp;
 
-    Pz = sqrt( beta0*beta0*ps*ps + 2*ps - px*px - py*py +1);
-    x += L * ( px / Pz );
-    y += L * ( py / Pz );
-    ds += L * (((Pz - 1) - beta0*beta0*ps) / Pz );
-    s += L;
+    pzi = L / (sqrt((1+delta)*(1 + delta) - px*px - py*py ));
+    bzi = (1/beta0 + pt)*pzi;
+    xp = px * pzi;
+    yp = py * pzi;
 
-    SETCOORDF(partf,x,x);
-    SETCOORDF(partf,x,y);
-    SETCOORDF(partf,ds,ds);
-    SETCOORDF(partf,s,s);
+    x = x + xp;
+    y = y + yp;
+    tau = tau + L/beta0 - bzi;
+    s = s + L;
+
+    SETCOORDF(coordf,x,x);
+    SETCOORDF(coordf,x,y);
+    SETCOORDF(coordf,tau,tau);
+    SETCOORDF(coordf,s,s);
 }
 
-INT drift_exact_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
-    // INT cntexactdrift=0;
+INT drift_exact_single(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
     ELEMINIT;
     INITPARTF;
     GETCOORDF(partf,x);
     GETCOORDF(partf,y);
     GETCOORDF(partf,px);
     GETCOORDF(partf,py);
-    GETCOORDF(partf,ds);
-    GETCOORDF(partf,ps);
+    GETCOORDF(partf,tau);
+    GETCOORDF(partf,delta);
+    GETCOORDF(partf,pt);
     GETCOORDF(partf,s);
-    GETCOORDF(partf,beta0);
+    GETCONSTF(partf,beta0);
     GETATTRF(drift_exact,L);
-    drift_exact_calc(pfstart, beta0, x, px, y, py, ds, ps, s, L, GETPARTF(partid));
-    // if( cntexactdrift++ == 0 ) printf("thin6d exact drift \n");
+    drift_exact_track(beta0, x, px, y, py, tau, delta, pt, s, L, GETPARTF(partid));
+    return 1;
+}
+
+INT drift_exact_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
+    ELEMINIT;
+    INITPARTF;
+    GETCOORDF(partf,x);
+    GETCOORDF(partf,y);
+    GETCOORDF(partf,px);
+    GETCOORDF(partf,py);
+    GETCOORDF(partf,tau);
+    GETCOORDF(partf,delta);
+    GETCOORDF(partf,pt);
+    GETCOORDF(partf,s);
+    GETCONSTF(partf,beta0);
+    GETATTRF(drift_exact,L);
+    for(;partid<partn;partid++){
+      drift_exact_track(beta0, x, px, y, py, tau, delta, pt, s, L, GETPARTF(partid));
+    };
     return 1;
 }
