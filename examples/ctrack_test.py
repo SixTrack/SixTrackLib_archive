@@ -14,7 +14,6 @@ convert={'drift':DriftExact, 'mult':Multipole, 'cav': Cavity}
 out=[ (name,ccc,convert[el.__class__.__name__](*el)) for name,ccc,el in out]
 d=SixDump.open('med_80_mo_3_s1_4-6_30/dump.dat.gz')
 
-
 p=Bunch(**d.get_particles(0,0))
 res={}
 res[0]=p
@@ -29,7 +28,7 @@ partid = 0
 npart = 1
 
 for iii,(name,ccc,el) in enumerate(out):
-    print el
+    print el, "\n\nC Maps:"
     if isinstance(el,DriftExact):
         elemiInt = ctypes.c_int*2
         elemfFloat = ctypes.c_double*1
@@ -54,21 +53,11 @@ for iii,(name,ccc,el) in enumerate(out):
         var = libtrack.cavity_map(elemi, elemf, elemid, parti, partf, partid, npart)
 
     el.track(p)
-    res[iii+1]=(name,el,p.copy())
-
-# for idx in range(0,d.elem.shape[1]):
-#   iii=d.elem[0,idx,0]
-#   name,el,p=res[iii]
-#   print d.name[0,idx,0],ccc,name
-#   print el
-#   berr=0
-#   for nn in 's x px y py tau delta'.split():
-#      ss=getattr(d,nn)[0,idx,0]
-#      pp=getattr(p,nn)[0]
-#      err=sqrt(sum((ss-pp)**2))/ss
-#      print "%-6s %23.16e %23.16e %23.16e"%(nn,err,ss,pp)
-#      if nn not in ['s','tau']:
-#        berr+=err
+    print "Python Maps:"
+    for nn in 's x px y py tau delta'.split():
+        pp=getattr(p,nn)[0]
+        print "%-6s %23.16e"%(nn,pp)
+    print "\n"
 
 
 # print Rot2D.make_c_header()
