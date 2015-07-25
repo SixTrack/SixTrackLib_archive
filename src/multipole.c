@@ -12,6 +12,8 @@
 #define multipole_float_L                                       2+Knlen+Kslen
 #define multipole_float_Rel                                     3+Knlen+Kslen
 
+void print_var(INT [], FLOAT [], INT [], FLOAT [], INT );
+
 inline void multipole_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py, FLOAT delta, FLOAT tau, FLOAT pt, FLOAT chi,
     FLOAT s, INT Knlen, INT Kslen, FLOAT Kn[], FLOAT Ks[], FLOAT Hxl, FLOAT Hyl, FLOAT L, FLOAT Rel, FLOAT coordf[]){
 
@@ -43,6 +45,9 @@ inline void multipole_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py, F
     }
     px = px + dpx;
     py = py + dpy;
+
+    SETCOORDF(coordf,px,px);
+    SETCOORDF(coordf,px,py);
 }
 
 INT multipole_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
@@ -72,6 +77,6 @@ INT multipole_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT par
       multipole_track(beta0, x, px, y, py, delta, tau, pt, chi, s, Knlen, Kslen, &elemf[elem_floatid],
                                     &elemf[elem_floatid+Knlen], Hxl, Hyl, L, Rel, GETPARTF(partid));
     };
+    print_var(elemi,elemf,parti,partf,multipole_TYPE);
     return 1;
 }
-int main() {}

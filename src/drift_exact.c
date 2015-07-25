@@ -5,6 +5,8 @@
 #define drift_exact_TYPE                                        6
 #define drift_exact_float_L                                     0
 
+void print_var(INT [], FLOAT [], INT [], FLOAT [], INT );
+
 inline void drift_exact_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py,
                 FLOAT tau, FLOAT delta, FLOAT pt, FLOAT s, FLOAT L, FLOAT coordf[]){
     
@@ -59,5 +61,7 @@ INT drift_exact_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT p
     for(;partid<partn;partid++){
       drift_exact_track(beta0, x, px, y, py, tau, delta, pt, s, L, GETPARTF(partid));
     };
+    // printf("%s\n","Drift");
+    print_var(elemi,elemf,parti,partf,drift_exact_TYPE);
     return 1;
 }

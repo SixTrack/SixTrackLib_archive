@@ -74,7 +74,7 @@
 #define partf_gamma0                                            2
 #define partf_m0                                                3
 #define partf_E0                                                4
-#define partf_q0                                                5
+// #define partf_q0                                                5
 #define partf_x                                                 0
 #define partf_px                                                1
 #define partf_y                                                 2
@@ -84,7 +84,7 @@
 #define partf_delta                                             6
 #define partf_s                                                 7
 #define partf_chi                                               8
-#define partf_q                                                 9
+// #define partf_q                                                 9
 
 #define coordf_p0                                                0
 #define coordf_beta0                                             1

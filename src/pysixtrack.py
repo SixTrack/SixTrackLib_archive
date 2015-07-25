@@ -57,6 +57,7 @@ class Bunch(object):
     self._e0=e0
     self._gamma0=gamma0
     self._beta0=beta0
+    self._q0=q0
     self.tau=tau
     self._pt=pt
     self._delta=delta

@@ -8,6 +8,8 @@
 #define cavity_float_Lag                                     2
 #define cavity_float_S0                                      3
 
+void print_var(INT [], FLOAT [], INT [], FLOAT [], INT );
+
 inline void cavity_track(INT partid, INT stf, INT ndf, FLOAT beta0, FLOAT tau, FLOAT pt, FLOAT chi,
                 FLOAT s, FLOAT Vn, FLOAT Freq, FLOAT Lag, FLOAT S0, FLOAT coordf[]){
 
@@ -38,7 +40,7 @@ INT cavity_single(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT par
     GETCOORDF(partf,chi);
     GETCOORDF(partf,s);
 
-    cavity_calc(partid, stf, ndf, beta0, tau, pt, chi, s, Vn, Freq, Lag, S0, GETPARTF(partid));
+    cavity_track(partid, stf, ndf, beta0, tau, pt, chi, s, Vn, Freq, Lag, S0, GETPARTF(partid));
     return 1;
 }
 
@@ -57,7 +59,8 @@ INT cavity_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[
     GETCOORDF(partf,chi);
     GETCOORDF(partf,s);
     for(;partid<partn;partid++){
-      cavity_calc(partid, stf, ndf, beta0, tau, pt, chi, s, Vn, Freq, Lag, S0, GETPARTF(partid));
+      cavity_track(partid, stf, ndf, beta0, tau, pt, chi, s, Vn, Freq, Lag, S0, GETPARTF(partid));
     };
+    print_var(elemi,elemf,parti,partf,cavity_TYPE);
     return 1;
 }
