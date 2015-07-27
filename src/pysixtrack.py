@@ -194,7 +194,6 @@ class Drift(namedtuple('Drift',['l'])):
 
 class DriftExact(namedtuple('Drift',['l'])):
     def track(self,p):
-        print "P x: %23.16e y: %23.16e px: %23.16e py: %23.16e"%(p.x[0],p.y[0],p.px[0],p.py[0])
         sqrt=p._m.sqrt
         l=self.l
         px=p.px;py=p.py;beta0=p.beta0;delta=p.delta;pt=p.pt
@@ -218,9 +217,7 @@ class Multipole(namedtuple('Multipole','knl ksl hxl hyl l rel'.split())):
         # multipole kick
         dpx=kn[-1] ;  dpy=ks[-1]
         nn=range(1,len(kn)+1)
-        # print nn
         for nn,kkn,kks in zip(nn,kn,ks)[-2::-1]:
-          # print "P nn: %d"%(nn)
           zre=(dpx*x-dpy*y)/float(nn)
           zim=(dpx*y+dpy*x)/float(nn)
           dpx=kkn+zre

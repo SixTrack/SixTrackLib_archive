@@ -16,7 +16,6 @@ inline void drift_exact_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py,
     bzi = (1/beta0 + pt)*pzi;
     xp = px * pzi;
     yp = py * pzi;
-    printf("C pzi: %23.16e bzi: %23.16e xp: %23.16e yp: %23.16e\n", pzi,bzi,xp,yp);
     x = x + xp;
     y = y + yp;
     tau = tau + L/beta0 - bzi;
