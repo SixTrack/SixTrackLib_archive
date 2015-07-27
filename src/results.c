@@ -11,9 +11,8 @@
 void print_var(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[], INT elem_type){
     // INT i;
 
-    FILE *fptr;
-    fptr=fopen("Output.txt","a");
-    fprintf(fptr,"%s\n","FAACK" );
+    // FILE *fptr;
+    // fptr=fopen("Output.txt","a");
 /*
     switch(elem_type){
         case 0: fprintf(fptr,"ROT2D:\n"); break;
@@ -53,5 +52,5 @@ void print_var(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[], INT elem_
 */
     printf("%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n\n",
         "s",partf[12],"x",partf[5],"px",partf[6],"y",partf[7],"py",partf[8],"tau",partf[9],"delta",partf[11],"pt", partf[10]);
-    fclose(fptr);
+    // fclose(fptr);
 }
