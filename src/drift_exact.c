@@ -16,14 +16,14 @@ inline void drift_exact_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py,
     bzi = (1/beta0 + pt)*pzi;
     xp = px * pzi;
     yp = py * pzi;
-
+    printf("C pzi: %23.16e bzi: %23.16e xp: %23.16e yp: %23.16e\n", pzi,bzi,xp,yp);
     x = x + xp;
     y = y + yp;
     tau = tau + L/beta0 - bzi;
     s = s + L;
 
     SETCOORDF(coordf,x,x);
-    SETCOORDF(coordf,x,y);
+    SETCOORDF(coordf,y,y);
     SETCOORDF(coordf,tau,tau);
     SETCOORDF(coordf,s,s);
 }
@@ -61,7 +61,7 @@ INT drift_exact_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT p
     for(;partid<partn;partid++){
       drift_exact_track(beta0, x, px, y, py, tau, delta, pt, s, L, GETPARTF(partid));
     };
-    // printf("%s\n","Drift");
     print_var(elemi,elemf,parti,partf,drift_exact_TYPE);
     return 1;
 }
+

@@ -22,13 +22,13 @@ partiInt = ctypes.c_int*5
 partfFloat = ctypes.c_double*14
 
 parti = partiInt(1,9,0,5,5)
-partf = partfFloat(p.p0c, p.beta0, p.gamma0, p.m0, p.e0, p.x[0], p.px[0], p.y[0], p.py[0], p.tau[0], p.pt[0], p.delta[0], p.s[0], p.chi)
 elemid = 0
 partid = 0
 npart = 1
 
-for iii,(name,ccc,el) in enumerate(out):
-    print el, "\n\nC Maps:"
+for name,ccc,el in out:
+    partf = partfFloat(p.p0c, p.beta0, p.gamma0, p.m0, p.e0, p.x[0], p.px[0], p.y[0], p.py[0], p.tau[0], p.pt[0], p.delta[0], p.s[0], p.chi)
+    print el, "\n\nC Map:"
     if isinstance(el,DriftExact):
         elemiInt = ctypes.c_int*2
         elemfFloat = ctypes.c_double*1
@@ -43,7 +43,7 @@ for iii,(name,ccc,el) in enumerate(out):
         elemf = (ctypes.c_double *len(tempElemf))()
         for index, value in enumerate(tempElemf):
       		elemf[index] = float(value)
-        var = libtrack.drift_exact_map(elemi, elemf, elemid, parti, partf, partid, npart)
+        var = libtrack.multipole_map(elemi, elemf, elemid, parti, partf, partid, npart)
 
     if isinstance(el,Cavity):
         elemiInt = ctypes.c_int*2
@@ -53,8 +53,8 @@ for iii,(name,ccc,el) in enumerate(out):
         var = libtrack.cavity_map(elemi, elemf, elemid, parti, partf, partid, npart)
 
     el.track(p)
-    print "Python Maps:"
-    for nn in 's x px y py tau delta'.split():
+    print "Python Map:"
+    for nn in 's x px y py tau delta pt'.split():
         pp=getattr(p,nn)[0]
         print "%-6s %23.16e"%(nn,pp)
     print "\n"

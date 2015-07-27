@@ -51,7 +51,7 @@ void print_var(INT elemi[], FLOAT elemf[], INT parti[], FLOAT partf[], INT elem_
     }
     fprintf(fptr,"%f}\n\n\n",partf[i]);
 */
-    printf("%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n\n",
-        "s",partf[12],"x",partf[5],"px",partf[6],"y",partf[7],"py",partf[8],"tau",partf[9],"delta",partf[11]);
+    printf("%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n%-6s %23.16e\n\n",
+        "s",partf[12],"x",partf[5],"px",partf[6],"y",partf[7],"py",partf[8],"tau",partf[9],"delta",partf[11],"pt", partf[10]);
     fclose(fptr);
 }

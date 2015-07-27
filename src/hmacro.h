@@ -91,7 +91,7 @@
 #define coordf_gamma0                                            2
 #define coordf_m0                                                3
 #define coordf_E0                                                4
-#define coordf_q0                                                5
+// #define coordf_q0                                                5
 #define coordf_x                                                 0
 #define coordf_px                                                1
 #define coordf_y                                                 2
@@ -101,7 +101,7 @@
 #define coordf_delta                                             6
 #define coordf_s                                                 7
 #define coordf_chi                                               8
-#define coordf_q                                                 9
+// #define coordf_q                                                 9
 //following are not mentioned in the wiki
 #define partf_crxbj 0
 #define partf_crzbj 1

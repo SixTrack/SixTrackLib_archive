@@ -5,8 +5,6 @@
 #define multipole_TYPE                                          7
 #define multipole_int_Knlen                                     0
 #define multipole_int_Kslen                                     1
-//#define multipole_float_Knl                                     0
-//#define multipole_float_Ksl                                     Knlen
 #define multipole_float_Hxl                                     Knlen+Kslen
 #define multipole_float_Hyl                                     1+Knlen+Kslen
 #define multipole_float_L                                       2+Knlen+Kslen
@@ -19,17 +17,16 @@ inline void multipole_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py, F
 
     FLOAT betai, opd, dpx, dpy, hxx, hyy, a1l, b1l, zre, zim;
     INT nn;
-
     opd = 1 + delta;
     betai = ( 1/beta0 + pt) / opd;
     //multipole kick
     dpx=Kn[Knlen-1];
     dpy=Ks[Kslen-1];
-    for(nn=Knlen-2;nn>=0;nn--){
+    for(nn=Knlen-1;nn>0;nn--){
         zre = ( dpx*x - dpy*y) / nn;
-        zim = ( dpx*x + dpy*y) / nn;
-        dpx = Kn[nn] + zre;
-        dpy = Ks[nn] + zim;
+        zim = ( dpx*y + dpy*x) / nn;
+        dpx = Kn[nn-1] + zre;
+        dpy = Ks[nn-1] + zim;
     }
     dpx=-chi*dpx;
     dpy=chi*dpy;
@@ -45,9 +42,9 @@ inline void multipole_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py, F
     }
     px = px + dpx;
     py = py + dpy;
-
     SETCOORDF(coordf,px,px);
-    SETCOORDF(coordf,px,py);
+    SETCOORDF(coordf,py,py);
+    SETCOORDF(coordf,tau,tau);
 }
 
 INT multipole_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
@@ -56,8 +53,6 @@ INT multipole_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT par
 
     GETATTRI(multipole,Knlen);
     GETATTRI(multipole,Kslen);
-//  GETATTRF(multipole,Knl);
-//  GETATTRF(multipole,Ksl);
     GETATTRF(multipole,Hxl);
     GETATTRF(multipole,Hyl);
     GETATTRF(multipole,L);
