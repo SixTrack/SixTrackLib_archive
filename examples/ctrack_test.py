@@ -9,9 +9,9 @@ from sixtracklib.sixinput import SixTrackInput
 s=SixTrackInput('med_80_mo_3_s1_4-6_30')
 
 out,rest=s.expand_struct()
-# print enumerate(out)
 convert={'drift':DriftExact, 'mult':Multipole, 'cav': Cavity}
 out=[ (name,ccc,convert[el.__class__.__name__](*el)) for name,ccc,el in out]
+
 d=SixDump.open('med_80_mo_3_s1_4-6_30/dump.dat.gz')
 
 p=Bunch(**d.get_particles(0,0))

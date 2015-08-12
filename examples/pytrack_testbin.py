@@ -3,7 +3,7 @@ from sixtracklib.sixdump import SixDump
 from sixtracklib.sixinput import SixTrackInput
 from sixtracklib.sixbin   import SixBin
 
-from pyoptics import *
+# from pyoptics import *
 from numpy import *
 
 #t=optics.open('med_80_mo_3_s1_4-6_30/twiss.tfs')
