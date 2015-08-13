@@ -2,7 +2,7 @@
 #include <math.h>
 #include <stdio.h>
 
-#define align_TYPE                                              7
+#define align_TYPE                                              9
 #define align_float_dx                                          0
 #define align_float_dy                                          1
 #define align_float_tilt                                        2

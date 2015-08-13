@@ -1,7 +1,7 @@
 CC= gcc
 CFLAGS= -fpic
 LDFLAGS= -shared
-SRCS = results.c drift_exact.c multipole.c cavity.c align.c
+SRCS = results.c drift_exact.c multipole.c cavity.c align.c block.c
 OBJECTS= $(SRCS:.c=.o)
 TARGET_LIB= libtrack.so
 INCLUDES= hmacro.h
@@ -13,7 +13,7 @@ test: $(TARGET_LIB)
 	python track.py
 
 $(TARGET_LIB): $(OBJECTS)
-	$(CC) $(LDFLAGS) -o libtrack.so $(OBJECTS)
+	$(CC) $(LDFLAGS) -o libtrack.so block.o
 
 .c.o: $(INCLUDES)
 	$(CC) -O3 -c $(CFLAGS) $<  
