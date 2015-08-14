@@ -63,7 +63,7 @@ print p
 for name,ccc,el in out:
     partf = partfFloat(p.p0c, p.beta0, p.gamma0, p.m0, p.e0, p.x, p.px, p.y, p.py, p.tau, p.pt, p.delta, p.s, p.chi)
     print el, "\n\nC Map:"
-    if isinstance(el,DriftExact):
+    if isinstance(el,Drift):
         elemiInt = ctypes.c_int*2
         elemfFloat = ctypes.c_double*1
         elemi = elemiInt(6,0)

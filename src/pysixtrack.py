@@ -57,7 +57,6 @@ class Bunch(object):
     self._e0=e0
     self._gamma0=gamma0
     self._beta0=beta0
-    self._q0=q0
     self.tau=tau
     self._pt=pt
     self._delta=delta
@@ -76,6 +75,10 @@ class Bunch(object):
        self._chi=self._qratio/self._mratio
     elif chi is not None:
        self._qratio=self._chi*self._mratio
+    if delta is not None:
+        self.delta=delta
+    elif pt is not None:
+        self.pt=pt
   # fully depent quantities
   Px=property(lambda p: p.px*p.p0c*p.mratio)
   Py=property(lambda p: p.py*p.p0c*p.mratio)
@@ -95,7 +98,7 @@ class Bunch(object):
   def delta(self,delta):
     sqrt=self._m.sqrt
     self._delta=delta
-    self._pt=sqrt((1+self.delta)**2+1/(self.beta0*self.gamma0))-1/self.beta0
+    self._pt=sqrt((1+self.delta)**2+1/(self.beta0*self.gamma0)**2)-1/self.beta0
   m0=property(lambda self: self._m0)
   @m0.setter
   def m0(self,m0):
@@ -185,11 +188,15 @@ class Drift(namedtuple('Drift',['l'])):
     def track(self,p):
         l=self.l
         opdi=1/(1+p.delta)
-        beta0i=l/p.beta0
-        bbb=(beta0i+p.pt*l)*opdi
+        lbeta0i=l/p.beta0
+        lbetai=(lbeta0i+p.pt*l)*opdi
+        print "p lbeta0i: %23.17e\np pt: %23.16e\np lbetai: %23.16e\np opdi: %23.16e\np l: %23.16e"%(lbeta0i,p.pt,lbetai,opdi,l)
+        print "p p.pt*l: %23.17e\np lbeta0i+p.pt*l: %23.17e\n"%(p.pt*l,lbeta0i+p.pt*l)
         xp=p.px*opdi; yp=p.py*opdi
         p.x+=xp*l ;  p.y+=yp*l
-        p.tau+=beta0i-bbb*(1 +(xp**2+yp**2)/2)
+        # print ""%(p.tau)
+        p.tau+=lbeta0i-lbetai*(1+(xp**2+yp**2)/2)
+        # print "p lbetai: %23.16e\np taua: %23.16e"%(lbetai, lbetai*(1+(xp**2+yp**2)/2))
         p.s+=l
 
 class DriftExact(namedtuple('Drift',['l'])):
@@ -198,7 +205,9 @@ class DriftExact(namedtuple('Drift',['l'])):
         l=self.l
         px=p.px;py=p.py;beta0=p.beta0;delta=p.delta;pt=p.pt
         pzi=l/sqrt((1+delta)**2-px**2-py**2)
+        print "py pzi:", pzi
         bzi=(1/beta0+pt)*pzi
+        print "py bzi:", bzi
         xp=px*pzi; yp=py*pzi
         p.x+=xp ;  p.y+=yp
         p.tau+=l/beta0-bzi
@@ -213,7 +222,7 @@ class Multipole(namedtuple('Multipole','knl ksl hxl hyl l rel'.split())):
           for i in range(p.rel,len(kn)):
              kn*=p.knl[p.rel]
              ks*=p.ksl[p.rel]
-        x=p.x;y=p.y; chi=p.chi ;  opd=1+p.delta ;  betai=(1/p.beta0+p.pt)/opd
+        x=p.x;y=p.y; chi=p.chi ;
         # multipole kick
         dpx=kn[-1] ;  dpy=ks[-1]
         nn=range(1,len(kn)+1)
@@ -227,25 +236,47 @@ class Multipole(namedtuple('Multipole','knl ksl hxl hyl l rel'.split())):
         # curvature effect kick
         l=self.l
         if l!=0:
+          betai=(1/p.beta0+p.pt)/(1+p.delta)
           b1l=chi*kn[0]; a1l=chi*ks[0]
           hxl=self.hxl ;  hyl=self.hyl
           hxx=hxl/l*x; hyy=hyl/l*y; delta=p.delta
           dpx+=hxl + hxl*delta - b1l*hxx
-          dpy+=hyl + hyl*delta - a1l*hyy
-          p.tau-=chi*(hxx+hyy)*l*betai
+          dpy-=hyl + hyl*delta - a1l*hyy
+          p.tau-=chi*(hxx-hyy)*l*betai
         p.px+=dpx ;  p.py+=dpy
+
 
 class Cavity(namedtuple('Cavity','vn f lag scav'.split())):
     def track(self,p):
       sin=p._m.sin
       pi=p._m.pi
-      k=self.f/p.clight
-      phase=self.lag-k*p.tau
+      k=2*pi*self.f/p.clight
+      phase=self.lag*pi/180-k*p.tau
       if self.scav>=0:
         # for cogging phi is the phase when s=scav
         phase+=k*(p.s-self.scav)/p.beta0
-      p.pt+=p.chi*self.vn*sin(2*pi*phase)
+      p.pt+=p.chi*self.vn*sin(phase)
 
 
+class Align(namedtuple('Align','dx dy tilt'.split())):
+    def track(self,p):
+      sin=p._m.sin
+      cos=p._m.cos
+      pi=p._m.pi
+      an=-self.tilt*pi/180
+      cx=cos(an); sx=sin(an)
+      xn=-self.dx; yn=-self.dy
+      xn+= cx*p.x+sx*p.y
+      yn+=-sx*p.x+cx*p.y
+      p.x=xn;p.y=yn;
+      pxn= cx*p.px+sx*p.py
+      pyn=-sx*p.px+cx*p.py
+      p.px=pxn;p.py=pyn;
+
+
+class Block(namedtuple('Block','elems'.split())):
+    def track(self,p):
+        for el in self.elems:
+            el.track(p)
 
 

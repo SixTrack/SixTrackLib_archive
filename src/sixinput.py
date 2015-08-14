@@ -9,6 +9,8 @@ from math import factorial
 
 import numpy as np
 
+clight=299792458
+pi=np.pi
 
 def getlines(fn):
     if fn.endswith('.gz'):
@@ -90,6 +92,13 @@ class Variable(object):
 
 
 class SixTrackInput(object):
+  classes=dict(
+    drift=namedtuple('drift',['l']),
+    mult =namedtuple('mult','knl ksl hxl hyl l rel'.split()),
+    cav  =namedtuple('cav','vn f lag scav'.split()),
+    align=namedtuple('align','x y tilt'),
+    block=namedtuple('block','elems'),
+  )
   variables=OrderedDict(
   [('title', Variable('','START','Study title')),
    ('geom',  Variable('GEOM','START',
@@ -259,8 +268,8 @@ class SixTrackInput(object):
     Variable(1,'TRAC',"Coordinate writing interval during flat top")),
    ('nwr4', Variable(1,'TRAC','Coordinate writing interval in fort.6')),
    ('ntwin', Variable(2,'TRAC','For analysis of Lyapunov exponent')),
-   ('ibidu',
-    Variable(1,'TRAC','Switch to create or read binary dump of accelerator'))
+   ('ibidu', Variable(1,'TRAC','Switch to create or read binary dump of accelerator')),
+   ('iexact', Variable(0,'TRAC','Switch to use exact drift tracking')),
   ])
   def var_from_line(self,line,vvv):
     for val,name in zip(line.split(),vvv.split()):
@@ -795,7 +804,9 @@ class SixTrackInput(object):
        for name,bn,an in readf16(self.filenames['fort.16']):
           self.multblock.setdefault(name,[]).append((bn,an))
     if 'fort.8' in self.filenames:
-       self.align=readf8(self.filenames['fort.8'])
+       self.align={}
+       for name,(dx,dy,tilt) in readf8(self.filenames['fort.8']):
+           self.align.setdefault(name,[]).append((dx,dy,tilt))
     print self.prettyprint(full=False)
   def add_default_vars(self):
       for name,var in self.variables.items():
@@ -857,22 +868,28 @@ class SixTrackInput(object):
               yield ell
         else:
           yield el
-  def expand_struct(self):
+  def expand_struct(self,convert=classes):
       out=[]
       count={}
       rest=[]
+      drift=convert['drift']
+      mult =convert['mult']
+      cav  =convert['cav']
+      align=convert['align']
+      block=convert['block']
       for nnn in self.iter_struct():
           ccc=count.setdefault(nnn,0)
           etype,d1,d2,d3,d4,d5,d6=self.single[nnn]
+          elem=None
           if etype in [0,25]:
-              out.append([nnn,ccc,drift(l=d3)])
+              elem=drift(l=d3)
           elif abs(etype) in [1,2,3,4,5,7,8,9,10]:
               bn_six=d1;nn=abs(etype); sign=-etype/nn
               madval=bn_mad(bn_six,nn,sign)
               knl=[0]*(nn-1)+[madval]; ksl=[0]*nn
               if sign==1:
                  knl,ksl=ksl,knl
-              out.append([nnn,ccc,mult(knl,ksl,0,0,0,0)])
+              elem=mult(knl,ksl,0,0,0,0)
           elif etype==11:
               knl,ksl=self.get_knl(nnn,ccc)
               hxl=0; hyl=0;l=0
@@ -882,27 +899,27 @@ class SixTrackInput(object):
               elif d3==-2:
                   hyl=d1; l=d2
                   ksl[0]=hxl
-              out.append([nnn,ccc,mult(knl,ksl,hxl,hyl,l,0)])
+              elem=mult(knl,ksl,hxl,hyl,l,0)
           elif etype==12:
               e0=self.initialconditions[-1]
               p0c=np.sqrt(e0**2-self.pma**2)
-              beta0=e0/p0c
+              beta0=p0c/e0
               v=d1; freq=d2/self.tlen*clight*beta0
-              out.append([nnn,ccc,cav(v/p0c,freq,phi=0,scav=-1)])
+              elem=cav(v/p0c,freq,lag=180-d3,scav=-1)
           else:
               rest.append([nnn]+self.single[nnn])
+          if elem is not None:
+            if nnn in self.align:
+              dx,dy,tilt=self.align[nnn][ccc]
+              tilt=tilt*180e-3/pi
+              dx*=1e-3;
+              dy*=1e-3;
+              elem=block([align(dx,dy,-tilt),elem,align(-dx,-dy,tilt)])
+            out.append([nnn,ccc,elem])
           count[nnn]=ccc+1
       return out,rest
 
 
-drift=namedtuple('drift',['l'])
-mult =namedtuple('mult','knl ksl hxl hyl l rel'.split())
-cav  =namedtuple('cav','vn f phi scav'.split())
-rotz =namedtuple('rotz',['phi'])
-
-
-
-clight=299792458
 
 
 

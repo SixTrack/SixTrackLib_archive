@@ -10,7 +10,7 @@
 #define multipole_float_L                                       2+Knlen+Kslen
 #define multipole_float_Rel                                     3+Knlen+Kslen
 
-void print_var(INT [], FLOAT [], INT [], FLOAT [], INT );
+// void print_var(INT [], FLOAT [], INT [], FLOAT [], INT );
 
 inline void multipole_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py, FLOAT delta, FLOAT tau, FLOAT pt, FLOAT chi,
     FLOAT s, INT Knlen, INT Kslen, FLOAT Kn[], FLOAT Ks[], FLOAT Hxl, FLOAT Hyl, FLOAT L, FLOAT Rel, FLOAT coordf[]){

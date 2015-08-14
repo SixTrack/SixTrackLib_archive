@@ -5,19 +5,29 @@ from sixtracklib.ctrack import *
 from sixtracklib.pysixtrack import *
 from sixtracklib.sixdump import SixDump
 from sixtracklib.sixinput import SixTrackInput
+from sixtracklib.sixbin   import SixBin
 
-s=SixTrackInput('med_80_mo_3_s1_4-6_30')
+# s=SixTrackInput('med_80_mo_3_s1_4-6_30')
 
-out,rest=s.expand_struct()
-convert={'drift':DriftExact, 'mult':Multipole, 'cav': Cavity}
-out=[ (name,ccc,convert[el.__class__.__name__](*el)) for name,ccc,el in out]
+# out,rest=s.expand_struct()
+# convert={'drift':DriftExact, 'mult':Multipole, 'cav': Cavity, 'block': Block}
+# out=[ (name,ccc,convert[el.__class__.__name__](*el)) for name,ccc,el in out]
 
-d=SixDump.open('med_80_mo_3_s1_4-6_30/dump.dat.gz')
+exampledir='med_80_mo_3_s1_4-6_30'
+# exampledir='med_80_bb_2_s1_4-6_30'
+# exampledir='med_80_mo_3_s1_0sigma'
 
-p=Bunch(**d.get_particles(0,0))
+s=SixTrackInput(exampledir)
+convert={'drift':Drift, 'mult':Multipole, 'cav': Cavity,
+         'align':Align,'block':Block}
+out,rest=s.expand_struct(convert=convert)
+
+b=SixBin('med_80_mo_3_s1_4-6_30')
+
+p=Bunch(**b.get_particle(1,0))
 res={}
 res[0]=p
-
+# print p.m0
 partiInt = ctypes.c_int*5
 partfFloat = ctypes.c_double*14
 
@@ -26,15 +36,30 @@ elemid = 0
 partid = 0
 npart = 1
 
-for name,ccc,el in out:
-    partf = partfFloat(p.p0c, p.beta0, p.gamma0, p.m0, p.e0, p.x[0], p.px[0], p.y[0], p.py[0], p.tau[0], p.pt[0], p.delta[0], p.s[0], p.chi)
+def pprint(p0,p):
+  res=0
+  out=[]
+  for nn in 's x px y py tau delta pt'.split():
+      ss=getattr(p0,nn)
+      pp=getattr(p,nn)
+      err=sqrt(sum((ss-pp)**2))
+      #if abs(ss)>0 and nn!='tau':
+      #  err/=abs(ss)
+      out.append((nn,err,ss,pp))
+      # print "%-6s %23.16e %23.16e %23.16e"%(nn,err,ss,pp)
+      print "%-6s %23.16e"%(nn,pp)
+      res+=err
+  return res,out
+
+for iii,(name,ccc,el) in enumerate(out[:15]):
+    partf = partfFloat(p.p0c, p.beta0, p.gamma0, p.m0, p.e0, p.x, p.px, p.y, p.py, p.tau, p.pt, p.delta, p.s, p.chi)
     print el, "\n\nC Map:"
-    if isinstance(el,DriftExact):
+    if isinstance(el,Drift):
         elemiInt = ctypes.c_int*2
         elemfFloat = ctypes.c_double*1
-        elemi = elemiInt(6,0)
+        elemi = elemiInt(5,0)
         elemf = elemfFloat(el.l)
-        var = libtrack.drift_exact_map(elemi, elemf, elemid, parti, partf, partid, npart)
+        var = libtrack.drift_map(elemi, elemf, elemid, parti, partf, partid, npart)
 
     if isinstance(el,Multipole):
         elemiInt = ctypes.c_int*4
@@ -42,7 +67,7 @@ for name,ccc,el in out:
         tempElemf = []; tempElemf.extend(el.knl); tempElemf.extend(el.ksl); tempElemf.extend([el.hxl, el.hyl, el.l, el.rel])
         elemf = (ctypes.c_double *len(tempElemf))()
         for index, value in enumerate(tempElemf):
-      		elemf[index] = float(value)
+            elemf[index] = float(value)
         var = libtrack.multipole_map(elemi, elemf, elemid, parti, partf, partid, npart)
 
     if isinstance(el,Cavity):
@@ -52,12 +77,78 @@ for name,ccc,el in out:
         elemf = elemfFloat(el.vn, el.f, el.lag, el.scav)
         var = libtrack.cavity_map(elemi, elemf, elemid, parti, partf, partid, npart)
 
+    if isinstance(el,Align):
+        elemiInt = ctypes.c_int*2
+        elemfFloat = ctypes.c_double*3
+        elemi = elemiInt(9,0)
+        elemf = elemfFloat(el.dx, el.dy, el.tilt)
+        var = libtrack.align_map(elemi, elemf, elemid, parti, partf, partid, npart)
+
+    if isinstance(el,Block):
+        tempIds=[10,0,len(el.elems)]
+        tempElemi=[]; tempElemf=[]
+        for elem in el.elems:
+            if isinstance(elem,Align):
+                tempIds.extend([3+len(el.elems)+len(tempElemi)])
+                tempElemi.extend([9,len(tempElemf)]); tempElemf.extend([elem.dx, elem.dy, elem.tilt])
+            if isinstance(elem,Multipole):
+                tempIds.extend([3+len(el.elems)+len(tempElemi)])
+                tempElemi.extend([7,len(tempElemf),len(elem.knl),len(elem.ksl)]);
+                tempElemf.extend(elem.knl); tempElemf.extend(elem.ksl); tempElemf.extend([elem.hxl, elem.hyl, elem.l, elem.rel])
+        tempElemi = tempIds + tempElemi
+        elemi = (ctypes.c_double *len(tempElemi))()
+        elemf = (ctypes.c_double *len(tempElemf))()
+        for index, value in enumerate(tempElemi):
+            elemi[index] = float(value)
+        for index, value in enumerate(tempElemf):
+            elemf[index] = float(value)
+        var = libtrack.block_map(elemi, elemf, elemid, parti, partf, partid, npart)
+        # print intcount, floatcount
+        # print tempElemi
+        # print tempElemf
+
+        # elemiInt = ctypes.c_int*(3+2*len(el.elems))
+        # # elemfFloat = ctypes.c_double*3
+        # tempElemf = [10,0,len(el.elems)]
+        # for elem in el.elems:
+        #     if isinstance(elem,Align):
+        #         tempElemf.extend()
+        #     if isinstance(elem,Multipole):
+        # # elemi = elemiInt(10,0,len(el.elems))
+        # # elemf = elemfFloat()
+        # elemf = []
+        # var = libtrack.align_map(elemi, elemf, elemid, parti, partf, partid, npart)
+        print "Block Called"
+
     el.track(p)
+    pnew=p.copy()
     print "Python Map:"
-    for nn in 's x px y py tau delta pt'.split():
-        pp=getattr(p,nn)[0]
-        print "%-6s %23.16e"%(nn,pp)
+    p=Bunch(**b.get_particle(1,iii+1))
+    res,rrr=pprint(p,pnew)
+    # for nn in 's x px y py tau delta pt'.split():
+    #     pp=getattr(p,nn)
+    #     print "%-6s %23.16e"%(nn,pp)
     print "\n"
+    # el.track(p)
+    # print "Python Map:"
+    # for nn in 's x px y py tau delta pt'.split():
+    #     pp=getattr(p,nn)[0]
+    #     print "%-6s %23.16e"%(nn,pp)
+    # print "\n"
+
+# b=SixBin(exampledir)
+# p=Bunch(**b.get_particle(1,0))
+# err={}
+# bench=[]
+# for  iii,(name,ccc,el) in enumerate(out):
+#   el.track(p)
+#   pnew=p.copy()
+#   p=Bunch(**b.get_particle(1,iii+1))
+#   print iii,p.s,el
+#   res,rrr=pprint(p,pnew)
+#   err[res]=(iii,name,el,rrr)
+#   bench.append(err[res])
+
 
 
 # print Rot2D.make_c_header()

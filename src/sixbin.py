@@ -109,11 +109,11 @@ def opendir(basedir='.'):
 
 class SixBin(object):
     def __init__(self,basedir):
-        self.head,self.part=opendir('med_80_mo_3_s1_4-6_30')
+        self.head,self.part=opendir(basedir)
     def get_particle(self,part,row,m0=938272046.):
         pdist,x,xp,y,yp,sigma,delta,energy=self.part[part][row].T
         e0=energy*1e6
-        gamma0=e0/m0;beta0=1/np.sqrt(1-1/gamma0**2)
+        gamma0=e0/m0;beta0=np.sqrt(1-1/gamma0**2)
         tau=sigma/beta0/1e3
         out=dict(x=x/1e3,px=xp*(1+delta)/1e3,
                  y=y/1e3,py=yp*(1+delta)/1e3,
