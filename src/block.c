@@ -30,6 +30,7 @@ INT block_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[]
     for(i=0;i<nelem;i++){
         id=elemi[elemid+3+i];
         mapid=elemi[id];
+        // printf("%d\n", mapid);
         switch(mapid){
           case drift_TYPE:
             retval=drift_map(elemi, elemf, id, parti, partf, partid, partn);
@@ -48,6 +49,6 @@ INT block_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[]
             break;
         }
     }
-    print_var(elemi,elemf,parti,partf,align_TYPE);
+    // print_var(elemi,elemf,parti,partf,block_TYPE);
     return 1;
 }

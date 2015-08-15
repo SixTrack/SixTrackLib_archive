@@ -36,24 +36,9 @@ elemid = 0
 partid = 0
 npart = 1
 
-def pprint(p0,p):
-  res=0
-  out=[]
-  for nn in 's x px y py tau delta pt'.split():
-      ss=getattr(p0,nn)
-      pp=getattr(p,nn)
-      err=sqrt(sum((ss-pp)**2))
-      #if abs(ss)>0 and nn!='tau':
-      #  err/=abs(ss)
-      out.append((nn,err,ss,pp))
-      # print "%-6s %23.16e %23.16e %23.16e"%(nn,err,ss,pp)
-      print "%-6s %23.16e"%(nn,pp)
-      res+=err
-  return res,out
-
-for iii,(name,ccc,el) in enumerate(out[:15]):
+for iii,(name,ccc,el) in enumerate(out[:2130]):
     partf = partfFloat(p.p0c, p.beta0, p.gamma0, p.m0, p.e0, p.x, p.px, p.y, p.py, p.tau, p.pt, p.delta, p.s, p.chi)
-    print el, "\n\nC Map:"
+    # print el, "\n\nC Map:"
     if isinstance(el,Drift):
         elemiInt = ctypes.c_int*2
         elemfFloat = ctypes.c_double*1
@@ -96,10 +81,10 @@ for iii,(name,ccc,el) in enumerate(out[:15]):
                 tempElemi.extend([7,len(tempElemf),len(elem.knl),len(elem.ksl)]);
                 tempElemf.extend(elem.knl); tempElemf.extend(elem.ksl); tempElemf.extend([elem.hxl, elem.hyl, elem.l, elem.rel])
         tempElemi = tempIds + tempElemi
-        elemi = (ctypes.c_double *len(tempElemi))()
+        elemi = (ctypes.c_int *len(tempElemi))()
         elemf = (ctypes.c_double *len(tempElemf))()
         for index, value in enumerate(tempElemi):
-            elemi[index] = float(value)
+            elemi[index] = int(value)
         for index, value in enumerate(tempElemf):
             elemf[index] = float(value)
         var = libtrack.block_map(elemi, elemf, elemid, parti, partf, partid, npart)
@@ -118,13 +103,15 @@ for iii,(name,ccc,el) in enumerate(out[:15]):
         # # elemf = elemfFloat()
         # elemf = []
         # var = libtrack.align_map(elemi, elemf, elemid, parti, partf, partid, npart)
-        print "Block Called"
+        # print "Block Called"
 
+    # print "Python Map:", iii
+    print el
     el.track(p)
     pnew=p.copy()
-    print "Python Map:"
     p=Bunch(**b.get_particle(1,iii+1))
-    res,rrr=pprint(p,pnew)
+    pprint(pnew)
+    # res,rrr=pprint(p,pnew)
     # for nn in 's x px y py tau delta pt'.split():
     #     pp=getattr(p,nn)
     #     print "%-6s %23.16e"%(nn,pp)

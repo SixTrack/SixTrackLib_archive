@@ -50,7 +50,7 @@ inline void multipole_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py, F
 INT multipole_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
     ELEMINIT;
     INITPARTF;
-
+    // printf("%s\n", "C multipole");
     GETATTRI(multipole,Knlen);
     GETATTRI(multipole,Kslen);
     GETATTRF(multipole,Hxl);

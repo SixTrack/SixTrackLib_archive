@@ -15,8 +15,8 @@ inline void drift_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py,
     opdi = 1 / (1 + delta);
     beta0i = L/beta0;
     betai = (beta0i + pt*L) * opdi;
-    printf("c beta0i: %23.17e\nc pt: %23.16e\nc betai: %23.16e\nc opdi: %23.16e\nc L: %23.16e\n", beta0i,pt,betai,opdi,L);
-    printf("c pt*L: %23.17e\nc beta0i + pt*L: %23.17e\n", pt*L, (beta0i + pt*L));
+    // printf("c beta0i: %23.17e\nc pt: %23.16e\nc betai: %23.16e\nc opdi: %23.16e\nc L: %23.16e\n", beta0i,pt,betai,opdi,L);
+    // printf("c pt*L: %23.17e\nc beta0i + pt*L: %23.17e\n", pt*L, (beta0i + pt*L));
     xp = px * opdi;
     yp = py * opdi;
 
@@ -24,7 +24,7 @@ inline void drift_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py,
     y = y + yp * L;
     // printf("", tau);
     tau = tau + beta0i - betai * (1 + ( xp*xp + yp*yp ) / 2);
-    printf("c betai: %23.16e\nc taua: %23.16e\n", betai, betai * (1 + ( xp*xp + yp*yp ) / 2));
+    // printf("c betai: %23.16e\nc taua: %23.16e\n", betai, betai * (1 + ( xp*xp + yp*yp ) / 2));
     s = s + L;
     SETCOORDF(coordf,x,x);
     SETCOORDF(coordf,y,y);

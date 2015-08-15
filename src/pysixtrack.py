@@ -1,3 +1,4 @@
+from sixtracklib.ctrack import *
 from collections import namedtuple
 from copy import deepcopy
 
@@ -184,20 +185,43 @@ def ctaylor(x,y,kn,ks):
     dpy=kks+(dpx*y+dpy*x)/float(nn)
   return dpx,dpy
 
+def pprint(p):
+  res=0
+  out=[]
+  tempPart=[]
+  for nn in 'p0c beta0 gamma0 m0 e0 x px y py tau pt delta s chi'.split():
+      # ss=getattr(p0,nn)
+      pp=getattr(p,nn)
+      tempPart.extend([pp])
+      # err=sqrt(sum((ss-pp)**2))
+      #if abs(ss)>0 and nn!='tau':
+      #  err/=abs(ss)
+      # out.append((nn,err,ss,pp))
+      # print "%-6s %23.16e %23.16e %23.16e"%(nn,err,ss,pp)
+      # print "%-6s %23.16e"%(nn,pp)
+      # res+=err
+  # print tempPart
+  partf = (ctypes.c_double *len(tempPart))()
+  for index, value in enumerate(tempPart):
+            partf[index] = float(value)
+  var = libtrack.print_comp(partf)
+  return res,out
+
 class Drift(namedtuple('Drift',['l'])):
     def track(self,p):
         l=self.l
         opdi=1/(1+p.delta)
         lbeta0i=l/p.beta0
         lbetai=(lbeta0i+p.pt*l)*opdi
-        print "p lbeta0i: %23.17e\np pt: %23.16e\np lbetai: %23.16e\np opdi: %23.16e\np l: %23.16e"%(lbeta0i,p.pt,lbetai,opdi,l)
-        print "p p.pt*l: %23.17e\np lbeta0i+p.pt*l: %23.17e\n"%(p.pt*l,lbeta0i+p.pt*l)
+        # print "p lbeta0i: %23.17e\np pt: %23.16e\np lbetai: %23.16e\np opdi: %23.16e\np l: %23.16e"%(lbeta0i,p.pt,lbetai,opdi,l)
+        # print "p p.pt*l: %23.17e\np lbeta0i+p.pt*l: %23.17e\n"%(p.pt*l,lbeta0i+p.pt*l)
         xp=p.px*opdi; yp=p.py*opdi
         p.x+=xp*l ;  p.y+=yp*l
         # print ""%(p.tau)
         p.tau+=lbeta0i-lbetai*(1+(xp**2+yp**2)/2)
         # print "p lbetai: %23.16e\np taua: %23.16e"%(lbetai, lbetai*(1+(xp**2+yp**2)/2))
         p.s+=l
+        # pprint(p,p)
 
 class DriftExact(namedtuple('Drift',['l'])):
     def track(self,p):
@@ -212,9 +236,11 @@ class DriftExact(namedtuple('Drift',['l'])):
         p.x+=xp ;  p.y+=yp
         p.tau+=l/beta0-bzi
         p.s+=l
+        # pprint(p,p)
 
 class Multipole(namedtuple('Multipole','knl ksl hxl hyl l rel'.split())):
     def track(self,p):
+        # print "py multipole"
         kn=self.knl; ks=self.ksl
         # if relative order is defined 0->obsolute k
         if self.rel>0:
@@ -244,6 +270,7 @@ class Multipole(namedtuple('Multipole','knl ksl hxl hyl l rel'.split())):
           dpy-=hyl + hyl*delta - a1l*hyy
           p.tau-=chi*(hxx-hyy)*l*betai
         p.px+=dpx ;  p.py+=dpy
+        # pprint(p,p)
 
 
 class Cavity(namedtuple('Cavity','vn f lag scav'.split())):
@@ -256,6 +283,7 @@ class Cavity(namedtuple('Cavity','vn f lag scav'.split())):
         # for cogging phi is the phase when s=scav
         phase+=k*(p.s-self.scav)/p.beta0
       p.pt+=p.chi*self.vn*sin(phase)
+      # pprint(p,p)
 
 
 class Align(namedtuple('Align','dx dy tilt'.split())):
@@ -265,13 +293,19 @@ class Align(namedtuple('Align','dx dy tilt'.split())):
       pi=p._m.pi
       an=-self.tilt*pi/180
       cx=cos(an); sx=sin(an)
+      # print "p cx: %23.16e\np sx: %23.16e\n"%(cx,sx)
       xn=-self.dx; yn=-self.dy
+      # print "p xn: %23.16e\np yn: %23.16e\n"%(xn,yn)
       xn+= cx*p.x+sx*p.y
       yn+=-sx*p.x+cx*p.y
+      # print "p p.px: %23.16e\np p.py: %23.16e\n"%(p.px,p.py)
       p.x=xn;p.y=yn;
       pxn= cx*p.px+sx*p.py
+      # print "p cx*p.px: %23.16e\np sx*p.py: %23.16e\n"%(cx*p.px,sx*p.py)
       pyn=-sx*p.px+cx*p.py
+      # print "p pxn: %23.16e\np pyn: %23.16e\n"%(pxn,pyn)
       p.px=pxn;p.py=pyn;
+      # pprint(p,p)
 
 
 class Block(namedtuple('Block','elems'.split())):
