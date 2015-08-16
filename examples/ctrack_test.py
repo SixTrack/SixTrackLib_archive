@@ -36,7 +36,8 @@ elemid = 0
 partid = 0
 npart = 1
 
-for iii,(name,ccc,el) in enumerate(out[:2130]):
+for iii,(name,ccc,el) in enumerate(out[:21]):
+    print el
     partf = partfFloat(p.p0c, p.beta0, p.gamma0, p.m0, p.e0, p.x, p.px, p.y, p.py, p.tau, p.pt, p.delta, p.s, p.chi)
     # print el, "\n\nC Map:"
     if isinstance(el,Drift):
@@ -106,11 +107,10 @@ for iii,(name,ccc,el) in enumerate(out[:2130]):
         # print "Block Called"
 
     # print "Python Map:", iii
-    print el
     el.track(p)
-    pnew=p.copy()
+    # pnew=p.copy()
     p=Bunch(**b.get_particle(1,iii+1))
-    pprint(pnew)
+    pprint(p)
     # res,rrr=pprint(p,pnew)
     # for nn in 's x px y py tau delta pt'.split():
     #     pp=getattr(p,nn)

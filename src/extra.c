@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdio.h>
 
 #ifndef FLOAT
 #define FLOAT double
@@ -7,6 +8,8 @@
 #ifndef INT
 #define INT int
 #endif
+
+#define ROUND(x) (int)(x + 0.5)
 
 FLOAT sign( FLOAT a, FLOAT b )
 {
@@ -47,6 +50,9 @@ void errf( FLOAT *var_xx, FLOAT *var_yy, FLOAT *var_wx, FLOAT *var_wy )
 
     x = abs(xx);
     y = abs(yy);
+
+    // printf("%-6s %23.16e\n%-6s %23.16e\n","real", x, "imag", y);
+
     if(y < ylim && x < xlim )
     {
         q = ( 1.0 - y / ylim ) * sqrt( 1.0 - ( x / xlim )*( x / xlim ) );
@@ -316,4 +322,110 @@ void wzsubv( INT *var_napx, FLOAT *vx, FLOAT *vy, FLOAT *vu, FLOAT *vv ){
             vv[j] = vw1i[j] + ( vxhrel[j] * vvsum[j] + vyhrel[j] * vusum[j] );
         }
     }
+}
+
+void wofz(double *w1, double *w2, double x, double y)
+  {
+  short int b, quad;
+  int k, capn, nu;
+  register int n, np1;
+  double xy2, e, h;
+  register double h2, lambda, c, r1, r2, s, s1, s2, t1, t2;
+
+  if (y >= 0.0)
+    if (x >= 0.0)
+      quad = 1;
+    else
+    {
+    quad = 2;
+    x = fabs(x);
+    }
+  else
+    if (x <= 0.0)
+    {
+    quad = 3;
+    x = fabs(x);
+    y = fabs(y);
+    }         
+    else
+    {
+    quad = 4;
+    y = fabs(y);
+    }
+  if (y < 4.29 && x < 5.33)
+      {
+      s = (1.0 - y / 4.29) * sqrt(1.0 - x * x / 28.41);
+      h = 1.6 * s;
+      h2 = 2.0 * h;
+      capn = ROUND(6.0 + 23.0 * s);
+      nu = ROUND(9.0 + 21.0 * s);
+      }   
+  else
+      {
+      h = 0.0;
+      capn = 0;
+      nu = 8;
+      }
+  if (h > 0.0) lambda = pow(h2,(double)capn);
+  b = h == 0.0 || lambda == 0.0;
+  r1 = 0.0;
+  r2 = 0.0;
+  s1 = 0.0;
+  s2 = 0.0;
+  for (n = nu; n >= 0; n--)
+      {
+      np1 = n + 1;
+      t1 = y + h + (double)np1 * r1;
+      t2 = x - (double)np1 * r2;
+      c = 0.5 / (t1 * t1 + t2 * t2);
+      r1 = c * t1;
+      r2 = c * t2;
+      if (h > 0.0 && n <= capn)
+      {
+      t1 = lambda + s1;
+      s1 = r1 * t1 - r2 * s2;
+      s2 = r2 * t1 + r1 * s2;
+      lambda /= h2;
+      }
+      }
+  if (y == 0.0)
+    *w1 = exp(-x*x);
+  else
+    if (b)
+      *w1 = 1.12837916709551 * r1;
+    else
+      *w1 = 1.12837916709551 * s1;
+  if (b)
+    *w2 = 1.12837916709551 * r2;
+  else
+    *w2 = 1.12837916709551 * s2;
+  if (quad == 3 || quad == 4)
+      {
+      e = 2.0 * exp(y*y-x*x);
+      xy2 = 2.0 * x * y;
+      c = cos(xy2) * e;
+      s = sin(xy2) * e;
+      *w1 = c - *w1;
+      *w2 = s + *w2;
+      }
+  if (quad == 2 || quad == 3)
+    *w2 *= -1.0;
+  }
+
+
+INT benchmark_errf(FLOAT input[]){
+    
+    FLOAT var_xx=input[0],var_yy=input[1],var_wx=1,var_wy=1,wx=input[2],wy=input[3];
+    
+    // printf("%-6s %23.16e\n%-6s %23.16e\n","real", input[0], "imag", input[1]);
+    // printf("%-6s %23.16e\n%-6s %23.16e\n","real", var_xx, "imag", var_yy);
+    
+    // wofz(&var_wx, &var_wy, var_xx, var_yy);
+    errf(&var_xx, &var_yy, &var_wx, &var_wy);
+    
+    // printf("%-6s %23.16e\n%-6s %23.16e\n",
+    //     "real", var_wx, "imag", var_wy);
+    printf("%-6s %23.16e %23.16e %23.16e\n%-6s %23.16e %23.16e %23.16e\n\n",
+        "real", sqrt(pow((wx-var_wx),2)), var_wx, wx, "imag", sqrt(pow((wy-var_wy),2)), var_wy, wy);
+    return 1;
 }

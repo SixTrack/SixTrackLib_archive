@@ -221,6 +221,7 @@ class Drift(namedtuple('Drift',['l'])):
         p.tau+=lbeta0i-lbetai*(1+(xp**2+yp**2)/2)
         # print "p lbetai: %23.16e\np taua: %23.16e"%(lbetai, lbetai*(1+(xp**2+yp**2)/2))
         p.s+=l
+        print "p p.s: %23.16e\n"%(p.s)
         # pprint(p,p)
 
 class DriftExact(namedtuple('Drift',['l'])):
@@ -259,6 +260,7 @@ class Multipole(namedtuple('Multipole','knl ksl hxl hyl l rel'.split())):
           dpy=kks+zim
         dpx=-chi*dpx
         dpy=chi*dpy
+        print "p dpx: %23.16e\np dpy: %23.16e\n"%(dpx,dpy)
         # curvature effect kick
         l=self.l
         if l!=0:

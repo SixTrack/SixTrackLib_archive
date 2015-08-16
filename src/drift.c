@@ -26,6 +26,7 @@ inline void drift_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py,
     tau = tau + beta0i - betai * (1 + ( xp*xp + yp*yp ) / 2);
     // printf("c betai: %23.16e\nc taua: %23.16e\n", betai, betai * (1 + ( xp*xp + yp*yp ) / 2));
     s = s + L;
+    printf("c s: %23.16e\n", s);
     SETCOORDF(coordf,x,x);
     SETCOORDF(coordf,y,y);
     SETCOORDF(coordf,tau,tau);

@@ -30,6 +30,7 @@ inline void multipole_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py, F
     }
     dpx=-chi*dpx;
     dpy=chi*dpy;
+    printf("c dpx: %23.16e\nc dpy: %23.16e\n", dpx, dpy);
     //curvature effect kick
     if(L!=0){
         b1l = chi * Kn[0]; 
@@ -40,6 +41,7 @@ inline void multipole_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py, F
         dpy = dpy + Hyl + Hyl*delta - a1l*hyy;
         tau = tau - chi * (hxx + hyy) * L * betai;
     }
+
     px = px + dpx;
     py = py + dpy;
     SETCOORDF(coordf,px,px);
