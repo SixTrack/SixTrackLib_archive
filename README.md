@@ -5,12 +5,10 @@ SixTrackLib is a tracking engine for particle tracking. It is implemented in C.
 
 The whole code of library resides in kartikeya / sixtrack_lib / SixTrack / SixTrack_4518_cernlib_crlibm_gfortran_O4/SixTrackLib.c file. And the refactored fortran code resides in kartikeya / sixtrack_lib / SixTrack / SixTrack_4518_cernlib_crlibm_gfortran_O4/track.f file.
 
-Steps to pull the repository: -
+Steps to clone the repository: -
 -----------------
 
-1) mkdir SixTrackLib                                                           <br/>
-2) git init                                                                    <br/>
-2) git pull https://github.com/SixTrack/SixTrackLib.git                        <br/>
+1) git clone git@github.com:SixTrack/SixTrackLib.git                           <br/>   
 
 Steps to run the code: -
 --------------------------
