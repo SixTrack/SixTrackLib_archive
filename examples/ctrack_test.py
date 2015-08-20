@@ -21,7 +21,7 @@ s=SixTrackInput(exampledir)
 convert={'drift':Drift, 'mult':Multipole, 'cav': Cavity,
          'align':Align,'block':Block}
 out,rest=s.expand_struct(convert=convert)
-
+print out
 b=SixBin('med_80_mo_3_s1_4-6_30')
 
 p=Bunch(**b.get_particle(1,0))

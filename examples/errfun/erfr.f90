@@ -19,12 +19,14 @@
 
     x = abs(xx)
     y = abs(yy)
-
+    !WRITE(*,*) "FORTRAN",x,y
     if (y .lt. ylim  .and.  x .lt. xlim) then
        q  = (1.0 - y / ylim) * sqrt(1.0 - (x/xlim)**2)
        h  = 1.0 / (fac1 * q)
        nc = 7 + int(fac2*q)
        xl = h**(1 - nc)
+       !print *, 'The velocity on impact is', xl
+
        xh = y + 0.5/h
        yh = x
        nu = 10 + int(fac3*q)
@@ -41,16 +43,17 @@
 
        sx = 0.0
        sy = 0.0
-
+!         WRITE(*,'(A,e23.16, e23.16)') "F",rx(1),ry(1)
        do n = nc, 1, -1
           saux = sx + xl
           sx = rx(n) * saux - ry(n) * sy
           sy = rx(n) * sy + ry(n) * saux
           xl = h * xl
        enddo
-
+!        WRITE(*,'(A,e23.16, e23.16)') "F",sx,sy
        wx = cc * sx
        wy = cc * sy
+!        WRITE(*,'(A,e23.16, e23.16)') "F",wx,wy
     else
        xh = y
        yh = x
@@ -65,6 +68,7 @@
           ry(1) = 0.5 * ty / tn
        enddo
 
+!        WRITE(*,'(A,e23.16, e23.16)') "F",rx(1),ry(1)
        wx = cc * rx(1)
        wy = cc * ry(1)
     endif

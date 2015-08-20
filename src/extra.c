@@ -51,9 +51,10 @@ void errf( FLOAT *var_xx, FLOAT *var_yy, FLOAT *var_wx, FLOAT *var_wy )
     wx = *var_wx;
     wy = *var_wy;
 
-    x = abs(xx);
-    y = abs(yy);
-
+    // printf("%-6s %23.16e %23.16e\n", "C", xx, yy);
+    x = xx;
+    y = yy;
+    // printf("%-6s %23.16e %23.16e\n", "C", x, y);
     // printf("%-6s %23.16e\n%-6s %23.16e\n","real", x, "imag", y);
 
     if(y < ylim && x < xlim )
@@ -61,7 +62,8 @@ void errf( FLOAT *var_xx, FLOAT *var_yy, FLOAT *var_wx, FLOAT *var_wy )
         q = ( 1.0 - y / ylim ) * sqrt( 1.0 - ( x / xlim )*( x / xlim ) );
         h = 1.0 / ( 3.2 * q );
         nc = 7 + (INT)( 23.0 * q );
-        xl = exp( ( 1 - nc ) * log(h) );
+        // xl = exp( ( 1 - nc ) * log(h) );
+        xl = pow(h,(1-nc));
         xh = y + 0.5 / h;
         yh = x;
         nu = 10 + (INT)( 21 * q );
@@ -72,14 +74,14 @@ void errf( FLOAT *var_xx, FLOAT *var_yy, FLOAT *var_wx, FLOAT *var_wy )
         {
             tx = xh + (FLOAT)(n) * rx[n];
             ty = yh - (FLOAT)(n) * ry[n];
-            tn = tx*tx;
+            tn = tx*tx + ty*ty;
             rx[n-1] = ( 0.5 * tx ) / tn;
             ry[n-1] = ( 0.5 * ty ) / tn;
         }
 
         sx = 0.0;
         sy = 0.0;
-
+        // printf("%-6s %23.16e %23.16e\n", "C", rx[0], ry[0]);
         for( n = nc; n >= 1; n-- )
         {
             saux = sx + xl;
@@ -88,9 +90,10 @@ void errf( FLOAT *var_xx, FLOAT *var_yy, FLOAT *var_wx, FLOAT *var_wy )
             xl = h * xl;
         }
 
+        // printf("%-6s %23.16e %23.16e\n", "C", sx, sy);
         wx = cc * sx;
-        wy = xx * sy;
-
+        wy = cc * sy;
+        // printf("%-6s %23.16e %23.16e\n", "C", wx, wy);
     }
     else
     {
@@ -98,16 +101,17 @@ void errf( FLOAT *var_xx, FLOAT *var_yy, FLOAT *var_wx, FLOAT *var_wy )
         yh = x;
         rx[0] = 0.0;
         ry[0] = 0.0;
-
+        // printf("%-6s %23.16e %23.16e\n", "C", xh, yh);
         for( n = 9; n >= 1; n-- )
         {
             tx = xh + (FLOAT)(n) * rx[0];
             ty = yh - (FLOAT)(n) * ry[0];
-            tn = tx*tx;
+            tn = tx*tx + ty*ty;
             rx[0] = ( 0.5 * tx ) / tn;
             ry[0] = ( 0.5 * ty ) / tn;
         }
 
+        // printf("%-6s %23.16e %23.16e\n", "C", rx[0], ry[0]);
         wx = cc * rx[0];
         wy = cc * ry[0];
 
@@ -147,7 +151,7 @@ void mywwerf(FLOAT x, FLOAT y, FLOAT *wr, FLOAT *wi){
         zhi = xa;
         rr[37] = 0;
         ri[37] = 0;
-        for( n = 36; n > 1; n--){
+        for( n = 36; n >= 1; n--){
             // t = zh + n*dconjg(r(n+1));
             tr = zhr + n*rr[n+1];
             ti = zhi - n*ri[n+1];
@@ -159,7 +163,7 @@ void mywwerf(FLOAT x, FLOAT y, FLOAT *wr, FLOAT *wi){
         xl = p;
         sr = 0;
         si = 0;
-        for(n = 33; n > 1; n--){
+        for(n = 33; n >= 1; n--){
             xl = c3 * xl;
             // s = r(n) * (s + xl)
             sr0 = rr[n] * (sr + xl) - ri[n] * si;
@@ -175,7 +179,7 @@ void mywwerf(FLOAT x, FLOAT y, FLOAT *wr, FLOAT *wi){
         zhi = xa;
         rr[1] = 0;
         ri[1] = 0;
-        for(n = 9; n > 1; n++){
+        for(n = 9; n >= 1; n++){
             // t = zh + n * dconjg(r(1));
             tr = zhr + n * rr[1];
             tr = zhr + (FLOAT)n * rr[1];
@@ -671,8 +675,11 @@ INT benchmark_errf(FLOAT input[]){
     // printf("%-6s %23.16e\n%-6s %23.16e\n","real", var_xx, "imag", var_yy);
     
     // wofz(&var_wx, &var_wy, var_xx, var_yy);
-    FLOAT var_napx = 1;
-    wzsubv(&var_napx, &var_xx, &var_yy, &var_wx, &var_wy);
+    // INT var_napx = 1;
+    // wzsubv(&var_napx, &var_xx, &var_yy, &var_wx, &var_wy);
+    // wzsub(var_xx, var_yy, &var_wx, &var_wy);
+
+    errf(&var_xx, &var_yy, &var_wx, &var_wy);
     
     // printf("%-6s %23.16e\n%-6s %23.16e\n",
     //     "real", var_wx, "imag", var_wy);

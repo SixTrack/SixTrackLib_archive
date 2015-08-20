@@ -1,10 +1,11 @@
 import mpmath as mp
 import matplotlib.pyplot as plt
 from numpy import *
+from sixtracklib.ctrack import *
 import scipy
 
 from wwerf import ccperrfr as wf90
-wf90=vectorize(wf90)
+# wf90=vectorize(wf90)
 # from wwerf2 import errf as wf
 # wf=vectorize(wf)
 
@@ -45,15 +46,37 @@ xx=10**linspace(-r,r,31)
 yy=10**linspace(-r,r,31)
 x,y=meshgrid(xx,yy)
 
-x1,y1=array(wsci(x,y),dtype=float)
-x2,y2=wf90(x,y)
+# x1,y1=array(wsci(x,y),dtype=float)
+# x2,y2=wf90(x,y)
 # # x3,y3=wf(x,y)
-x4,y4=array(wofzmp(x,y),dtype=float)
+# x4,y4=array(wofzmp(x,y),dtype=float)
 # print shape(x1)
-for i in range(0,31):
+
+for i in range(0,31):	
 	for j in range(0,31):
-		print "%-6s %23.16e %23.16e %23.16e"%("real",sqrt((x2[i][j]-x1[i][j])**2),x2[i][j],x1[i][j])
-		print "%-6s %23.16e %23.16e %23.16e\n"%("imag",sqrt((y2[i][j]-y1[i][j])**2),y2[i][j],y1[i][j])
+		xxreal=x[i][j]
+		yyimag=y[i][j]
+
+		# wxreal,wyimag=wf90(xxreal,yyimag)
+		
+		z=np.complex(xxreal,yyimag)
+		k=scipy.special.wofz(z)
+
+		wxreal=k.real
+		wyimag=k.imag
+		# wxreal=x2[i][j]
+		# wyimag=y2[i][j]
+		# z=np.complex(real,imag)
+		# k=scipy.special.wofz(z)
+		# print j
+		elemFloat = ctypes.c_double*4
+		inp = elemFloat(xxreal,yyimag,wxreal,wyimag)
+
+		var = libtrack.benchmark_errf(inp)
+
+		# print "%-6s %23.16e %23.16e %23.16e"%("PYreal",sqrt((wxreal-x1[i][j])**2),wxreal,x1[i][j])
+		# print "%-6s %23.16e %23.16e %23.16e\n"%("PYimag",sqrt((wyimag-y1[i][j])**2),wyimag,y1[i][j])
+
 		# print "%-6s %23.16e %23.16e %23.16e"%("real",sqrt((x4[i][j]-x1[i][j])**2),x4[i][j],x1[i][j])
 		# print "%-6s %23.16e %23.16e %23.16e\n"%("imag",sqrt((y4[i][j]-y1[i][j])**2),y4[i][j],y1[i][j])
 	print "\n"
@@ -63,8 +86,6 @@ for i in range(0,31):
 # plt.colorbar()
 # plt.clim(-15,0)
 
-
-
 # figure()
 # clf();imshow(x1);colorbar()
 # figure()
@@ -73,7 +94,42 @@ for i in range(0,31):
 
 
 
+# import numpy as np
+# from sixtracklib.ctrack import *
+# import scipy
+# from scipy import special
 
+# r=15
+# xx=10**np.linspace(-r,r,31)
+# yy=10**np.linspace(-r,r,31)
+# x,y=np.meshgrid(xx,yy)
+# k = [0 for i in range(0,31*31)]
+# for i in range(0,31):
+# 	for j in range(0,31):
+# 		# k[j+31*i]=np.complex(x[i][j],y[i][j])
+
+# 		real=x[i][j]
+# 		imag=y[i][j]
+
+# 		z=np.complex(real,imag)
+# 		k=scipy.special.wofz(z)
+
+# 		# print z.real, z.imag, k.real, k.imag
+
+# 		elemFloat = ctypes.c_double*4
+# 		inp = elemFloat(z.real,z.imag,k.real,k.imag)
+# 		# vy = elemFloat(z.imag)
+# 		# wx = elemFloat(k.real)
+# 		# wy = elemFloat(k.imag)
+
+# 		# inp=[vx,vy,wx,wy]
+# 		# elemf = (ctypes.c_double *len(inp))()
+# 		# for index, value in enumerate(inp):
+# 		    # num[index] = float(value)
+# 		# print vx,vy,wx,wy
+
+# 		var = libtrack.benchmark_errf(inp)
+# print var
 
 
 

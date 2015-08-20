@@ -1,5 +1,5 @@
 CC= gcc
-CFLAGS= -fpic -Wall
+CFLAGS= -fpic
 LDFLAGS= -shared
 SRCS = results.c drift_exact.c multipole.c cavity.c align.c block.c drift.c extra.c
 OBJECTS= $(SRCS:.c=.o)
