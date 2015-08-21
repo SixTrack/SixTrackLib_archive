@@ -3,14 +3,37 @@ SixTrackLib
 
 SixTrackLib is a tracking engine for particle tracking. It is implemented in C.
 
-The whole code of library resides in kartikeya / sixtrack_lib / SixTrack / SixTrack_4518_cernlib_crlibm_gfortran_O4/SixTrackLib.c file. And the refactored fortran code resides in kartikeya / sixtrack_lib / SixTrack / SixTrack_4518_cernlib_crlibm_gfortran_O4/track.f file.
+The `src` folder contains implementations of various Sixtrack Maps in C and Python. 
+
+The `examples` folder has the Benchmarking results (in `examples/benchmark files`) for the C Maps and error functions against Sixtrack and Python and codes for generating the same. The benchmarking has been completed for the following maps:
+
+``Drift`` 
+``Drift_Exact``
+``Multipole``
+``Align``
+``Block``
+and for ``errf()`` and ``wzsub()`` error functions.
+
+The `anshu` folder contains code for Differential Algebra and RPN calculator in C and RPN parser in Python.
+
+The `kartikeya` folder holds the Sixtrack Legacy code, the refactored Sixtrack code, an initial version of the C Library and some map test results.
 
 Steps to clone the repository: -
 -----------------
 
-1) git clone git@github.com:SixTrack/SixTrackLib.git                           <br/>   
+1) mkdir SixTrackLib                                                               <br/>
+2) cd SixTrackLib                                                                  <br/>
+2) git clone https://github.com/SixTrack/SixTrackLib.git                           <br/>   
 
-Steps to run the code: -
+Steps to run the refactored C code: -
+--------------------------
+
+1) cd src                                                                             <br/>
+2) make                                                                               <br/>
+3) edit `track.py` API to enter appropriate Input                                     <br/> 
+3) make test                                                                          <br/>
+
+Steps to run the previous version of code: -
 --------------------------
 
 1) cd kartikeya / sixtrack_lib / SixTrack / SixTrack_4518_cernlib_crlibm_gfortran_O4  <br/>
@@ -20,4 +43,5 @@ Steps to run the code: -
 
 For any bug report or suggestion, please drop a mail at following addresses: -        <br/>
 riccardo.de.maria@cern.ch                                                             <br/>
-kartikeya107@gmail.com 
+kartikeya107@gmail.com                                                                <br/>
+aviral.2815@gmail.com
