@@ -21,16 +21,14 @@ The `kartikeya` folder holds the Sixtrack Legacy code, the refactored Sixtrack c
 Steps to clone the repository: -
 -----------------
 
-1) mkdir SixTrackLib                                                               <br/>
-2) cd SixTrackLib                                                                  <br/>
-2) git clone https://github.com/SixTrack/SixTrackLib.git                           <br/>   
+1) git clone https://github.com/SixTrack/SixTrackLib.git                           <br/>   
 
 Steps to run the refactored C code: -
 --------------------------
 
 1) cd src                                                                             <br/>
 2) make                                                                               <br/>
-3) edit `track.py` API to enter appropriate Input                                     <br/> 
+3) edit `track.py` python API to enter appropriate Input                                     <br/> 
 3) make test                                                                          <br/>
 
 Steps to run the previous version of code: -
