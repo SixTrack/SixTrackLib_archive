@@ -24,10 +24,10 @@ INT monitor_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf
     GETATTRI(monitor,fsize);
     if(count%skip==0){
         if(last==nrec-1){
-            SETATTRI(monitor,last,0);   //last=0;
+            SETATTRI(monitor,last,0);   //set last=0;
         }
         else{
-            SETATTRI(monitor,last,last+1);  //last++;
+            SETATTRI(monitor,last,last+1);  //increment last++;
         }
         SETATTRI(monitor,index,count);
         for(i=0;i<isize;i++){

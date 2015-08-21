@@ -218,18 +218,6 @@ class Simulation(object):
     self.parti.extend(coordi)
     self.partf.extend(coordf)
 
-  # def search(self,label):
-  #   tag=label.split('.')  
-  #   if self.elems[tag[0]][0]._parameters.has_key(tag[1])==True:
-  #       main = self.elems[tag[0]][1]
-  #       choice = self.elems[tag[0]][0]._parameters[tag[1]][1]
-  #       offset = self.elems[tag[0]][0]._parameters[tag[1]][2]
-  #   if choice==0:
-  #     ret = 2*(main+offset+4)
-  #   if choice==1:
-  #     ret = 2*(self.datai[main+2]+offset)+1
-  #   return 3*ret+2, self.elems[tag[0]][0]._typeid 
-
   def simulate(self):
     arg_elemi=(ctypes.c_int *len(self.elemi))()
     arg_elemf=(ctypes.c_double *len(self.elemf))()
@@ -265,7 +253,6 @@ sim.add_elem('monitor','m1',1,2,2,0,15) #(count,nrec,skip,ndi,ndf)
 sim.add_elem('counter','c1',10)
 sim.add_elem('loop','l1','r1 r2 k1 d1 rf1 hd1 vd1 m1 c1')
 sim.add_part([0,0,0,0,0,0.1,0.001,0.1,0.001,0.1,0.001,0.1,0,0],[]) #p0,beta0,gamma0,m0,E0,x,px,y,py,ds,ps,s,m,q
-# sim.add_part([.4,.4],[2])
 
 print sim.elemi, len(sim.elemi)
 print sim.elemf, len(sim.elemf)

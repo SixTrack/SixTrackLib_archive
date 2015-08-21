@@ -12,12 +12,6 @@
 
 #define ROUND(x) (int)(x + 0.5)
 
-// FLOAT abs( FLOAT a )
-// {
-//     if(a >= 0) return a;
-//     else return -1*a;
-// }
-
 FLOAT sign( FLOAT a, FLOAT b )
 {
     if(b >= 0) return abs(a);
@@ -55,18 +49,14 @@ void errf( FLOAT *var_xx, FLOAT *var_yy, FLOAT *var_wx, FLOAT *var_wy )
     wx = *var_wx;
     wy = *var_wy;
 
-    // printf("%-6s %23.16e %23.16e\n", "C", xx, yy);
     x = fabs(xx);
     y = fabs(yy);
-    // printf("%-6s %23.16e %23.16e\n", "C", x, y);
-    // printf("%-6s %23.16e\n%-6s %23.16e\n","real", x, "imag", y);
 
     if(y < ylim && x < xlim )
     {
         q = ( 1.0 - y / ylim ) * sqrt( 1.0 - ( x / xlim )*( x / xlim ) );
         h = 1.0 / ( 3.2 * q );
         nc = 7 + (INT)( 23.0 * q );
-        // xl = exp( ( 1 - nc ) * log(h) );
         xl = pow(h,(1-nc));
         xh = y + 0.5 / h;
         yh = x;
@@ -85,7 +75,6 @@ void errf( FLOAT *var_xx, FLOAT *var_yy, FLOAT *var_wx, FLOAT *var_wy )
 
         sx = 0.0;
         sy = 0.0;
-        // printf("%-6s %23.16e %23.16e\n", "C", rx[0], ry[0]);
         for( n = nc; n >= 1; n-- )
         {
             saux = sx + xl;
@@ -94,10 +83,8 @@ void errf( FLOAT *var_xx, FLOAT *var_yy, FLOAT *var_wx, FLOAT *var_wy )
             xl = h * xl;
         }
 
-        // printf("%-6s %23.16e %23.16e\n", "C", sx, sy);
         wx = cc * sx;
         wy = cc * sy;
-        // printf("%-6s %23.16e %23.16e\n", "C", wx, wy);
     }
     else
     {
@@ -105,7 +92,6 @@ void errf( FLOAT *var_xx, FLOAT *var_yy, FLOAT *var_wx, FLOAT *var_wy )
         yh = x;
         rx[0] = 0.0;
         ry[0] = 0.0;
-        // printf("%-6s %23.16e %23.16e\n", "C", xh, yh);
         for( n = 9; n >= 1; n-- )
         {
             tx = xh + (FLOAT)(n) * rx[0];
@@ -115,7 +101,6 @@ void errf( FLOAT *var_xx, FLOAT *var_yy, FLOAT *var_wx, FLOAT *var_wy )
             ry[0] = ( 0.5 * ty ) / tn;
         }
 
-        // printf("%-6s %23.16e %23.16e\n", "C", rx[0], ry[0]);
         wx = cc * rx[0];
         wy = cc * ry[0];
 
@@ -138,7 +123,7 @@ void errf( FLOAT *var_xx, FLOAT *var_yy, FLOAT *var_wx, FLOAT *var_wy )
 
 void mywwerf(FLOAT x, FLOAT y, FLOAT *wr, FLOAT *wi){
     INT n;
-    FLOAT c,c1,c2,c3,c4,hf,p,sr0,sr,si,tr,ti,vi,vr,/*wi,wr,x,y,*/xa,xl,ya,zhi,zhr,z1,z10;
+    FLOAT c,c1,c2,c3,c4,hf,p,sr0,sr,si,tr,ti,vi,vr,xa,xl,ya,zhi,zhr,z1,z10;
     FLOAT rr[38]={0},ri[38]={0};
 
     z1=1; hf=z1/2; z10=10;
@@ -148,39 +133,27 @@ void mywwerf(FLOAT x, FLOAT y, FLOAT *wr, FLOAT *wi){
 
     xa = fabs(x);
     ya = fabs(y);
-    // printf("%s %23.16e\n", "C", xa);
 
     if(ya < c1 && xa < c2){
-        // zh = dcmplx(ya + c4, xa);
         zhr = ya + c4;
         zhi = xa;
         rr[37] = 0;
         ri[37] = 0;
         for( n = 36; n >= 1; n--){
-            // t = zh + n*dconjg(r(n+1));
             tr = zhr + (FLOAT)n * rr[n+1];
-            // ti = zhi - n*ri[n+1];
             ti = zhi - (FLOAT)n * ri[n+1];
-            // printf("%s %d %23.16e %23.16e\n", "C", n, zhi, ri[n+1]);
-            // r[n] = hf * t / (dreal(t)*dreal(t) + dimag(t)*dimag(t));
             rr[n] = (hf * tr) / (tr*tr + ti*ti);
             ri[n] = (hf * ti) / (tr*tr + ti*ti);
-            // printf("%s %d %23.16e %23.16e\n", "C", n, rr[n], ri[n]);
         }
-        // printf("%s %23.16e %23.16e\n", "C", rr[1], ri[1]);
         xl = p;
         sr = 0;
         si = 0;
         for(n = 33; n >= 1; n--){
             xl = c3 * xl;
-            // s = r(n) * (s + xl)
             sr0 = rr[n] * (sr + xl) - ri[n] * si;
             si = rr[n] * si + ri[n] * (sr + xl);
-            // printf("%s %23.16e %23.16e\n", "C", ri[n], sr);
             sr = sr0;
         }
-        // printf("%s %23.16e %23.16e\n", "C", sr, si);
-        // v = c * s;
         vr = c * sr;
         vi = c * si;
     }
@@ -190,18 +163,13 @@ void mywwerf(FLOAT x, FLOAT y, FLOAT *wr, FLOAT *wi){
         rr[1] = 0;
         ri[1] = 0;
         for(n = 9; n >= 1; n--){
-            // t = zh + n * dconjg(r(1));
             tr = zhr + n * rr[1];
             tr = zhr + (FLOAT)n * rr[1];
             ti = zhi - n * ri[1];
             ti = zhi - (FLOAT)n * ri[1];
-            // r(1) = hf * t / (dreal(t)*dreal(t) + dimag(t)*dimag(t));
-            // rr[1] = hf * tr / (tr * tr + ti * ti);
             rr[1] = (hf * tr) / (tr * tr + ti * ti);
-            // ri[1] = hf * ti / (tr * tr + ti * ti);
             ri[1] = (hf * ti) / (tr * tr + ti * ti);
         }
-        // // v = c * r[1];
         vr = c * rr[1];
         vi = c * ri[1];
     }
@@ -218,81 +186,47 @@ void mywwerf(FLOAT x, FLOAT y, FLOAT *wr, FLOAT *wi){
         if ( x < 0)
             vi = -1* vi;
     }
-    // printf("%s %23.16e %23.16e\n", "C", vr, vi);
     *wr = vr;
     *wi = vi;
 }
 
-// void wzset(){
-    // INT idim,nx,ny;//kstep;
-    // FLOAT h,*wtimag,*wtreal;//hrecip;//;//half,one,xcut,ycut;
 
-    // // xcut = 7.77; ycut = 7.46;
-    // h = 1.0/63.0;
-    // nx = 490; ny = 470;
-    // idim = (nx+2)*(ny+2);
-    // // half = 0.5, one = 1.0;
-
-    // wtreal = malloc(idim*sizeof(FLOAT));
-    // wtimag = malloc(idim*sizeof(FLOAT));
-
-    // // hrecip = 1 / h;
-    // // kstep = nx + 2;
-    // for( j = 0; j < ny + 1; j++){
-    //     for( i = 0; i < nx + 1; i++){
-    //         k = k + 1;
-    //         x = (FLOAT)i * h;
-    //         y = (FLOAT)j * h;
-    //         mywwerf(x, y, wr, wi);
-    //         wtreal[k] = wr;
-    //         wtimag[k] = wi;
-    //     }
-    // }
-// }
 
 void wzsub(FLOAT x, FLOAT y, FLOAT *u, FLOAT *v){
 
     INT i,j,k,mu,nu;
 
     FLOAT a1,a2,b1,b2,d12i,d12r,d23i,d23r,d34i,d34r,p,q,qsq,r,simag,sreal,t,tdd13i,tdd13r,tdd24i,tdd24r,tdddi,tdddr,ti,
-    tr,/*u,*/usum,usum3,/*v,*/vsum,vsum3,w1i,w1r,w2i,w2r,w3i,w3r,w4i,w4r,/*x,*/xh,xhrel,/*y,*/yh,yhrel;
+    tr,usum,usum3,vsum,vsum3,w1i,w1r,w2i,w2r,w3i,w3r,w4i,w4r,xh,xhrel,yh,yhrel;
 
-    INT idim,nx,ny,kstep;
+    INT nx,ny,kstep;
     FLOAT h,hrecip,xcut,ycut,half,one;
     FLOAT wi=0,wr=0,x1,y1;
 
     xcut = 7.77; ycut = 7.46;
     h = 1.0/63.0;
     nx = 490; ny = 470;
-    idim = (nx+2)*(ny+2);
     half = 0.5, one = 1.0;
 
     a1 = 0.5124242248; a2 = 0.0517653588;
     b1 = 0.2752551286; b2 = 2.7247448714;
 
     FLOAT wtimag[232224]={0},wtreal[232224]={0};
-    // wtreal = malloc(idim*sizeof(FLOAT));
-    // wtimag = malloc(idim*sizeof(FLOAT));
 
     hrecip = 1 / h;
     kstep = nx + 2;
     k = 0;
     for( j = 0; j < ny+2; j++){
-        // printf("%d %d\n", j, nx + 2);
         for( i = 0; i < nx+2; i++){
             k = k + 1;
-            // printf("%d\n", k);
             x1 = (FLOAT)i * h;
             y1 = (FLOAT)j * h;
             mywwerf(x1, y1, &wr, &wi);
             wtreal[k] = wr;
             wtimag[k] = wi;
-            // printf("%s %23.16e %23.16e\n", "C", wtreal[k], wtimag[k]);
         }
     }
-    // printf("%s %23.16e %23.16e\n", "C", x, xcut);
     if ( x > xcut || y > ycut){
-        // printf("%d @\n", j);
         p = x*x - y*y;
         q = 2 * x * y;
         qsq = q * q;
@@ -309,10 +243,8 @@ void wzsub(FLOAT x, FLOAT y, FLOAT *u, FLOAT *v){
         //Multiply by i*z
         *u = -1 * (y * sreal + x * simag);
         *v = (x * sreal - y * simag);
-        // printf("%s %23.16e %23.16e\n", "C", *u, *v);
     }
     else{
-        // printf("%d #\n", j);
         xh = hrecip * x;
         yh = hrecip * y;
         mu = (INT)xh;
@@ -357,7 +289,6 @@ void wzsub(FLOAT x, FLOAT y, FLOAT *u, FLOAT *v){
         xhrel = xhrel - one;
         *u = w1r + ( xhrel*usum - yhrel*vsum );
         *v = w1i + ( xhrel*vsum + yhrel*usum );
-        // printf("%s %23.16e %23.16e\n", "C", *u, *v);
     }
 }
 
@@ -373,30 +304,9 @@ void wzsubv( INT *var_napx, FLOAT *vx, FLOAT *vy, FLOAT *vu, FLOAT *vv ){
     FLOAT vw2r[npart], vw3i[npart], vw3r[npart], vw4i[npart], vw4r[npart], vxh[npart], vxhrel[npart];
     FLOAT vyh[npart], vyhrel[npart];
 
-    // INT mbea, mcor, mcop, mmul, mpa, mran, nbb, nblo, nblz, ncom, ncor1, nelb, nele, nema, ninv, nlya, nmac, nmon1;
-    // INT nper, nplo, npos, nran, nrco, ntr, nzfz;
-
-    // nmac = 1;
-    // nele=1200; nblo=600; nper=16; nelb=140; nblz=20000; nzfz = 300000; mmul = 20;
-    // nran = 2000000; ncom = 100; mran = 500; mpa = 6; nrco = 5; nema = 15;
-    // mcor = 10; mcop = mcor+6; mbea = 99;
-    // npos = 20000; nlya = 10000; ninv = 1000; nplo = 20000;
-    // nmon1 = 600; ncor1 = 600;
-    // ntr = 20; nbb = 350;
     ss = 0;
-    // INT i,j,k;
+
     FLOAT wi,wr,x,y;
-    // INT mbea,mcor,mcop,mmul,mpa,mran,nbb,nblo,nblz,ncom,ncor1,nelb,nele,nema,ninv,nlya,nmac,nmon1;
-    //nzfz,ntr,nrco,npart,nper,nplo,npos,nran;
-
-    // /*npart = 64;*/ nmac = 1;
-    // nele=1200; nblo=600; /*nper=16;*/ nelb=140; nblz=20000; /*nzfz = 300000;*/ mmul = 20;
-    // /*nran = 2000000;*/ ncom = 100; mran = 500; mpa = 6; /*nrco = 5;*/ nema = 15;
-    // mcor = 10; mcop = mcor+6; mbea = 99;
-    // npos = 20000; nlya = 10000; ninv = 1000; /*nplo = 20000;*/
-    // nmon1 = 600; ncor1 = 600;
-    // /*ntr = 20;*/ nbb = 350;
-
     INT idim,nx,ny,kstep;
     FLOAT h,*wtimag,*wtreal,hrecip,xcut,ycut,half,one;
 
@@ -422,16 +332,6 @@ void wzsubv( INT *var_napx, FLOAT *vx, FLOAT *vy, FLOAT *vu, FLOAT *vv ){
             wtimag[k] = wi;
         }
     }
-
-    // INT idim, kstep, nx, ny;
-    // FLOAT half, hrecip, one, xcut, ycut;//h,
-
-    // xcut = 7.77; ycut = 7.46;
-    // h = 1.0 / 63.0;
-    // nx = 490; ny = 470;
-    // idim = ( nx + 2 ) * ( ny + 2 );
-
-    // FLOAT wtimag[idim], wtreal[idim];
 
     a1 = 0.5124242248; a2 = 0.0517653588;
     b1 = 0.2752551286; b2 = 2.7247448714;
@@ -598,109 +498,20 @@ void wzsubv( INT *var_napx, FLOAT *vx, FLOAT *vy, FLOAT *vu, FLOAT *vv ){
     }
 }
 
-void wofz(double *w1, double *w2, double x, double y)
-  {
-  short int b, quad;
-  int /*k,*/ capn, nu;
-  register int n, np1;
-  double xy2, e, h;
-  register double h2, lambda, c, r1, r2, s, s1, s2, t1, t2;
-
-  if (y >= 0.0)
-    if (x >= 0.0)
-      quad = 1;
-    else
-    {
-    quad = 2;
-    x = fabs(x);
-    }
-  else
-    if (x <= 0.0)
-    {
-    quad = 3;
-    x = fabs(x);
-    y = fabs(y);
-    }         
-    else
-    {
-    quad = 4;
-    y = fabs(y);
-    }
-  if (y < 4.29 && x < 5.33)
-      {
-      s = (1.0 - y / 4.29) * sqrt(1.0 - x * x / 28.41);
-      h = 1.6 * s;
-      h2 = 2.0 * h;
-      capn = ROUND(6.0 + 23.0 * s);
-      nu = ROUND(9.0 + 21.0 * s);
-      }   
-  else
-      {
-      h = 0.0;
-      capn = 0;
-      nu = 8;
-      }
-  if (h > 0.0) lambda = pow(h2,(double)capn);
-  b = h == 0.0 || lambda == 0.0;
-  r1 = 0.0;
-  r2 = 0.0;
-  s1 = 0.0;
-  s2 = 0.0;
-  for (n = nu; n >= 0; n--)
-      {
-      np1 = n + 1;
-      t1 = y + h + (double)np1 * r1;
-      t2 = x - (double)np1 * r2;
-      c = 0.5 / (t1 * t1 + t2 * t2);
-      r1 = c * t1;
-      r2 = c * t2;
-      if (h > 0.0 && n <= capn)
-      {
-      t1 = lambda + s1;
-      s1 = r1 * t1 - r2 * s2;
-      s2 = r2 * t1 + r1 * s2;
-      lambda /= h2;
-      }
-      }
-  if (y == 0.0)
-    *w1 = exp(-x*x);
-  else
-    if (b)
-      *w1 = 1.12837916709551 * r1;
-    else
-      *w1 = 1.12837916709551 * s1;
-  if (b)
-    *w2 = 1.12837916709551 * r2;
-  else
-    *w2 = 1.12837916709551 * s2;
-  if (quad == 3 || quad == 4)
-      {
-      e = 2.0 * exp(y*y-x*x);
-      xy2 = 2.0 * x * y;
-      c = cos(xy2) * e;
-      s = sin(xy2) * e;
-      *w1 = c - *w1;
-      *w2 = s + *w2;
-      }
-  if (quad == 2 || quad == 3)
-    *w2 *= -1.0;
-  }
-
-
 INT benchmark_errf(FLOAT input[]){
     
     FLOAT var_xx=input[0],var_yy=input[1],var_wx=1,var_wy=1,wx=input[2],wy=input[3];
 
-    // wofz(&var_wx, &var_wy, var_xx, var_yy);
+    /*UNCOMMENT TO BENCHMARK WITH wzsub()*/
     // INT var_napx = 1;
     // wzsubv(&var_napx, &var_xx, &var_yy, &var_wx, &var_wy);
 
+    /*UNCOMMENT TO BENCHMARK WITH wzsub()*/
     wzsub(var_xx, var_yy, &var_wx, &var_wy);
 
+    /*UNCOMMENT TO BENCHMARK WITH errf()*/
     // errf(&var_xx, &var_yy, &var_wx, &var_wy);
     
-    // printf("%-6s %23.16e\n%-6s %23.16e\n",
-    //     "real", var_wx, "imag", var_wy);
     printf("%-6s %23.16e %23.16e %23.16e\n%-6s %23.16e %23.16e %23.16e\n\n",
         "real", sqrt(pow((wx-var_wx),2)), var_wx, wx, "imag", sqrt(pow((wy-var_wy),2)), var_wy, wy);
     return 1;

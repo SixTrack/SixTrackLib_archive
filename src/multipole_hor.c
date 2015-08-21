@@ -67,15 +67,3 @@ inline void multipole_zapprox_calc(INT pfstart, FLOAT x, FLOAT y, FLOAT px, FLOA
 
 make_map_multipole_approx(hor_approx_ho);
 make_map_multipole_approx(purehor_approx);
-
-/*int main(){
-  INT elemi[]={0,0,0}; //mapid,mapst,ApproxType
-  FLOAT elemf[]={2.0,0.17,0.45,0.6,0.6,1.0};  //L,TiltComponentCos,TiltComponentSin,CurrentEntryDisplacementX,CurrentEntryDisplacementY,HorizontalBendingKick
-  INT parti[]={1,15,0,0,0}; // partn,ndf,ndi,psf,psi
-  FLOAT partf[]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}; //p0,beta0,gamma0,m0,E0,x,px,y,py,ct,dp,pt,s,m,q
-  INT elemid=0;
-  INT partid=0;
-  INT partn=0;
-  printf("%d\n", multipole_purehor_approx_map(elemi,elemf,elemid,parti,partf,partid,partn));
-  return 1;
-}*/

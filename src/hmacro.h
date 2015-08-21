@@ -36,12 +36,12 @@
  printf(#type":"#name"-> %d \n",name);
 
 #define INITPARTF \
- INT ndf, stf, pfstart; \
+ INT ndf, stf; \
  ndf=parti[1]; \
  stf=parti[3]; \
 
 #define INITPARTI \
- INT ndi, sti, pistart; \
+ INT ndi, sti; \
  ndi=parti[2]; \
  sti=parti[4]; \
 
@@ -74,7 +74,6 @@
 #define partf_gamma0                                            2
 #define partf_m0                                                3
 #define partf_E0                                                4
-// #define partf_q0                                                5
 #define partf_x                                                 0
 #define partf_px                                                1
 #define partf_y                                                 2
@@ -84,29 +83,26 @@
 #define partf_delta                                             6
 #define partf_s                                                 7
 #define partf_chi                                               8
-// #define partf_q                                                 9
 
-#define coordf_p0                                                0
-#define coordf_beta0                                             1
-#define coordf_gamma0                                            2
-#define coordf_m0                                                3
-#define coordf_E0                                                4
-// #define coordf_q0                                                5
-#define coordf_x                                                 0
-#define coordf_px                                                1
-#define coordf_y                                                 2
-#define coordf_py                                                3
-#define coordf_tau                                               4
-#define coordf_pt                                                5
-#define coordf_delta                                             6
-#define coordf_s                                                 7
-#define coordf_chi                                               8
-// #define coordf_q                                                 9
+#define coordf_p0                                               0
+#define coordf_beta0                                            1
+#define coordf_gamma0                                           2
+#define coordf_m0                                               3
+#define coordf_E0                                               4
+#define coordf_x                                                0
+#define coordf_px                                               1
+#define coordf_y                                                2
+#define coordf_py                                               3
+#define coordf_tau                                              4
+#define coordf_pt                                               5
+#define coordf_delta                                            6
+#define coordf_s                                                7
+#define coordf_chi                                              8
 //following are not mentioned in the wiki
-#define partf_crxbj 0
-#define partf_crzbj 1
-#define partf_cbxbj 2
-#define partf_cbzbj 3
+#define partf_crxbj 											0
+#define partf_crzbj 											1
+#define partf_cbxbj 											2
+#define partf_cbzbj 											3
 
 #define parti_pid                                               0
 #define parti_tlost                                             1

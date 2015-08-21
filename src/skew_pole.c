@@ -67,15 +67,3 @@ make_map_skew_pole( 14pole, 5 );
 make_map_skew_pole( 16pole, 6 );
 make_map_skew_pole( 18pole, 7 );
 make_map_skew_pole( 20pole, 8 );
-
-/*int main(){
-  INT elemi[]={0,0}; //mapid,mapst
-  FLOAT elemf[]={2.0,0.17,0.45,0.6,0.6};  //L,TiltComponentCos,TiltComponentSin,CurrentEntryDisplacementX,CurrentEntryDisplacementY
-  INT parti[]={1,15,0,0,0}; // partn,ndf,ndi,psf,psi
-  FLOAT partf[]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15}; //p0,beta0,gamma0,m0,E0,x,px,y,py,ct,dp,pt,s,m,q
-  INT elemid=0;
-  INT partid=0;
-  INT partn=0;
-  printf("%d\n", skew_sextupole_map(elemi,elemf,elemid,parti,partf,partid,partn));
-  return 1;
-}*/

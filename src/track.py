@@ -649,9 +649,6 @@ el.add('counter','c1' ,nturns)
 el.add('loop'  ,'seq',el._elem_ids)
 
 el.pprint()
-
-#el.r1.track(part)
-#el.k1.track(part)
 el.seq.init()
 el.seq.track(part)
 

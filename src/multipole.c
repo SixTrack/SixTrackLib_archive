@@ -10,7 +10,7 @@
 #define multipole_float_L                                       2+Knlen+Kslen
 #define multipole_float_Rel                                     3+Knlen+Kslen
 
-// void print_var(INT [], FLOAT [], INT [], FLOAT [], INT );
+void print_var(INT [], FLOAT [], INT [], FLOAT [], INT );
 
 inline void multipole_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py, FLOAT delta, FLOAT tau, FLOAT pt, FLOAT chi,
     FLOAT s, INT Knlen, INT Kslen, FLOAT Kn[], FLOAT Ks[], FLOAT Hxl, FLOAT Hyl, FLOAT L, FLOAT Rel, FLOAT coordf[]){
@@ -19,6 +19,7 @@ inline void multipole_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py, F
     INT nn;
     opd = 1 + delta;
     betai = ( 1/beta0 + pt) / opd;
+    
     //multipole kick
     dpx=Kn[Knlen-1];
     dpy=Ks[Kslen-1];
@@ -31,6 +32,7 @@ inline void multipole_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py, F
     dpx=-chi*dpx;
     dpy=chi*dpy;
     printf("c dpx: %23.16e\nc dpy: %23.16e\n", dpx, dpy);
+    
     //curvature effect kick
     if(L!=0){
         b1l = chi * Kn[0]; 
@@ -52,7 +54,6 @@ inline void multipole_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py, F
 INT multipole_map(INT elemi[], FLOAT elemf[], INT elemid, INT parti[], FLOAT partf[], INT partid, INT partn){
     ELEMINIT;
     INITPARTF;
-    // printf("%s\n", "C multipole");
     GETATTRI(multipole,Knlen);
     GETATTRI(multipole,Kslen);
     GETATTRF(multipole,Hxl);

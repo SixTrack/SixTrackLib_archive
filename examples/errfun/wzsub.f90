@@ -19,22 +19,8 @@ subroutine wzset
 !
 !  *********************************************************************
       implicit none
-!       real(8) sin_rn,cos_rn,tan_rn,sinh_rn,cosh_rn,asin_rn,    &
-!      &acos_rn,atan_rn,atan2_rn,exp_rn,log_rn,log10_rn
       integer i,j,k
       real(8) wi,wr,x,y
-!       integer mbea,mcor,mcop,mmul,mpa,mran,nbb,nblo,nblz,ncom,ncor1,    &
-!      &nelb,nele,nema,ninv,nlya,nmac,nmon1,npart,nper,nplo,npos,nran,    &
-!      &nrco,ntr,nzfz
-!       parameter(npart = 64,nmac = 1)
-!       parameter(nele=1200,nblo=600,nper=16,nelb=140,nblz=20000,         &
-!      &nzfz = 300000,mmul = 20)
-!       parameter(nran = 2000000,ncom = 100,mran = 500,mpa = 6,nrco = 5,  &
-!      &nema = 15)
-!       parameter(mcor = 10,mcop = mcor+6, mbea = 99)
-!       parameter(npos = 20000,nlya = 10000,ninv = 1000,nplo = 20000)
-!       parameter(nmon1 = 600,ncor1 = 600)
-!       parameter(ntr = 20,nbb = 350)
       integer idim,kstep,nx,ny
       real(8) h,half,hrecip,one,wtimag,wtreal,xcut,ycut
       parameter ( xcut = 7.77d0, ycut = 7.46d0 )
@@ -52,10 +38,8 @@ subroutine wzset
       do 2 j=0,ny+1
          do 1 i=0,nx+1
             k = k+1
-!hr05       x=i*h
-            x=dble(i)*h                                                  !hr05
-!hr05       y=j*h
-            y=dble(j)*h                                                  !hr05
+            x=dble(i)*h
+            y=dble(j)*h
             call mywwerf(x,y,wr,wi)
             wtreal(k)=wr
             wtimag(k)=wi
@@ -67,52 +51,37 @@ subroutine wzset
       implicit none
       real(8), INTENT(IN):: x,y
       real(8), INTENT(OUT):: wr,wi
-!       real(8) sin_rn,cos_rn,tan_rn,sinh_rn,cosh_rn,asin_rn,    &
-!      &acos_rn,atan_rn,atan2_rn,exp_rn,log_rn,log10_rn
       integer n
       real(8) c,c1,c2,c3,c4,hf,p,rr,ri,sr0,sr,si,tr,ti,vi,vr,  &
      &xa,xl,ya,zhi,zhr,z1,z10
-     parameter (z1=1,hf=1/2d0,z10=10d0)
-     parameter (c1=74d0/10d0,c2=83d0/10d0,c3=10d0/32d0,c4=16d0/10d0)
-! !       parameter (z1=1,hf=z1/2d0,z10=10d0)
-! !       parameter (c1=74d0/z10,c2=83d0/z10,c3=z10/32d0,c4=16d0/z10)
-! !     parameter (c=1.12837916709551257d0,p=(2d0*c4)**33)
+      parameter (z1=1,hf=1/2d0,z10=10d0)
+      parameter (c1=74d0/10d0,c2=83d0/10d0,c3=10d0/32d0,c4=16d0/10d0)
       parameter (c=1.12837916709551257d0,p=46768052394588893.3825d0)
       dimension rr(37),ri(37)
       save
 ! !-----------------------------------------------------------------------
       xa=abs(x)
       ya=abs(y)
-!       WRITE(*,'(A,e23.16, e23.16)') "F",xa,ya
       if(ya.lt.c1.and.xa.lt.c2) then
-!        zh=dcmplx(ya+c4,xa)
         zhr=ya+c4
         zhi=xa
         rr(37)=0d0
         ri(37)=0d0
         do n=36,1,-1
-!          t=zh+n*dconjg(r(n+1))
-!hr05     tr=zhr+n*rr(n+1)
-          tr=zhr+dble(n)*rr(n+1)                                         !hr05
-!hr05     ti=zhi-n*ri(n+1)
-          ti=zhi-dble(n)*ri(n+1)                                         !hr05
-!          r(n)=hf*t/(dreal(t)**2+dimag(t)**2)
-!hr05     rr(n)=hf*tr/(tr**2+ti**2)
-          rr(n)=(hf*tr)/(tr**2+ti**2)                                    !hr05
-!hr05     ri(n)=hf*ti/(tr**2+ti**2)
-          ri(n)=(hf*ti)/(tr**2+ti**2)                                    !hr05
+          tr=zhr+dble(n)*rr(n+1)
+          ti=zhi-dble(n)*ri(n+1)
+          rr(n)=(hf*tr)/(tr**2+ti**2)
+          ri(n)=(hf*ti)/(tr**2+ti**2)
         enddo
         xl=p
         sr=0d0
         si=0d0
         do n=33,1,-1
           xl=c3*xl
-!          s=r(n)*(s+xl)
           sr0=rr(n)*(sr+xl)-ri(n)*si
           si=rr(n)*si+ri(n)*(sr+xl)
           sr=sr0
         enddo
-!        v=c*s
         vr=c*sr
         vi=c*si
       else
@@ -121,37 +90,23 @@ subroutine wzset
         rr(1)=0d0
         ri(1)=0d0
         do n=9,1,-1
-!          t=zh+n*dconjg(r(1))
-!hr05     tr=zhr+n*rr(1)
-          tr=zhr+dble(n)*rr(1)                                           !hr05
-!hr05     ti=zhi-n*ri(1)
-          ti=zhi-dble(n)*ri(1)                                           !hr05
-!          r(1)=hf*t/(dreal(t)**2+dimag(t)**2)
-!hr05     rr(1)=hf*tr/(tr**2+ti**2)
-          rr(1)=(hf*tr)/(tr**2+ti**2)                                    !hr05
-!hr05     ri(1)=hf*ti/(tr**2+ti**2)
-          ri(1)=(hf*ti)/(tr**2+ti**2)                                    !hr05
+          tr=zhr+dble(n)*rr(1)
+          ti=zhi-dble(n)*ri(1)
+          rr(1)=(hf*tr)/(tr**2+ti**2)
+          ri(1)=(hf*ti)/(tr**2+ti**2)
         enddo
-!        v=c*r(1)
         vr=c*rr(1)
         vi=c*ri(1)
       endif
-!hr05 if(ya.eq.0) then
-      if(ya.eq.0d0) then                                                 !hr05
-!        v=dcmplx(exp(-xa**2),dimag(v))
-!hr05   vr=exp_rn(-xa**2)
-        vr=exp(-1d0*xa**2)                                            !hr05
+      if(ya.eq.0d0) then
+        vr=exp(-1d0*xa**2)
       endif
       if(y.lt.0d0) then
-!        v=2*exp(-dcmplx(xa,ya)**2)-v
-!hr05   vr=2d0*exp_rn(ya**2-xa**2)*cos_rn(2d0*xa*ya)-vr
-        vr=(2d0*exp(ya**2-xa**2))*cos((2d0*xa)*ya)-vr              !hr05
-        vi=(-2d0*exp(ya**2-xa**2))*sin((2d0*xa)*ya)-vi             !hr05
-!hr05   if(x.gt.0) vi=-vi
-        if(x.gt.0d0) vi=-1d0*vi                                          !hr05
+        vr=(2d0*exp(ya**2-xa**2))*cos((2d0*xa)*ya)-vr
+        vi=(-2d0*exp(ya**2-xa**2))*sin((2d0*xa)*ya)-vi
+        if(x.gt.0d0) vi=-1d0*vi
       else
-!hr05   if(x.lt.0) vi=-vi
-        if(x.lt.0d0) vi=-1d0*vi                                          !hr05
+        if(x.lt.0d0) vi=-1d0*vi
       endif
       wr=vr
       wi=vi
@@ -197,18 +152,6 @@ subroutine wzset
      &q,qsq,r,simag,sreal,t,tdd13i,tdd13r,tdd24i,tdd24r,tdddi,tdddr,ti, &
      &tr,usum,usum3,vsum,vsum3,w1i,w1r,w2i,w2r,w3i,w3r,w4i,w4r,xh,&
      &xhrel,yh,yhrel
-! !       integer mbea,mcor,mcop,mmul,mpa,mran,nbb,nblo,nblz,ncom,ncor1,    &
-! !      &nelb,nele,nema,ninv,nlya,nmac,nmon1,npart,nper,nplo,npos,nran,    &
-! !      &nrco,ntr,nzfz
-! !       parameter(npart = 64,nmac = 1)
-! !       parameter(nele=1200,nblo=600,nper=16,nelb=140,nblz=20000,         &
-! !      &nzfz = 300000,mmul = 20)
-! !       parameter(nran = 2000000,ncom = 100,mran = 500,mpa = 6,nrco = 5,  &
-! !      &nema = 15)
-! !       parameter(mcor = 10,mcop = mcor+6, mbea = 99)
-! !       parameter(npos = 20000,nlya = 10000,ninv = 1000,nplo = 20000)
-! !       parameter(nmon1 = 600,ncor1 = 600)
-! !       parameter(ntr = 20,nbb = 350)
       integer idim,kstep,nx,ny
       real(8) h,half,hrecip,one,wtimag,wtreal,xcut,ycut
       parameter ( xcut = 7.77d0, ycut = 7.46d0 )
@@ -244,8 +187,7 @@ subroutine wzset
       tr = d23r - d34r
       ti = d23i - d34i
       tdd24r = ti - tr
-!hr05 tdd24i = - ( tr + ti )
-      tdd24i = -1d0* ( tr + ti )                                         !hr05
+      tdd24i = -1d0* ( tr + ti )
       k = k + 1
       w1r = wtreal(k)
       w1i = wtimag(k)
@@ -281,23 +223,20 @@ subroutine wzset
 !        <1.E-8  for  x>=7.8  or  y>=7.5
 !
  1000 p=x**2-y**2
-!hr05 q=2.d0*x*y
-      q=(2.d0*x)*y                                                       !hr05
+      q=(2.d0*x)*y
       qsq=q**2
 !  First term.
       t=p-b1
       r=a1/(t**2+qsq)
       sreal=r*t
-!hr05 simag=-r*q
-      simag=(-1d0*r)*q                                                   !hr05
+      simag=(-1d0*r)*q
 !  Second term
       t=p-b2
       r=a2/(t**2+qsq)
       sreal=sreal+r*t
       simag=simag-r*q
 !  Multiply by i*z.
-!hr05 u=-(y*sreal+x*simag)
-      u=-1d0*(y*sreal+x*simag)                                           !hr05
+      u=-1d0*(y*sreal+x*simag)
       v=x*sreal-y*simag
       return
 end subroutine wzsub
