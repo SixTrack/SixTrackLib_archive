@@ -6,7 +6,9 @@ import scipy
 
 from wwerf import ccperrfr as wf90
 # wf90=vectorize(wf90)
-# from wwerf2 import errf as wf
+from wwzsub import wzsub as wz
+from wwzsub import wzset as wset
+# from wwzsubv import wzset as wzv
 # wf=vectorize(wf)
 
 # from mywwerf import wwerf as wpy
@@ -16,19 +18,19 @@ mp.dps = 32
 
 # print(mp.quad(lambda x: mp.exp(-x**2), [-mp.inf, mp.inf]) ** 2)
 
-def wofzmp(x,y):
-    z=x+1j*y
-    w=mp.exp(-z**2) * mp.erfc(z * -1j)
-    return w.real,w.imag
+# def wofzmp(x,y):
+#     z=x+1j*y
+#     w=mp.exp(-z**2) * mp.erfc(z * -1j)
+#     return w.real,w.imag
 
-wofzmp=vectorize(wofzmp)
+# wofzmp=vectorize(wofzmp)
 
-def wsci(x,y):
-    z=x+1j*y
-    w=wofz(z)
-    return w.real,w.imag
+# def wsci(x,y):
+#     z=x+1j*y
+#     w=wofz(z)
+#     return w.real,w.imag
 
-wsci=vectorize(wsci)
+# wsci=vectorize(wsci)
 
 # #https://github.com/PyCOMPLETE/PyHEADTAIL/master/spacecharge/spacecharge.py
 
@@ -51,34 +53,44 @@ x,y=meshgrid(xx,yy)
 # # x3,y3=wf(x,y)
 # x4,y4=array(wofzmp(x,y),dtype=float)
 # print shape(x1)
-
+napx=1
 for i in range(0,31):	
 	for j in range(0,31):
 		xxreal=x[i][j]
 		yyimag=y[i][j]
 
+		#RUN FORTRAN wzsub
+		wset()
+		wxreal,wyimag=wz(xxreal,yyimag)
+
+		#RUN FORTRAN wzsubv
+		# wset()
+		# wxreal,wyimag=wzv(napx,xxreal,yyimag)
+
+		#RUN FORTRAN errf
 		# wxreal,wyimag=wf90(xxreal,yyimag)
 		
-		z=np.complex(xxreal,yyimag)
-		k=scipy.special.wofz(z)
+		# RUN PYTHON wofz/errf
+		# z=np.complex(xxreal,yyimag)
+		# k=scipy.special.wofz(z)
 
-		wxreal=k.real
-		wyimag=k.imag
+		# wxreal=k.real
+		# wyimag=k.imag
+
 		# wxreal=x2[i][j]
 		# wyimag=y2[i][j]
-		# z=np.complex(real,imag)
-		# k=scipy.special.wofz(z)
-		# print j
+
+		#RUN C errf/wzsub/wzsubv
 		elemFloat = ctypes.c_double*4
 		inp = elemFloat(xxreal,yyimag,wxreal,wyimag)
 
 		var = libtrack.benchmark_errf(inp)
 
-		# print "%-6s %23.16e %23.16e %23.16e"%("PYreal",sqrt((wxreal-x1[i][j])**2),wxreal,x1[i][j])
-		# print "%-6s %23.16e %23.16e %23.16e\n"%("PYimag",sqrt((wyimag-y1[i][j])**2),wyimag,y1[i][j])
+		# print "%-6s %23.16e %23.16e %23.16e"%("PYreal",sqrt((wxreal-k.real)**2),wxreal,k.real)
+		# print "%-6s %23.16e %23.16e %23.16e\n"%("PYimag",sqrt((wyimag-k.imag)**2),wyimag,k.imag)
 
-		# print "%-6s %23.16e %23.16e %23.16e"%("real",sqrt((x4[i][j]-x1[i][j])**2),x4[i][j],x1[i][j])
-		# print "%-6s %23.16e %23.16e %23.16e\n"%("imag",sqrt((y4[i][j]-y1[i][j])**2),y4[i][j],y1[i][j])
+		# print "%-6s %23.16e %23.16e"%("real",wxreal,xxreal)
+		# print "%-6s %23.16e %23.16e\n"%("imag",wyimag,yyimag)
 	print "\n"
 
 # plt.clf();

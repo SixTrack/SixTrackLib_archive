@@ -314,5 +314,3 @@ class Block(namedtuple('Block','elems'.split())):
     def track(self,p):
         for el in self.elems:
             el.track(p)
-
-
