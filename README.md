@@ -26,10 +26,10 @@ Steps to clone the repository: -
 Steps to run the refactored C code: -
 --------------------------
 
-1) cd src                                                                             <br/>
-2) make                                                                               <br/>
-3) edit `track.py` python API to enter appropriate Input                                     <br/> 
-3) make test                                                                          <br/>
+1) change directory to `src` using cd src                                              <br/>
+2) edit the SRCS macro in the makefile and run make                                   <br/>
+3) edit `track.py` python API to enter appropriate Input for the maps provided        <br/> 
+3) run make test                                                                      <br/>
 
 Steps to run the previous version of code: -
 --------------------------
