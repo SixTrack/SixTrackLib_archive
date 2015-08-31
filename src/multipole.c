@@ -31,7 +31,6 @@ inline void multipole_track(FLOAT beta0, FLOAT x, FLOAT px, FLOAT y, FLOAT py, F
     }
     dpx=-chi*dpx;
     dpy=chi*dpy;
-    printf("c dpx: %23.16e\nc dpy: %23.16e\n", dpx, dpy);
     
     //curvature effect kick
     if(L!=0){
