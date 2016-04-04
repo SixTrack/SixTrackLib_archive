@@ -181,8 +181,10 @@ def ctaylor(x,y,kn,ks):
   dpy=ks[-1]
   nn=range(1,len(kn)+1)
   for nn,kkn,kks in zip(nn,kn,ks)[-2::-1]:
-    dpx=kkn+(dpx*x-dpy*y)/float(nn)
-    dpy=kks+(dpx*y+dpy*x)/float(nn)
+    zre=(dpx*x-dpy*y)/float(nn)
+    zim=(dpx*y+dpy*x)/float(nn)
+    dpx=kkn-zre
+    dpy=kks+zin
   return dpx,dpy
 
 def pprint(p):
